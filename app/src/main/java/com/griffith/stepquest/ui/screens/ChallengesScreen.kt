@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.griffith.stepquest.R
 
 @Composable
 fun ChallengesScreen() {
@@ -48,7 +50,9 @@ fun ChallengesScreen() {
             )
             ChallengeCard(
                 title = "Walk 5,000 steps today",
-                progressText = "3,511 / 5,000",
+                3511,
+                5000,
+                3,
                 reward = 5
             )
         }
@@ -91,63 +95,109 @@ private fun ChallengesHeader() {
 
 
 @Composable
-fun ChallengeCard(title: String,progressText: String, reward: Int, modifier: Modifier = Modifier
+fun ChallengeCard(
+    title: String,
+    progress: Int,
+    goal: Int,
+    difficulty: Int,
+    reward: Int,
+    modifier: Modifier = Modifier
 ) {
+    val progressRatio = (progress.toFloat() / goal).coerceIn(0f, 1f)
+
     Card(
         modifier = modifier
-            .height(80.dp)
             .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        shape = RoundedCornerShape(10.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            .padding(vertical = 6.dp, horizontal = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ){
-            Row(){
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "Challenge",
-                    tint = Color(0xFFFFC107),
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(Modifier.width(20.dp))
+                .padding(14.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Column {
                     Text(
                         text = title,
-                        fontSize = 14.sp,
-                        color = Color.DarkGray,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
                     Text(
-                        text = progressText,
-                        color = Color.DarkGray,
-                        fontSize = 13.sp
+                        text = "$progress / $goal steps",
+                        fontSize = 13.sp,
+                        color = Color.Gray
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFF4ADE80), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 5.dp, vertical = 6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .width(35.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = "+$reward",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.coin),
+                            contentDescription = "Coin",
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // Difficulty stars
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Difficulty:",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+                Spacer(Modifier.width(8.dp))
+                repeat(difficulty) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Star",
+                        tint = Color(0xFFFFC107),
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
+
+            Spacer(Modifier.height(10.dp))
+
+            // Progress bar
             Box(
                 modifier = Modifier
-                    .background(
-                        color = Color(0xFF4ADE80),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(Color(0xFFE6E6E6), RoundedCornerShape(4.dp))
             ) {
-                Text(
-                    text = "+$reward",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(progressRatio)
+                        .background(Color(0xFF4ADE80), RoundedCornerShape(4.dp))
                 )
             }
         }
-
     }
 }
