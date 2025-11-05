@@ -19,8 +19,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
+import com.griffith.stepquest.R
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun HomeScreen() {
@@ -39,10 +46,14 @@ fun HomeScreen() {
     ){
         Column(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally // centers circle horizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HeaderBar()
             StepProgressCircle(3600, 6000)
+            Spacer(Modifier.height(12.dp))
+            StreakSection(4)
+            Spacer(Modifier.height(20.dp))
+            WeeklyMonthlyCards()
         }
     }
 }
@@ -62,16 +73,29 @@ fun HeaderBar() {
             Icon(
                 imageVector = Icons.Rounded.AccountCircle,
                 contentDescription = null,
-                tint = Color.DarkGray
+                tint = Color.DarkGray,
+                modifier = Modifier.size(40.dp)
             )
             Spacer(Modifier.width(8.dp))
-            Text("Hey User!", fontWeight = FontWeight.SemiBold)
+            Text(
+                "Hey User!",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp
+            )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("$")
+            Image(
+                painter = painterResource(R.drawable.coin),
+                contentDescription = "Coin",
+                modifier = Modifier.size(28.dp)
+            )
             Spacer(Modifier.width(4.dp))
-            Text("30", fontWeight = FontWeight.SemiBold)
+            Text(
+                "30",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp
+            )
         }
     }
 }
@@ -91,7 +115,7 @@ fun StepProgressCircle(currentSteps: Int,
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // Arc settings
-            val strokeWidth = 18.dp.toPx()
+            val strokeWidth = 30.dp.toPx()
             // 270 arc to leave a gap at the bottom
             val sweepAngle = 270f
 
@@ -119,16 +143,118 @@ fun StepProgressCircle(currentSteps: Int,
                 )
             )
         }
+
+        // Text inside ring
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "$currentSteps",
+                fontWeight = FontWeight.Bold,
+                fontSize = 45.sp
+            )
+            Text(
+                text = "/$goalSteps steps",
+                fontSize = 14.sp,
+                color = Color.DarkGray
+            )
+            Image(
+                painter = painterResource(R.drawable.shoe),
+                contentDescription = "Running Shoe",
+                modifier = Modifier.size(28.dp)
+            )
+        }
     }
 }
 
+// steak section showcasing the current streak
+@Composable
+fun StreakSection(streaks : Int) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(R.drawable.fire),
+            contentDescription = "Streak fire",
+            modifier = Modifier.size(28.dp)
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = "$streaks-Day Streak",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 18.sp,
+            color = Color(0xFFFF6B00)
+        )
+    }
+}
 
+// creating weekly and monthly stat cards aligned
+@Composable
+fun WeeklyMonthlyCards() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        // adding space between cards
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        StatCard("Weekly", 18232, R.drawable.shoe, Modifier.weight(1f))
+        StatCard("Monthly", 72123, R.drawable.shoe, Modifier.weight(1f))
+    }
+}
 
+// reusable component for stat cards to creat monthly weekly steps stats
+@Composable
+fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier
+            .height(120.dp)
+            .padding(horizontal = 4.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column {
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                color = Color.DarkGray,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top=15.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal=20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(Modifier.width(10.dp))
+                Column{
+                    Text(
+                        text = "$value",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = "Steps",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
 
+            }
+        }
 
-
-
-
+    }
+}
 
 
 
