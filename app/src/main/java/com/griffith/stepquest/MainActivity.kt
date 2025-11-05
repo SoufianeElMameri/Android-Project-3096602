@@ -14,14 +14,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.griffith.stepquest.ui.theme.StepQuestTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.ThumbUp
+import com.griffith.stepquest.ui.home.HomeScreen
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.ui.graphics.toArgb
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // Tell Android to handle system bars (DO NOT draw behind status bar)
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+
+        // Make status bar white with dark icons (works everywhere)
+        window.statusBarColor = Color.White.toArgb()
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+
         setContent {
-            Text("hello world")
-            RedText()
+            HomeScreen()
         }
     }
 }
@@ -32,3 +44,4 @@ class MainActivity : ComponentActivity() {
 fun RedText(){
     Text("hello", color = Color.Red)
 }
+
