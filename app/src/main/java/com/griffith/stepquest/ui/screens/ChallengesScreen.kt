@@ -53,7 +53,6 @@ fun ChallengesScreen() {
                 3511,
                 5000,
                 3,
-                reward = 5
             )
         }
     }
@@ -95,14 +94,8 @@ private fun ChallengesHeader() {
 
 
 @Composable
-fun ChallengeCard(
-    title: String,
-    progress: Int,
-    goal: Int,
-    difficulty: Int,
-    reward: Int,
-    modifier: Modifier = Modifier
-) {
+fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modifier: Modifier = Modifier ){
+
     val progressRatio = (progress.toFloat() / goal).coerceIn(0f, 1f)
 
     Card(
@@ -147,7 +140,7 @@ fun ChallengeCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            text = "+$reward",
+                            text = "+$difficulty",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
