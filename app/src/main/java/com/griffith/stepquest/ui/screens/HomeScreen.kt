@@ -1,4 +1,4 @@
-package com.griffith.stepquest.ui.home
+package com.griffith.stepquest.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,10 +27,23 @@ import com.griffith.stepquest.R
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
+
+val stepHistory = mapOf(
+    "Mon" to 5400,
+    "Tue" to 6200,
+    "Wed" to 8000,
+    "Thu" to 3000,
+    "Fri" to 9200,
+    "Sat" to 7000,
+    "Sun" to 6500
+)
+
 
 @Composable
 fun HomeScreen() {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
     val bg = Brush.verticalGradient(
         colors = listOf(
             Color(0xFFE3FCE9),
@@ -50,10 +63,12 @@ fun HomeScreen() {
         ) {
             HeaderBar()
             StepProgressCircle(3600, 6000)
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height((screenWidth * 0.02).dp))
             StreakSection(4)
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height((screenWidth * 0.06).dp))
             WeeklyMonthlyCards()
+            Spacer(Modifier.height((screenWidth * 0.06).dp))
+            WeeklyChart(stepHistory)
         }
     }
 }
@@ -102,20 +117,22 @@ fun HeaderBar() {
 
 // header bar that holds the user and the amount of coins earned
 @Composable
-fun StepProgressCircle(currentSteps: Int,
-                       goalSteps: Int) {
-//    calculating the progress
+fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
+    // calculating the circle size based on t he device screen width
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val circleSize = (screenWidth * 0.5).dp
+    //    calculating the progress
     val progress = currentSteps.toFloat() / goalSteps.toFloat()
-//    adding a spacer
+    //    adding a spacer
     Spacer(modifier = Modifier.height(40.dp))
 
     Box(
-        modifier = Modifier.size(240.dp),
+        modifier = Modifier.size(circleSize),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // Arc settings
-            val strokeWidth = 30.dp.toPx()
+            val strokeWidth = 25.dp.toPx()
             // 270 arc to leave a gap at the bottom
             val sweepAngle = 270f
 
@@ -206,7 +223,7 @@ fun WeeklyMonthlyCards() {
 fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
-            .height(120.dp)
+            .height(100.dp)
             .padding(horizontal = 4.dp),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -221,11 +238,11 @@ fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modif
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top=15.dp)
+                    .padding(top=10.dp, bottom = 10.dp)
             )
             Row(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(horizontal=20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -253,6 +270,88 @@ fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modif
             }
         }
 
+    }
+}
+
+// a chart that takes in a dictionary and transforms it into a chart 7 days
+@Composable
+fun WeeklyChart(data: Map<String, Int>) {
+    // getting the maximum value in the map
+    val maxSteps = data.values.maxOrNull() ?: 1
+//    calculating the y from the maximum value to create a 5 levels of data
+    val ySteps = 4
+    val yValues = (0..ySteps).map { i ->
+        maxSteps - (maxSteps / ySteps.toFloat() * i)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+
+        // Y-AXIS
+        Column(
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .height(130.dp)
+                // adding an offset to make the y axe match the bar starting point
+                .offset(y = -15.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.End
+        ) {
+            yValues.forEach { value ->
+                Text(
+                    text = value.toInt().toString(),
+                    fontSize = 10.sp,
+                    color = Color.DarkGray
+                )
+            }
+        }
+
+        // BARS
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "Weekly Steps",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                // loop through the map and create green bars
+                data.forEach { (day, steps) ->
+                    val barHeight = (steps.toFloat() / maxSteps) * 120f
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(20.dp)
+                                .height(barHeight.dp)
+                                .background(
+                                    Color(0xFF4ADE80),
+                                    RoundedCornerShape(6.dp)
+                                )
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = day,
+                            fontSize = 12.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
