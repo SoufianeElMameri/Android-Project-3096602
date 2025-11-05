@@ -48,10 +48,25 @@ fun ChallengesScreen() {
                     .fillMaxWidth()
                     .padding(start = 20.dp, top = 12.dp)
             )
+            Spacer(Modifier.height(20.dp))
             ChallengeCard(
                 title = "Walk 5,000 steps today",
                 3511,
                 5000,
+                1,
+            )
+            Spacer(Modifier.height(20.dp))
+            ChallengeCard(
+                title = "Walk 5,000 steps today",
+                3511,
+                10000,
+                2,
+            )
+            Spacer(Modifier.height(20.dp))
+            ChallengeCard(
+                title = "Walk 5,000 steps today",
+                3511,
+                15000,
                 3,
             )
         }
