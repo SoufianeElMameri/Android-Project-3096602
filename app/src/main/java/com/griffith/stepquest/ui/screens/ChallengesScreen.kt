@@ -46,29 +46,31 @@ fun ChallengesScreen() {
                 color = Color.DarkGray,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, top = 12.dp)
+                    .padding(start = 20.dp, top = 24.dp)
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
                 title = "Walk 5,000 steps today",
-                3511,
+                5511,
                 5000,
                 1,
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
-                title = "Walk 5,000 steps today",
-                3511,
+                title = "Walk 10,000 steps today",
+                5511,
                 10000,
                 2,
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
-                title = "Walk 5,000 steps today",
-                3511,
+                title = "Walk 15,000 steps today",
+                5511,
                 15000,
                 3,
             )
+            Spacer(Modifier.height(20.dp))
+            DailyTip("Short walks throughout the day add up. Keep moving! 🚶‍♂️")
         }
     }
 }
@@ -79,7 +81,7 @@ private fun ChallengesHeader() {
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -112,6 +114,7 @@ private fun ChallengesHeader() {
 fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modifier: Modifier = Modifier ){
 
     val progressRatio = (progress.toFloat() / goal).coerceIn(0f, 1f)
+    val isCompleted = progress >= goal
 
     Card(
         modifier = modifier
@@ -146,7 +149,11 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modi
 
                 Box(
                     modifier = Modifier
-                        .background(Color(0xFF4ADE80), RoundedCornerShape(12.dp))
+                        .background(
+                            // check if the challenge is complete change color based on that
+                            color = if (isCompleted) Color(0xFF4ADE80) else Color(0xFFBDBDBD),
+                            shape = RoundedCornerShape(12.dp)
+                        )
                         .padding(horizontal = 5.dp, vertical = 6.dp)
                 ) {
                     Row(
@@ -207,5 +214,34 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modi
                 )
             }
         }
+    }
+}
+
+
+@Composable
+fun DailyTip(tip: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .background(Color(0xFFe8ffe8),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(R.drawable.bulb),
+            contentDescription = "Light bulb",
+            modifier = Modifier.size(25.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = tip,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF045d32)
+        )
     }
 }

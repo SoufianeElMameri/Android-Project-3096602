@@ -4,21 +4,25 @@ package com.griffith.stepquest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.graphics.Color
 import com.griffith.stepquest.ui.screens.HomeScreen
 import com.griffith.stepquest.ui.screens.ChallengesScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.griffith.stepquest.ui.components.BottomNavBar
+
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedContentTransitionScope
 
 
 
@@ -29,20 +33,55 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
         // Make status bar white with dark icons
-        window.statusBarColor = Color.Black.toArgb()
+        window.statusBarColor = Color.White.toArgb()
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
 
         setContent {
-            ChallengesScreen()
+            StepQuestNav()
 //            HomeScreen()
         }
     }
 }
 
-
-@Preview
+// navigation container 
 @Composable
-fun RedText(){
-    Text("hello", color = Color.Red)
-}
+fun StepQuestNav() {
+    val navController = rememberNavController()
 
+    Scaffold(
+        bottomBar = { BottomNavBar(navController) }
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(paddingValues),
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(300)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(300)
+                )
+            },
+            popEnterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(300)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(300)
+                )
+            }
+        ) {
+            composable("home") { HomeScreen() }
+            composable("challenges") { ChallengesScreen() }
+        }
+    }
+}
