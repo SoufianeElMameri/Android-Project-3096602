@@ -18,7 +18,68 @@ fun BottomNavBar(navController: NavController) {
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = navBackStackEntry?.destination?.route
 
-    NavigationBar(containerColor = Color.Magenta) {
+    NavigationBar(
+        containerColor = Color.Green.copy(alpha = 0.2f), // semi-transparent black
+        tonalElevation = 8.dp                             // gives slight shadow feel
+    ){
+        // RANKS
+        NavigationBarItem(
+            selected = currentRoute == "rank",
+            onClick = {
+                if (currentRoute != "rank") {
+                    navController.navigate("rank") {
+                        popUpTo("home") { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            },
+            icon = {
+                Image(
+                    painter = painterResource(id = R.drawable.leader),
+                    contentDescription = "rank",
+                    modifier = Modifier.size(28.dp)
+                )
+            },
+            label = {
+                Text(
+                    text = "Rank",
+                    color = Color.Black,
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+                )
+            },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color(0xFF00FF00)
+            )
+        )
+        // CHALLENGES
+        NavigationBarItem(
+            selected = currentRoute == "challenges",
+            onClick = {
+                if (currentRoute != "challenges") {
+                    navController.navigate("challenges") {
+                        popUpTo("home") { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            },
+            icon = {
+                Image(
+                    painter = painterResource(id = R.drawable.target),
+                    contentDescription = "Challenges",
+                    modifier = Modifier.size(28.dp)
+                )
+            },
+            label = {
+                Text(
+                    text = "Challenges",
+                    color = Color.Black,
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+                )
+            },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color(0xFF00FF00)
+            )
+        )
 
         // HOME
         NavigationBarItem(
@@ -41,7 +102,7 @@ fun BottomNavBar(navController: NavController) {
             label = {
                 Text(
                     text = "Home",
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             },
@@ -49,37 +110,6 @@ fun BottomNavBar(navController: NavController) {
                 indicatorColor = Color(0xFF00FF00)
             )
         )
-
-        // CHALLENGES
-        NavigationBarItem(
-            selected = currentRoute == "challenges",
-            onClick = {
-                if (currentRoute != "challenges") {
-                    navController.navigate("challenges") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            },
-            icon = {
-                Image(
-                    painter = painterResource(id = R.drawable.target),
-                    contentDescription = "Challenges",
-                    modifier = Modifier.size(28.dp)
-                )
-            },
-            label = {
-                Text(
-                    text = "Challenges",
-                    color = Color.White,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize
-                )
-            },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = Color(0xFF00FF00)
-            )
-        )
-
         // BADGES
         NavigationBarItem(
             selected = currentRoute == "badges",
@@ -101,37 +131,7 @@ fun BottomNavBar(navController: NavController) {
             label = {
                 Text(
                     text = "Badges",
-                    color = Color.White,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize
-                )
-            },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = Color(0xFF00FF00)
-            )
-        )
-
-        // RANKS
-        NavigationBarItem(
-            selected = currentRoute == "rank",
-            onClick = {
-                if (currentRoute != "rank") {
-                    navController.navigate("rank") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            },
-            icon = {
-                Image(
-                    painter = painterResource(id = R.drawable.leader),
-                    contentDescription = "rank",
-                    modifier = Modifier.size(28.dp)
-                )
-            },
-            label = {
-                Text(
-                    text = "Rank",
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             },
@@ -161,7 +161,7 @@ fun BottomNavBar(navController: NavController) {
             label = {
                 Text(
                     text = "Shop",
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             },

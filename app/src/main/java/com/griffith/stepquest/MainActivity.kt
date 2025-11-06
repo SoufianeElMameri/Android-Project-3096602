@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// navigation container 
+// navigation container
 @Composable
 fun StepQuestNav() {
     val navController = rememberNavController()
