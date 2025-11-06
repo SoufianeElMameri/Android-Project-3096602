@@ -21,9 +21,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.griffith.stepquest.ui.components.BottomNavBar
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.AnimatedContentTransitionScope
-
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import com.griffith.stepquest.ui.screens.BadgesScreen
+import com.griffith.stepquest.ui.screens.RankScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
         // Make status bar white with dark icons
-        window.statusBarColor = Color.White.toArgb()
+        window.statusBarColor = Color.Black.toArgb()
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
 
         setContent {
@@ -55,33 +56,15 @@ fun StepQuestNav() {
             navController = navController,
             startDestination = "home",
             modifier = Modifier.padding(paddingValues),
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(300)
-                )
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(300)
-                )
-            },
-            popEnterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(300)
-                )
-            },
-            popExitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(300)
-                )
-            }
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             composable("home") { HomeScreen() }
             composable("challenges") { ChallengesScreen() }
+            composable("badges") { BadgesScreen() }
+            composable("rank") { RankScreen() }
         }
     }
 }

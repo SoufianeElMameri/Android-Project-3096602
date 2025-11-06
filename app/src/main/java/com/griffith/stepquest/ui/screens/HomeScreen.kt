@@ -27,6 +27,7 @@ import com.griffith.stepquest.R
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 
@@ -44,21 +45,24 @@ val stepHistory = mapOf(
 @Composable
 fun HomeScreen() {
     val screenWidth = LocalConfiguration.current.screenWidthDp
-    val bg = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFFE3FCE9),
-            Color(0xFFFFF8D2)
-        )
-    )
 
-    Box(
+    Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
-
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFE8FCD8),
+                        Color(0xFFFFF1C1)
+                    )
+                )
+            ),
+        color = Color.Transparent
     ){
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HeaderBar()
@@ -78,9 +82,7 @@ fun HomeScreen() {
 fun HeaderBar() {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding()
-            .padding(start = 16.dp, end = 16.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

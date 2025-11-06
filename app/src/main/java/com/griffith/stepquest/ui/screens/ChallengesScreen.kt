@@ -11,6 +11,8 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,23 +24,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.griffith.stepquest.R
+import com.griffith.stepquest.ui.components.HeaderBar
 
 @Composable
 fun ChallengesScreen() {
     val bg = Brush.verticalGradient(
-        listOf(Color(0xFFE3FCE9), Color(0xFFFFF8D2))
+        listOf(Color(0xFFE8FCD8),
+             Color(0xFFFFF1C1)
+        )
     )
 
-    Box(
+    Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFE8FCD8),
+                        Color(0xFFFFF1C1)
+                    )
+                )
+            ),
+        color = Color.Transparent
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            ChallengesHeader()
+            HeaderBar("Challenges")
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Today's Challenges",
                 fontSize = 18.sp,
@@ -46,7 +61,6 @@ fun ChallengesScreen() {
                 color = Color.DarkGray,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, top = 24.dp)
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
