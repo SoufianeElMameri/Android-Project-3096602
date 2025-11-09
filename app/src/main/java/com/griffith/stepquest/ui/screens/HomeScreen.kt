@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.griffith.stepquest.ui.viewmodels.ViewModel
 import java.io.File
 
 val stepHistory = mapOf(
@@ -54,7 +55,7 @@ val stepHistory = mapOf(
 
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, userVM: ViewModel) {
     // get the mobile screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp
 
@@ -78,7 +79,7 @@ fun HomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 //***************************************************** HEADER BAR **************************************************
-            HeaderBar(navController, 30)
+            HeaderBar(navController, userVM.coins)
 //***************************************************** PROGRESS CIRCLE *********************************************
             StepProgressCircle(3600, 6000)
             Spacer(Modifier.height((screenWidth * 0.02).dp))

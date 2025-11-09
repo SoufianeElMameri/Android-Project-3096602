@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -20,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -33,10 +36,11 @@ import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import androidx.compose.ui.text.buildAnnotatedString
+import com.griffith.stepquest.ui.viewmodels.ViewModel
 
 // Challenges screen showcases the daily challenges and tips
 @Composable
-fun ChallengesScreen(navController: NavController) {
+fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -74,6 +78,7 @@ fun ChallengesScreen(navController: NavController) {
                 5511,
                 5000,
                 1,
+                onClaim = { coins -> userVM.addCoins(coins) }
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
@@ -81,6 +86,7 @@ fun ChallengesScreen(navController: NavController) {
                 5511,
                 10000,
                 2,
+                onClaim = { coins -> userVM.addCoins(coins) }
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
@@ -88,6 +94,7 @@ fun ChallengesScreen(navController: NavController) {
                 5511,
                 15000,
                 3,
+                onClaim = { coins -> userVM.addCoins(coins) }
             )
             Spacer(Modifier.height(20.dp))
 //***************************************************** TODAY'S TIP *****************************************************
@@ -116,8 +123,9 @@ fun ChallengesScreen(navController: NavController) {
 
 // function to help create challenge cards
 @Composable
-fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modifier: Modifier = Modifier ){
-
+fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onClaim: (Int) -> Unit, modifier: Modifier = Modifier ){
+    // to keep track of claimed challenges
+    val alreadyClaimed = remember { mutableStateOf(false) }
     val progressRatio = (progress.toFloat() / goal).coerceIn(0f, 1f)
     val isCompleted = progress >= goal
 
@@ -155,27 +163,38 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modi
                 Box(
                     modifier = Modifier
                         .background(
-                            // check if the challenge is complete change color based on that
                             color = if (isCompleted) Color(0xFF4ADE80) else Color(0xFFBDBDBD),
                             shape = RoundedCornerShape(12.dp)
                         )
+                        .clickable(enabled = isCompleted && !alreadyClaimed.value) {
+                            alreadyClaimed.value = true
+                            onClaim(difficulty)
+                        }
                         .padding(horizontal = 5.dp, vertical = 6.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .width(35.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(
-                            text = "+$difficulty",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
+                    // check if user claimed the rewards and replace the reward icon with check icon
+                    if (!alreadyClaimed.value) {
+                        Row(
+                            modifier = Modifier.width(35.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(
+                                text = "+$difficulty",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                            Image(
+                                painter = painterResource(R.drawable.coin),
+                                contentDescription = "Coin",
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    } else {
                         Image(
-                            painter = painterResource(R.drawable.coin),
+                            painter = painterResource(R.drawable.check),
                             contentDescription = "Coin",
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
 

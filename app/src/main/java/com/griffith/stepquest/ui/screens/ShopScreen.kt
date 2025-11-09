@@ -24,11 +24,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
+import com.griffith.stepquest.ui.viewmodels.ViewModel
 
 
 // Challenges screen showcases the daily challenges and tips
 @Composable
-fun ShopScreen(navController: NavController) {
+fun ShopScreen(navController: NavController, userVM: ViewModel) {
     Surface(
         modifier = Modifier
             .fillMaxSize()

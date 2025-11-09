@@ -23,10 +23,12 @@ import com.griffith.stepquest.ui.components.BottomNavBar
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.griffith.stepquest.ui.screens.BadgesScreen
 import com.griffith.stepquest.ui.screens.ProfileScreen
 import com.griffith.stepquest.ui.screens.RankScreen
 import com.griffith.stepquest.ui.screens.ShopScreen
+import com.griffith.stepquest.ui.viewmodels.ViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -50,7 +52,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun StepQuestNav() {
     val navController = rememberNavController()
-
+    val userVM: ViewModel = viewModel()
     Scaffold(
         bottomBar = { BottomNavBar(navController) }
     ) { paddingValues ->
@@ -63,12 +65,12 @@ fun StepQuestNav() {
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
-            composable("home") { HomeScreen(navController) }
-            composable("challenges") { ChallengesScreen(navController) }
+            composable("home") { HomeScreen(navController, userVM) }
+            composable("challenges") { ChallengesScreen(navController, userVM) }
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController = navController) }
             composable("profile") { ProfileScreen() }
-            composable("shop"){ ShopScreen(navController) }
+            composable("shop"){ ShopScreen(navController, userVM) }
         }
     }
 }

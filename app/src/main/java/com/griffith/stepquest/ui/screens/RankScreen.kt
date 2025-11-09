@@ -66,7 +66,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController) {
         ) {
             HeaderBar("LeaderBoard", navController)
             Spacer(modifier = Modifier.height(20.dp))
-            // RANK TIERS
+//********************************************************* RANK TIERS *********************************************************
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -102,7 +102,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController) {
                     }
                 }
             }
-
+//********************************************************* LADER BOARD *********************************************************
             Text(
                 text = "Top Walkers",
                 style = MaterialTheme.typography.titleMedium.copy(
