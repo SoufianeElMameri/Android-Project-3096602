@@ -24,6 +24,7 @@ import com.griffith.stepquest.ui.components.BottomNavBar
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import com.griffith.stepquest.ui.screens.BadgesScreen
+import com.griffith.stepquest.ui.screens.ProfileScreen
 import com.griffith.stepquest.ui.screens.RankScreen
 
 
@@ -61,10 +62,11 @@ fun StepQuestNav() {
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
-            composable("home") { HomeScreen() }
-            composable("challenges") { ChallengesScreen() }
-            composable("badges") { BadgesScreen() }
-            composable("rank") { RankScreen() }
+            composable("home") { HomeScreen(navController) }
+            composable("challenges") { ChallengesScreen(navController) }
+            composable("badges") { BadgesScreen(navController) }
+            composable("rank") { RankScreen(navController = navController) }
+            composable("profile") { ProfileScreen() }
         }
     }
 }

@@ -19,10 +19,10 @@ fun BottomNavBar(navController: NavController) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
-        containerColor = Color.Green.copy(alpha = 0.2f), // semi-transparent black
-        tonalElevation = 8.dp                             // gives slight shadow feel
+        containerColor = Color.Green.copy(alpha = 0.2f),
+        tonalElevation = 8.dp
     ){
-        // RANKS
+//******************************************** RANKS ********************************************
         NavigationBarItem(
             selected = currentRoute == "rank",
             onClick = {
@@ -51,7 +51,7 @@ fun BottomNavBar(navController: NavController) {
                 indicatorColor = Color(0xFF00FF00)
             )
         )
-        // CHALLENGES
+//******************************************** CHALLENGES ********************************************
         NavigationBarItem(
             selected = currentRoute == "challenges",
             onClick = {
@@ -81,7 +81,7 @@ fun BottomNavBar(navController: NavController) {
             )
         )
 
-        // HOME
+//******************************************** HOME ********************************************
         NavigationBarItem(
             selected = currentRoute == "home",
             onClick = {
@@ -110,7 +110,7 @@ fun BottomNavBar(navController: NavController) {
                 indicatorColor = Color(0xFF00FF00)
             )
         )
-        // BADGES
+//******************************************** BADGES ********************************************
         NavigationBarItem(
             selected = currentRoute == "badges",
             onClick = {
@@ -140,34 +140,34 @@ fun BottomNavBar(navController: NavController) {
             )
         )
 
-        // SHOP
-        NavigationBarItem(
-            selected = currentRoute == "shop",
-            onClick = {
-                if (currentRoute != "shop") {
-                    navController.navigate("shop") {
-                        popUpTo("home") { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            },
-            icon = {
-                Image(
-                    painter = painterResource(id = R.drawable.shop),
-                    contentDescription = "Shop",
-                    modifier = Modifier.size(28.dp)
-                )
-            },
-            label = {
-                Text(
-                    text = "Shop",
-                    color = Color.Black,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize
-                )
-            },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = Color(0xFF00FF00)
-            )
-        )
+//******************************************** SHOP ********************************************
+//        NavigationBarItem(
+//            selected = currentRoute == "shop",
+//            onClick = {
+//                if (currentRoute != "shop") {
+//                    navController.navigate("shop") {
+//                        popUpTo("home") { inclusive = false }
+//                        launchSingleTop = true
+//                    }
+//                }
+//            },
+//            icon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.shop),
+//                    contentDescription = "Shop",
+//                    modifier = Modifier.size(28.dp)
+//                )
+//            },
+//            label = {
+//                Text(
+//                    text = "Shop",
+//                    color = Color.Black,
+//                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+//                )
+//            },
+//            colors = NavigationBarItemDefaults.colors(
+//                indicatorColor = Color(0xFF00FF00)
+//            )
+//        )
     }
 }

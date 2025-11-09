@@ -1,13 +1,18 @@
 package com.griffith.stepquest.ui.screens
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -19,21 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
+import androidx.compose.ui.text.buildAnnotatedString
 
+// Challenges screen showcases the daily challenges and tips
 @Composable
-fun ChallengesScreen() {
-    val bg = Brush.verticalGradient(
-        listOf(Color(0xFFE8FCD8),
-             Color(0xFFFFF1C1)
-        )
-    )
-
+fun ChallengesScreen(navController: NavController) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +55,8 @@ fun ChallengesScreen() {
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            HeaderBar("Challenges")
+//***************************************************** HEADER BAR *****************************************************
+            HeaderBar("Challenges", navController)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Today's Challenges",
@@ -63,6 +67,8 @@ fun ChallengesScreen() {
                     .fillMaxWidth()
             )
             Spacer(Modifier.height(20.dp))
+
+//***************************************************** TODAY CHALLENGES *****************************************************
             ChallengeCard(
                 title = "Walk 5,000 steps today",
                 5511,
@@ -84,46 +90,31 @@ fun ChallengesScreen() {
                 3,
             )
             Spacer(Modifier.height(20.dp))
-            DailyTip("Short walks throughout the day add up. Keep moving! 🚶‍♂️")
+//***************************************************** TODAY'S TIP *****************************************************
+            DailyTip("Short walks throughout the day add up. Keep moving!")
+            Spacer(Modifier.height(10.dp))
+
+            val context = LocalContext.current
+//***************************************************** WATCH YOUTUBE VIDEO *****************************************************
+            Button(onClick = {
+                Intent(Intent.ACTION_MAIN).also { intent ->
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=eEWa7cpiyD8"))
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        e.printStackTrace()
+                    }
+                }
+            },
+                modifier = Modifier.padding(start = 12.dp)
+            ) {
+                Text("Why Walk? Watch this!")
+            }
         }
     }
 }
 
-@Composable
-private fun ChallengesHeader() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding()
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = "Home",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-
-        Icon(
-            imageVector = Icons.Rounded.AccountCircle,
-            contentDescription = "Profile",
-            tint = Color.DarkGray,
-            modifier = Modifier.size(28.dp)
-        )
-    }
-}
-
-
+// function to help create challenge cards
 @Composable
 fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modifier: Modifier = Modifier ){
 
@@ -231,7 +222,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, modi
     }
 }
 
-
+// function to create daily tips (we will have a table with tips, one will be loaded randomly each day)
 @Composable
 fun DailyTip(tip: String) {
     Row(

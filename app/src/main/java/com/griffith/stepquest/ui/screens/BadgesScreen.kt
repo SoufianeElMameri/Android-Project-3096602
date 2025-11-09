@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import androidx.compose.ui.draw.shadow
+import androidx.navigation.NavController
 
 data class Badge(
     val name: String,
@@ -37,9 +38,10 @@ data class Badge(
     val imageRes: Int,
     val obtained: Boolean
 )
-
+// badges screen where badges are showcased (obtained badges are colored, none obtained are gray scalled)
 @Composable
-fun BadgesScreen() {
+fun BadgesScreen(navController: NavController) {
+    // create a list of badges to loop through and display
     val badges = remember {
         listOf(
             Badge(
@@ -92,7 +94,7 @@ fun BadgesScreen() {
             ),
         )
     }
-
+    // state to display badge details
     var selectedBadge by remember { mutableStateOf<Badge?>(null) }
 
     Surface(
@@ -113,14 +115,15 @@ fun BadgesScreen() {
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            HeaderBar("Badges")
-            Spacer(modifier = Modifier.height(10.dp))
+//***************************************************** HEADER BAR *****************************************************
+            HeaderBar("Badges",  navController)
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = "Your Achievements",
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2E2E2E)
+                color = Color.DarkGray
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -132,16 +135,19 @@ fun BadgesScreen() {
 
             Spacer(modifier = Modifier.height(30.dp))
 
+//*************************************************** GRID OF BADGES ***************************************************
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
+                // loop through the badges and create them inside the grid
                 items(badges) { badge ->
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            // On click display badge description
                             .clickable { selectedBadge = badge },
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -153,6 +159,7 @@ fun BadgesScreen() {
                                     shape = androidx.compose.foundation.shape.CircleShape,
                                     clip = false
                                 )
+                                // change background color if badge is obtained
                                 .background(
                                     brush = Brush.radialGradient(
                                         colors = if (badge.obtained) {
@@ -178,6 +185,7 @@ fun BadgesScreen() {
                                 painter = painterResource(id = badge.imageRes),
                                 contentDescription = badge.name,
                                 modifier = Modifier.size(50.dp),
+                                // If badge is not obtained we use remove its saturation
                                 colorFilter = if (!badge.obtained) {
                                     ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
                                 } else null
@@ -217,38 +225,5 @@ fun BadgesScreen() {
                 }
             )
         }
-    }
-}
-
-@Composable
-private fun BadgesHeader() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = "Home",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-
-        Icon(
-            imageVector = Icons.Rounded.AccountCircle,
-            contentDescription = "Profile",
-            tint = Color.DarkGray,
-            modifier = Modifier.size(28.dp)
-        )
     }
 }

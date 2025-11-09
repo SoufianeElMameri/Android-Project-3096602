@@ -1,5 +1,6 @@
 package com.griffith.stepquest.ui.screens
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,8 @@ import androidx.compose.ui.unit.dp
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
@@ -28,8 +31,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import java.io.File
 
 val stepHistory = mapOf(
     "Mon" to 5400,
@@ -43,7 +52,8 @@ val stepHistory = mapOf(
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
+    // get the mobile screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp
 
     Surface(
@@ -65,13 +75,18 @@ fun HomeScreen() {
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HeaderBar()
+//***************************************************** HEADER BAR **************************************************
+            HeaderBar(navController, 30)
+//***************************************************** PROGRESS CIRCLE *********************************************
             StepProgressCircle(3600, 6000)
             Spacer(Modifier.height((screenWidth * 0.02).dp))
+//***************************************************** STREAKS *****************************************************
             StreakSection(4)
             Spacer(Modifier.height((screenWidth * 0.06).dp))
+//***************************************************** WEAKLY MONTHLY STEPS COUNT **********************************
             WeeklyMonthlyCards()
             Spacer(Modifier.height((screenWidth * 0.06).dp))
+//***************************************************** WEAKLY CHART ************************************************
             WeeklyChart(stepHistory)
         }
     }
@@ -79,28 +94,22 @@ fun HomeScreen() {
 
 // header bar that holds the user and the amount of coins earned
 @Composable
-fun HeaderBar() {
+fun HeaderBar(navController: NavController, coins: Int) {
+    // loading the porifle picture from the local storage if it exists if not load default profile
+    val context = LocalContext.current
+    val file = File(context.filesDir, "profile_picture.png")
+    val profileImage = if (file.exists()) {
+        BitmapFactory.decodeFile(file.absolutePath)
+    } else {
+        BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Rounded.AccountCircle,
-                contentDescription = null,
-                tint = Color.DarkGray,
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                "Hey User!",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
-            )
-        }
-
+        // currency owned
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(R.drawable.coin),
@@ -109,11 +118,25 @@ fun HeaderBar() {
             )
             Spacer(Modifier.width(4.dp))
             Text(
-                "30",
+                "$coins",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp
             )
         }
+        Image(
+            painter = if (profileImage != null)
+                rememberAsyncImagePainter(
+                    model = profileImage
+                )
+            else
+                painterResource(id = R.drawable.default_profile),
+            contentDescription = "Profile Picture",
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .clickable { navController.navigate("profile") },
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
@@ -163,7 +186,7 @@ fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
             )
         }
 
-        // Text inside ring
+        // Text inside the arc
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "$currentSteps",
@@ -280,7 +303,7 @@ fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modif
 fun WeeklyChart(data: Map<String, Int>) {
     // getting the maximum value in the map
     val maxSteps = data.values.maxOrNull() ?: 1
-//    calculating the y from the maximum value to create a 5 levels of data
+    // calculating the y from the maximum value to create a 5 levels of data
     val ySteps = 4
     val yValues = (0..ySteps).map { i ->
         maxSteps - (maxSteps / ySteps.toFloat() * i)
@@ -293,7 +316,7 @@ fun WeeklyChart(data: Map<String, Int>) {
         verticalAlignment = Alignment.Bottom
     ) {
 
-        // Y-AXIS
+//******************************************** Y AXE STEP COUNT LEVELS
         Column(
             modifier = Modifier
                 .padding(end = 8.dp)
@@ -312,7 +335,7 @@ fun WeeklyChart(data: Map<String, Int>) {
             }
         }
 
-        // BARS
+//******************************************** DAILY STEP COUNT BARS
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Weekly Steps",
@@ -345,6 +368,7 @@ fun WeeklyChart(data: Map<String, Int>) {
                                 )
                         )
                         Spacer(Modifier.height(6.dp))
+//******************************************** X AXE DAYS
                         Text(
                             text = day,
                             fontSize = 12.sp,

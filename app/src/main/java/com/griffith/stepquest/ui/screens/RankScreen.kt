@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 
@@ -29,8 +30,9 @@ data class Player(
     val rank: Int
 )
 
+// Ranks sccreen shocasse the user rank and the current leaderboard for that rank
 @Composable
-fun RankScreen(currentTier: String = "Gold") {
+fun RankScreen(currentTier: String = "Gold",  navController: NavController) {
     val userId = 1
     val ranks = listOf("Bronze", "Silver", "Gold", "Diamond", "Legend")
     val players = listOf(
@@ -62,7 +64,7 @@ fun RankScreen(currentTier: String = "Gold") {
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            HeaderBar("LeaderBoard")
+            HeaderBar("LeaderBoard", navController)
             Spacer(modifier = Modifier.height(20.dp))
             // RANK TIERS
             Row(
