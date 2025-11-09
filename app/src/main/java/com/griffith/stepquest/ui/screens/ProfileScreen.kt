@@ -13,6 +13,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +30,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -93,7 +95,7 @@ fun ProfileScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
 
@@ -123,6 +125,16 @@ fun ProfileScreen() {
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(60.dp)
+                            .shadow(
+                                elevation = 8.dp,
+                                shape = CircleShape,
+                                clip = false
+                            )
+                            .border(
+                                width = 3.dp,
+                                color = Color.White,
+                                shape = CircleShape
+                            )
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
@@ -165,6 +177,11 @@ fun ProfileScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
+                    .shadow(
+                        elevation = 10.dp,
+                        shape = RoundedCornerShape(20.dp),
+                        clip = false
+                    )
                     .background(
                         brush = Brush.verticalGradient(
                             listOf(Color(0xFFA6FFCB), Color(0xFFFFF3B0))
@@ -254,8 +271,15 @@ fun ProfileScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(110.dp)
+                    .shadow(
+                        elevation = 10.dp,
+                        shape = RoundedCornerShape(20.dp),
+                        clip = false
+                    )
                     .background(
-                        Color(0xFFFFFFFF).copy(alpha = 0.6f),
+                        brush = Brush.verticalGradient(
+                            listOf(Color(0xFFA6FFCB), Color(0xFFFFF3B0))
+                        ),
                         shape = RoundedCornerShape(22.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -302,8 +326,15 @@ fun ProfileScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
+                    .shadow(
+                        elevation = 10.dp,
+                        shape = RoundedCornerShape(22.dp),
+                        clip = false
+                    )
                     .background(
-                        Color(0xFFFFFFFF).copy(alpha = 0.6f),
+                        brush = Brush.verticalGradient(
+                            listOf(Color(0xFFA6FFCB), Color(0xFFFFF3B0))
+                        ),
                         shape = RoundedCornerShape(22.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -314,6 +345,7 @@ fun ProfileScreen() {
                     modifier = Modifier.size(70.dp)
                 )
             }
+            Spacer(modifier = Modifier.height(28.dp))
         }
     }
 }
@@ -326,10 +358,13 @@ fun OverviewCard(title: String, value: String, iconRes: Int) {
         modifier = Modifier
             .width(160.dp)
             .height(110.dp)
+            .shadow(
+                elevation = 10.dp,
+                shape = RoundedCornerShape(20.dp),
+                clip = false
+            )
             .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFFA6FFCB), Color(0xFFFFF3B0))
-                ),
+                Color.White,
                 shape = RoundedCornerShape(20.dp)
             ),
         contentAlignment = Alignment.Center

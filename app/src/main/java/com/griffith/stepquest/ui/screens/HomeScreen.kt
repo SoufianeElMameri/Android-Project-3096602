@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.StrokeCap
@@ -32,6 +33,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -133,6 +135,16 @@ fun HeaderBar(navController: NavController, coins: Int) {
             contentDescription = "Profile Picture",
             modifier = Modifier
                 .size(60.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = CircleShape,
+                    clip = false
+                )
+                .border(
+                    width = 3.dp,
+                    color = Color.White,
+                    shape = CircleShape
+                )
                 .clip(CircleShape)
                 .clickable { navController.navigate("profile") },
             contentScale = ContentScale.Crop
