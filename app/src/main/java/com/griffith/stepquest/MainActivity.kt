@@ -26,6 +26,7 @@ import androidx.compose.animation.ExitTransition
 import com.griffith.stepquest.ui.screens.BadgesScreen
 import com.griffith.stepquest.ui.screens.ProfileScreen
 import com.griffith.stepquest.ui.screens.RankScreen
+import com.griffith.stepquest.ui.screens.ShopScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -67,6 +68,7 @@ fun StepQuestNav() {
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController = navController) }
             composable("profile") { ProfileScreen() }
+            composable("shop"){ ShopScreen(navController) }
         }
     }
 }

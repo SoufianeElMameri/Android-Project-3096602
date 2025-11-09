@@ -141,33 +141,33 @@ fun BottomNavBar(navController: NavController) {
         )
 
 //******************************************** SHOP ********************************************
-//        NavigationBarItem(
-//            selected = currentRoute == "shop",
-//            onClick = {
-//                if (currentRoute != "shop") {
-//                    navController.navigate("shop") {
-//                        popUpTo("home") { inclusive = false }
-//                        launchSingleTop = true
-//                    }
-//                }
-//            },
-//            icon = {
-//                Image(
-//                    painter = painterResource(id = R.drawable.shop),
-//                    contentDescription = "Shop",
-//                    modifier = Modifier.size(28.dp)
-//                )
-//            },
-//            label = {
-//                Text(
-//                    text = "Shop",
-//                    color = Color.Black,
-//                    fontSize = MaterialTheme.typography.labelSmall.fontSize
-//                )
-//            },
-//            colors = NavigationBarItemDefaults.colors(
-//                indicatorColor = Color(0xFF00FF00)
-//            )
-//        )
+        NavigationBarItem(
+            selected = currentRoute == "shop",
+            onClick = {
+                if (currentRoute != "shop") {
+                    navController.navigate("shop") {
+                        popUpTo("home") { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            },
+            icon = {
+                Image(
+                    painter = painterResource(id = R.drawable.shop),
+                    contentDescription = "Shop",
+                    modifier = Modifier.size(28.dp)
+                )
+            },
+            label = {
+                Text(
+                    text = "Shop",
+                    color = Color.Black,
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+                )
+            },
+            colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Color(0xFF00FF00)
+            )
+        )
     }
 }
