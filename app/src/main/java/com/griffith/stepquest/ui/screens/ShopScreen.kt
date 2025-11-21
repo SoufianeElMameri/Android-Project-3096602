@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import com.griffith.stepquest.ui.viewmodels.ViewModel
-
+import com.griffith.stepquest.ui.theme.*
 
 // Challenges screen showcases the daily challenges and tips
 @Composable
@@ -36,8 +36,8 @@ fun ShopScreen(navController: NavController, userVM: ViewModel) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFE8FCD8),
-                        Color(0xFFFFF1C1)
+                        BackgroundTop,
+                        BackgroundBottom
                     )
                 )
             ),
@@ -56,7 +56,7 @@ fun ShopScreen(navController: NavController, userVM: ViewModel) {
                 text = "The shop is currently Closed! Will open soon",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.DarkGray,
+                color = TextPrimary,
                 modifier = Modifier
                     .fillMaxWidth()
             )

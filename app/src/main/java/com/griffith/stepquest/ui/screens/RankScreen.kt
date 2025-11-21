@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
+import com.griffith.stepquest.ui.theme.*
 
 data class Player(
     val id : Int,
@@ -52,8 +53,8 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFE8FCD8),
-                        Color(0xFFFFF1C1)
+                        BackgroundTop,
+                        BackgroundBottom
                     )
                 )
             ),
@@ -107,7 +108,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController) {
                 text = "Top Walkers",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Black
                 ),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -122,7 +123,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController) {
                         colors = CardDefaults.cardColors(
                             containerColor =
                                 if (player.id == userId) Color(0xFFD7FFD9)
-                                else Color.White
+                                else White
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
@@ -152,14 +153,14 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController) {
                                     Text(
                                         text = "#${player.rank}",
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color.Gray
+                                        color = TextSecondary
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                 }
                                 Text(
                                     text = player.name,
                                     fontWeight = if (player.name == "You") FontWeight.Bold else FontWeight.Normal,
-                                    color = Color.Black
+                                    color = Black
                                 )
                             }
                             Text(

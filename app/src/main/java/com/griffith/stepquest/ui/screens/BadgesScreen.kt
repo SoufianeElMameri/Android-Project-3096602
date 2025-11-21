@@ -31,6 +31,7 @@ import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import androidx.compose.ui.draw.shadow
 import androidx.navigation.NavController
+import com.griffith.stepquest.ui.theme.*
 
 data class Badge(
     val name: String,
@@ -103,12 +104,11 @@ fun BadgesScreen(navController: NavController) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFE8FCD8),
-                        Color(0xFFFFF1C1)
+                        BackgroundTop,
+                        BackgroundBottom
                     )
                 )
             ),
-        color = Color.Transparent
     ) {
         Column(
             modifier = Modifier
@@ -123,14 +123,14 @@ fun BadgesScreen(navController: NavController) {
                 text = "Your Achievements",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.DarkGray
+                color = TextPrimary
             )
 
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Collect badges as you complete challenges!",
                 fontSize = 14.sp,
-                color = Color.Gray
+                color = TextSecondary
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -164,16 +164,16 @@ fun BadgesScreen(navController: NavController) {
                                     brush = Brush.radialGradient(
                                         colors = if (badge.obtained) {
                                             listOf(
-                                                Color(0xFFF1F1F1),
-                                                Color(0xFFFBFF8E),
-                                                Color(0xFFFFF08E),
-                                                Color(0xFFFFFAF5)
+                                                BadgeGoldLight,
+                                                BadgeGoldMid,
+                                                BadgeGold,
+                                                BadgeGoldSoft
                                             )
                                         } else {
                                             listOf(
-                                                Color(0xFFF5F5F5),
-                                                Color(0xFFE0E0E0),
-                                                Color(0xFFBDBDBD)
+                                                BadgeLockedLight,
+                                                BadgeLockedMid,
+                                                BadgeLockedDark
                                             )
                                         }
                                     ),
@@ -197,7 +197,7 @@ fun BadgesScreen(navController: NavController) {
                             text = badge.name,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.Black
+                            color = Black
                         )
                     }
                 }

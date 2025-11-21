@@ -37,6 +37,7 @@ import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import androidx.compose.ui.text.buildAnnotatedString
 import com.griffith.stepquest.ui.viewmodels.ViewModel
+import com.griffith.stepquest.ui.theme.*
 
 // Challenges screen showcases the daily challenges and tips
 @Composable
@@ -47,12 +48,11 @@ fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFE8FCD8),
-                        Color(0xFFFFF1C1)
+                        BackgroundTop,
+                        BackgroundBottom
                     )
                 )
             ),
-        color = Color.Transparent
     ) {
         Column(
             modifier = Modifier
@@ -66,7 +66,7 @@ fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
                 text = "Today's Challenges",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.DarkGray,
+                color = TextPrimary,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -135,7 +135,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
             .padding(vertical = 6.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = White)
     ) {
         Column(
             modifier = Modifier
@@ -151,12 +151,12 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                         text = title,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Black
                     )
                     Text(
                         text = "$progress / $goal steps",
                         fontSize = 13.sp,
-                        color = Color.Gray
+                        color = TextSecondary
                     )
                 }
 
@@ -180,7 +180,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                         ) {
                             Text(
                                 text = "+$difficulty",
-                                color = Color.White,
+                                color = White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )
@@ -208,7 +208,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                 Text(
                     text = "Difficulty:",
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = TextSecondary
                 )
                 Spacer(Modifier.width(8.dp))
                 repeat(difficulty) {

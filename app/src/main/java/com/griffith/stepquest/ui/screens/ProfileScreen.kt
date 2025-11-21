@@ -45,7 +45,7 @@ import coil.compose.rememberAsyncImagePainter
 
 import java.io.File
 import java.io.FileOutputStream
-
+import com.griffith.stepquest.ui.theme.*
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
@@ -86,10 +86,9 @@ fun ProfileScreen() {
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFE8FCD8), Color(0xFFFFF1C1))
+                    colors = listOf(BackgroundTop, BackgroundBottom)
                 )
             ),
-        color = Color.Transparent
     ) {
 
         Column(
@@ -132,7 +131,7 @@ fun ProfileScreen() {
                             )
                             .border(
                                 width = 3.dp,
-                                color = Color.White,
+                                color = White,
                                 shape = CircleShape
                             )
                             .clip(CircleShape),
@@ -143,13 +142,13 @@ fun ProfileScreen() {
                         modifier = Modifier
                             .size(20.dp)
                             .align(Alignment.BottomEnd)
-                            .background(Color.White, CircleShape),
+                            .background(White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Edit,
                             contentDescription = "Edit Profile",
-                            tint = Color.Black,
+                            tint = Black,
                             modifier = Modifier.size(14.dp)
                         )
                     }
@@ -159,13 +158,13 @@ fun ProfileScreen() {
                     text = "Profile",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Black
                 )
 
                 Icon(
                     imageVector = Icons.Rounded.Settings,
                     contentDescription = "Settings",
-                    tint = Color.DarkGray,
+                    tint = TextPrimary,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -196,7 +195,7 @@ fun ProfileScreen() {
                         text = "Level 12",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Black
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -204,7 +203,7 @@ fun ProfileScreen() {
                     Text(
                         text = "Active Explorer",
                         fontSize = 18.sp,
-                        color = Color.DarkGray
+                        color = TextPrimary
                     )
                 }
             }
@@ -215,7 +214,7 @@ fun ProfileScreen() {
                 text = "Overview",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Black
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -262,7 +261,7 @@ fun ProfileScreen() {
                 text = "Your Medals",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Black
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -317,7 +316,7 @@ fun ProfileScreen() {
                 text = "Your Rank",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Black
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -364,7 +363,7 @@ fun OverviewCard(title: String, value: String, iconRes: Int) {
                 clip = false
             )
             .background(
-                Color.White,
+                White,
                 shape = RoundedCornerShape(20.dp)
             ),
         contentAlignment = Alignment.Center
@@ -374,14 +373,14 @@ fun OverviewCard(title: String, value: String, iconRes: Int) {
                 text = title,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Black
+                color = Black
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Black
             )
             Spacer(modifier = Modifier.height(6.dp))
             Image(

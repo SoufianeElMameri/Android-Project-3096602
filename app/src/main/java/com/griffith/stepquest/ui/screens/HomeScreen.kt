@@ -42,6 +42,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.griffith.stepquest.ui.viewmodels.ViewModel
 import java.io.File
+import com.griffith.stepquest.ui.theme.*
 
 val stepHistory = mapOf(
     "Mon" to 5400,
@@ -65,12 +66,11 @@ fun HomeScreen(navController: NavController, userVM: ViewModel) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFE8FCD8),
-                        Color(0xFFFFF1C1)
+                        BackgroundTop,
+                        BackgroundBottom
                     )
                 )
             ),
-        color = Color.Transparent
     ){
         Column(
             modifier = Modifier
@@ -143,7 +143,7 @@ fun HeaderBar(navController: NavController, coins: Int) {
                 )
                 .border(
                     width = 3.dp,
-                    color = Color.White,
+                    color = White,
                     shape = CircleShape
                 )
                 .clip(CircleShape)
@@ -209,7 +209,7 @@ fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
             Text(
                 text = "/$goalSteps steps",
                 fontSize = 14.sp,
-                color = Color.DarkGray
+                color = TextPrimary
             )
             Image(
                 painter = painterResource(R.drawable.shoe),
@@ -265,13 +265,13 @@ fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modif
             .padding(horizontal = 4.dp),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = White)
     ) {
         Column {
             Text(
                 text = title,
                 fontSize = 14.sp,
-                color = Color.DarkGray,
+                color = TextPrimary,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -295,13 +295,13 @@ fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modif
                         text = "$value",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Black
                     )
                     Text(
                         text = "Steps",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Black
                     )
                 }
 
@@ -343,7 +343,7 @@ fun WeeklyChart(data: Map<String, Int>) {
                 Text(
                     text = value.toInt().toString(),
                     fontSize = 10.sp,
-                    color = Color.DarkGray
+                    color = TextPrimary
                 )
             }
         }
@@ -354,7 +354,7 @@ fun WeeklyChart(data: Map<String, Int>) {
                 text = "Weekly Steps",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.DarkGray,
+                color = TextPrimary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -385,7 +385,7 @@ fun WeeklyChart(data: Map<String, Int>) {
                         Text(
                             text = day,
                             fontSize = 12.sp,
-                            color = Color.DarkGray
+                            color = TextPrimary
                         )
                     }
                 }

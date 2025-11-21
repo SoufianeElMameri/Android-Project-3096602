@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.griffith.stepquest.R
 import java.io.File
+import com.griffith.stepquest.ui.theme.*
 
 // Creates a header bar with the title of the screen and the profile picture (clickable navigates to proifle screen)
 @Composable
@@ -54,7 +55,7 @@ fun HeaderBar(headerTitle:String, navController: NavController){
             text = headerTitle,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Black
             )
         )
         Image(
@@ -74,7 +75,7 @@ fun HeaderBar(headerTitle:String, navController: NavController){
                 )
                 .border(
                     width = 3.dp,
-                    color = Color.White,
+                    color = White,
                     shape = CircleShape
                 )
                 .clip(CircleShape)
