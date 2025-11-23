@@ -3,6 +3,7 @@
 package com.griffith.stepquest
 
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,14 +34,40 @@ import com.griffith.stepquest.ui.screens.ProfileScreen
 import com.griffith.stepquest.ui.screens.RankScreen
 import com.griffith.stepquest.ui.screens.ShopScreen
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
-
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import androidx.annotation.RequiresApi
 
 class MainActivity : ComponentActivity() {
     private val userVM: UserViewModel by viewModels()
     private lateinit var stepCounter: StepCounter
 
+    private val handler = Handler(Looper.getMainLooper())
+
+    // to keep updating the viewmodel
+
+    private val stepUpdateRunnable = object : Runnable {
+
+        override fun run() {
+            Log.d("Main", "Updating viewmodel with steps = ${stepCounter.currentSteps}")
+            userVM.updateSteps(stepCounter.currentSteps)
+            handler.postDelayed(this, 1000) // update every 1 second
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestStepPermission() {
+        if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), 1001)
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestStepPermission()
 
         stepCounter = StepCounter(this)
         // Tell Android to handle system bars
@@ -57,13 +84,23 @@ class MainActivity : ComponentActivity() {
     }
     override fun onResume() {
         super.onResume()
-        if (stepCounter.hasStepCounterSensor()) {
-            stepCounter.start()
+        if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
+            == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            if (stepCounter.hasStepCounterSensor()) {
+                Log.d("Main", "Device has stepCounter")
+                stepCounter.start()
+                handler.post(stepUpdateRunnable)
+            }
+            else{
+                Log.d("Main", "Device doesn't have stepCounter")
+            }
         }
     }
 
     override fun onPause() {
         super.onPause()
+        handler.removeCallbacks(stepUpdateRunnable)
         stepCounter.stop()
     }
 }
