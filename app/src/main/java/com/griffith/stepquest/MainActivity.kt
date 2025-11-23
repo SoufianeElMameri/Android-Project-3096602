@@ -50,7 +50,6 @@ class MainActivity : ComponentActivity() {
     private val stepUpdateRunnable = object : Runnable {
 
         override fun run() {
-            Log.d("Main", "Updating viewmodel with steps = ${stepCounter.currentSteps}")
             userVM.updateSteps(stepCounter.currentSteps)
             handler.postDelayed(this, 1000) // update every 1 second
         }

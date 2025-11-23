@@ -51,10 +51,11 @@ class StepCounter(private val context: Context) : SensorEventListener {
     }
 
     // initialize the data at the start of the app
-    private fun initializeData() {
+    private fun initializeData(rawSteps: Int) {
 
         Log.d("StepCounter", "initializing Data")
         if (initialized) {
+            Log.d("StepCounter", "Already initialized Data")
             return
         }
 
@@ -69,7 +70,7 @@ class StepCounter(private val context: Context) : SensorEventListener {
                 putString("saved_day", today)
             }
 
-            baselineSteps = 0
+            baselineSteps = rawSteps
             prefs.edit {
                 putInt("baseline_steps", baselineSteps)
             }
@@ -81,7 +82,7 @@ class StepCounter(private val context: Context) : SensorEventListener {
             }
 
             // reset baseline for today
-            baselineSteps = 0
+            baselineSteps = rawSteps
             prefs.edit {
                 putInt("baseline_steps", baselineSteps)
                 Log.d("StepCounter", "Updated baseline steps = $baselineSteps")
@@ -101,10 +102,10 @@ class StepCounter(private val context: Context) : SensorEventListener {
         if (event.sensor == null) return
         if (event.sensor!!.type != Sensor.TYPE_STEP_COUNTER) return
 
-        initializeData()
+
 
         val rawSteps = event.values[0].toInt()
-
+        initializeData(rawSteps)
         // first step after opening the app we initialize baseline
         if (!prefs.contains("baseline_steps")) {
             baselineSteps = rawSteps
