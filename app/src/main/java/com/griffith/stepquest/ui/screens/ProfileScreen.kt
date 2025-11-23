@@ -89,6 +89,7 @@ fun ProfileScreen() {
                     colors = listOf(BackgroundTop, BackgroundBottom)
                 )
             ),
+        color = Color.Transparent
     ) {
 
         Column(

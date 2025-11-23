@@ -71,6 +71,7 @@ fun HomeScreen(navController: NavController, userVM: ViewModel) {
                     )
                 )
             ),
+        color = Color.Transparent
     ){
         Column(
             modifier = Modifier

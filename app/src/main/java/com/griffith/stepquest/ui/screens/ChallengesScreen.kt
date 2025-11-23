@@ -53,6 +53,7 @@ fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
                     )
                 )
             ),
+        color = Color.Transparent
     ) {
         Column(
             modifier = Modifier

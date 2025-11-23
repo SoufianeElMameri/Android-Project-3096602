@@ -109,6 +109,7 @@ fun BadgesScreen(navController: NavController) {
                     )
                 )
             ),
+        color = Color.Transparent
     ) {
         Column(
             modifier = Modifier
