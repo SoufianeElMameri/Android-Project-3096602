@@ -57,11 +57,11 @@ val stepHistory = mapOf(
 
 
 @Composable
-fun HomeScreen(navController: NavController, userVM: UserViewModel, stepCounter: StepCounter) {
+fun HomeScreen(navController: NavController, userVM: UserViewModel) {
     // get the mobile screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp
     // grab the current steps the user did
-    val steps = stepCounter.currentSteps
+    val steps = userVM.steps
     Surface(
         modifier = Modifier
             .fillMaxSize()

@@ -42,9 +42,9 @@ import com.griffith.stepquest.ui.theme.*
 
 // Challenges screen showcases the daily challenges and tips
 @Composable
-fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepCounter: StepCounter) {
+fun ChallengesScreen(navController: NavController, userVM: UserViewModel) {
     // grab the current steps the user did
-    val steps = stepCounter.currentSteps
+    val steps = userVM.steps
     Surface(
         modifier = Modifier
             .fillMaxSize()

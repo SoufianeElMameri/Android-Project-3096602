@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
 
         setContent {
-            StepQuestNav(userVM, stepCounter)
+            StepQuestNav(userVM)
 //            HomeScreen()
         }
     }
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
 // navigation container
 @Composable
-fun StepQuestNav(userVM: UserViewModel, stepCounter: StepCounter) {
+fun StepQuestNav(userVM: UserViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(navController) }
@@ -84,8 +84,8 @@ fun StepQuestNav(userVM: UserViewModel, stepCounter: StepCounter) {
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
-            composable("home") { HomeScreen(navController, userVM, stepCounter) }
-            composable("challenges") { ChallengesScreen(navController, userVM, stepCounter) }
+            composable("home") { HomeScreen(navController, userVM) }
+            composable("challenges") { ChallengesScreen(navController, userVM) }
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController = navController) }
             composable("profile") { ProfileScreen() }
