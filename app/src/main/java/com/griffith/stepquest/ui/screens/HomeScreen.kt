@@ -40,9 +40,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.griffith.stepquest.ui.viewmodels.ViewModel
+import com.griffith.stepquest.data.StepCounter
 import java.io.File
 import com.griffith.stepquest.ui.theme.*
+import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 val stepHistory = mapOf(
     "Mon" to 5400,
@@ -56,10 +57,11 @@ val stepHistory = mapOf(
 
 
 @Composable
-fun HomeScreen(navController: NavController, userVM: ViewModel) {
+fun HomeScreen(navController: NavController, userVM: UserViewModel, stepCounter: StepCounter) {
     // get the mobile screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp
-
+    // grab the current steps the user did
+    val steps = stepCounter.currentSteps
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -80,9 +82,9 @@ fun HomeScreen(navController: NavController, userVM: ViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 //***************************************************** HEADER BAR **************************************************
-            HeaderBar(navController, userVM.coins)
+            HeaderBar(navController, userVM.coinStash)
 //***************************************************** PROGRESS CIRCLE *********************************************
-            StepProgressCircle(3600, 6000)
+            StepProgressCircle(steps, 10000)
             Spacer(Modifier.height((screenWidth * 0.02).dp))
 //***************************************************** STREAKS *****************************************************
             StreakSection(4)

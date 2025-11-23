@@ -36,12 +36,15 @@ import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import androidx.compose.ui.text.buildAnnotatedString
-import com.griffith.stepquest.ui.viewmodels.ViewModel
+import com.griffith.stepquest.data.StepCounter
+import com.griffith.stepquest.ui.viewmodels.UserViewModel
 import com.griffith.stepquest.ui.theme.*
 
 // Challenges screen showcases the daily challenges and tips
 @Composable
-fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
+fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepCounter: StepCounter) {
+    // grab the current steps the user did
+    val steps = stepCounter.currentSteps
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +79,7 @@ fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
 //***************************************************** TODAY CHALLENGES *****************************************************
             ChallengeCard(
                 title = "Walk 5,000 steps today",
-                5511,
+                steps,
                 5000,
                 1,
                 onClaim = { coins -> userVM.addCoins(coins) }
@@ -84,7 +87,7 @@ fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
                 title = "Walk 10,000 steps today",
-                5511,
+                steps,
                 10000,
                 2,
                 onClaim = { coins -> userVM.addCoins(coins) }
@@ -92,7 +95,7 @@ fun ChallengesScreen(navController: NavController, userVM: ViewModel) {
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
                 title = "Walk 15,000 steps today",
-                5511,
+                steps,
                 15000,
                 3,
                 onClaim = { coins -> userVM.addCoins(coins) }

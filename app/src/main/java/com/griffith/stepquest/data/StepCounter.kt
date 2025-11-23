@@ -22,7 +22,21 @@ class StepCounter(private val context: Context) : SensorEventListener {
         }
         return sensorManager!!.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null
     }
-    
+
+    // to start reading steps
+    fun start() {
+        sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        stepSensor?.let {
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    // to stop listening to steps
+    fun stop() {
+        sensorManager?.unregisterListener(this)
+    }
+
     // detect change and store the change
     override fun onSensorChanged(event: SensorEvent?) {
         if (event?.sensor?.type == Sensor.TYPE_STEP_COUNTER) {
