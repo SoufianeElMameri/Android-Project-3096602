@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -78,57 +79,40 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(30.dp))
             // only show the username text field if the user is trying to register
             if (isRegister) {
-                TextField(
+                CostumeTextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Username",
+                    error = usernameError
                 )
-                if (usernameError.isNotEmpty()) {
-                    Text(usernameError, color = Color.Red, fontSize = 12.sp)
-                }
-                Spacer(modifier = Modifier.height(15.dp))
             }
             // always show the email text field
-            TextField(
+            CostumeTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
+                label = "Email",
+                error = emailError
             )
-            if (emailError.isNotEmpty()) {
-                Text(emailError, color = Color.Red, fontSize = 12.sp)
-            }
-
-            Spacer(modifier = Modifier.height(15.dp))
 
             // always show the password text field
-            TextField(
+
+            CostumeTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                label = "Password",
+                isPassword = true,
+                error = pwdError
             )
-            if (pwdError.isNotEmpty()) {
-                Text(pwdError, color = Color.Red, fontSize = 12.sp)
-            }
-            Spacer(modifier = Modifier.height(15.dp))
 
             // only show the confirm password text field if the user is trying to register
             if (isRegister) {
-                TextField(
+                CostumeTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
+                    label = "Confirm Password",
+                    isPassword = true,
+                    error = pwdConfirmError
                 )
-                if (pwdConfirmError.isNotEmpty()) {
-                    Text(pwdConfirmError, color = Color.Red, fontSize = 12.sp)
-                }
-                Spacer(modifier = Modifier.height(15.dp))
             }
 
             Button(
@@ -190,4 +174,61 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
             }
         }
     }
+}
+
+// a function that create text fields
+@Composable
+fun CostumeTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    isPassword: Boolean = false,
+    error: String = ""
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 10.dp,
+                    shape = RoundedCornerShape(12.dp),
+                    clip = false
+                )
+                .background(
+                    color = White,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 14.dp, vertical = 4.dp)
+        ) {
+            TextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(label, color = TextSecondary) },
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Black
+                ),
+                visualTransformation = if (isPassword)
+                    PasswordVisualTransformation() else
+                    VisualTransformation.None,
+                singleLine = true
+            )
+        }
+
+        if (error.isNotEmpty()) {
+            Text(
+                text = error,
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+            )
+        }
+    }
+
+    Spacer(modifier = Modifier.height(15.dp))
 }
