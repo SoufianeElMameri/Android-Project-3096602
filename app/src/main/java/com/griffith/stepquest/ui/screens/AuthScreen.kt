@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.theme.*
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
@@ -60,23 +61,36 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
 //*************************************************** REGISTER OR LOGIN OPTIONS ***************************************************
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
             ) {
-//                Each text is clickable and on click will hide or reveal more text field
-                Text(
-                    "Login",
-                    fontSize = 20.sp,
-                    color = if (!isRegister) Color.Black else Color.Gray,
-                    modifier = Modifier.clickable { isRegister = false }
-                )
-                Text(
-                    "Register",
-                    fontSize = 20.sp,
-                    color = if (isRegister) Color.Black else Color.Gray,
-                    modifier = Modifier.clickable { isRegister = true }
-                )
+
+                val activeBg = Color(0x74FFEB43)
+                val inactiveBg = Color.Transparent
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (!isRegister) activeBg else inactiveBg)
+                        .padding(horizontal = 18.dp, vertical = 8.dp)
+                        .clickable { isRegister = false }
+                ) {
+                    Text("Login", fontSize = 20.sp, color = if (!isRegister) Black else TextSecondary)
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isRegister) activeBg else inactiveBg)
+                        .padding(horizontal = 18.dp, vertical = 8.dp)
+                        .clickable { isRegister = true }
+                ) {
+                    Text("Register", fontSize = 20.sp, color = if (isRegister) Black else TextSecondary)
+                }
             }
             Spacer(modifier = Modifier.height(30.dp))
+//*************************************************** REGISTER OR LOGIN TEXT FIELDS ***************************************************
             // only show the username text field if the user is trying to register
             if (isRegister) {
                 CostumeTextField(
