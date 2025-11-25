@@ -22,8 +22,10 @@ class StepCounter(private val context: Context) : SensorEventListener {
     var currentSteps: Int = 0
         private set
 
+    // local storage variable
     private val prefs = context.getSharedPreferences("steps_prefs", Context.MODE_PRIVATE)
 
+    // function to get today's date
     private fun getToday(): String {
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         return sdf.format(Date())
@@ -54,6 +56,7 @@ class StepCounter(private val context: Context) : SensorEventListener {
     private fun initializeData(rawSteps: Int) {
 
         Log.d("StepCounter", "initializing Data")
+        // check if it has been already initialized (app running already)
         if (initialized) {
             Log.d("StepCounter", "Already initialized Data")
             return
@@ -63,6 +66,8 @@ class StepCounter(private val context: Context) : SensorEventListener {
         Log.d("StepCounter", "Checking saved day = $savedDay")
         val today = getToday()
         Log.d("StepCounter", "Getting today = $today")
+
+        // if no date has been saved before we create new saves (date + baseline )
         if (savedDay == "") {
             savedDay = today
 
@@ -74,6 +79,7 @@ class StepCounter(private val context: Context) : SensorEventListener {
             prefs.edit {
                 putInt("baseline_steps", baselineSteps)
             }
+        // if current date is not todayu's date( new date save it and save new baseline)
         } else if (savedDay != today) {
             savedDay = today
 
