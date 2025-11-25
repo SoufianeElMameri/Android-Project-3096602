@@ -57,7 +57,8 @@ class UserInformation(context: Context) {
         return prefs.getString("user_password", null)
     }
 
-    // clear all user data 
+
+    // clear all user data
     fun clearUserData() {
         prefs.edit {
             clear()
