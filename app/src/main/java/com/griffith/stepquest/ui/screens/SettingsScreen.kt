@@ -103,6 +103,12 @@ fun SettingsScreen(onLogout: () -> Unit) {
             Spacer(modifier = Modifier.height(10.dp))
 
             SettingsItem(
+                title = "Change User Name",
+                iconRes = R.drawable.username
+            ) {
+            }
+
+            SettingsItem(
                 title = "Change Email",
                 iconRes = R.drawable.mail
             ) {
