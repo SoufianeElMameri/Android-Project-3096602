@@ -38,22 +38,31 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.griffith.stepquest.data.UserInformation
+import com.griffith.stepquest.ui.screens.AuthScreen
+import com.griffith.stepquest.ui.screens.SettingsScreen
 
 class MainActivity : ComponentActivity() {
     private val userVM: UserViewModel by viewModels()
     private lateinit var stepCounter: StepCounter
+    private lateinit var userInfo: UserInformation
 
     private val handler = Handler(Looper.getMainLooper())
 
     // to keep updating the viewmodel
-
     private val stepUpdateRunnable = object : Runnable {
 
         override fun run() {
             userVM.updateSteps(stepCounter.currentSteps)
-            handler.postDelayed(this, 1000) // update every 1 second
+            // update every 1 second
+            handler.postDelayed(this, 1000)
         }
     }
+    // request permission from user to use sensor
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun requestStepPermission() {
         if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
@@ -65,10 +74,11 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        // call request permission function
         requestStepPermission()
 
         stepCounter = StepCounter(this)
+        userInfo    = UserInformation(this)
         // Tell Android to handle system bars
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
@@ -77,7 +87,29 @@ class MainActivity : ComponentActivity() {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
 
         setContent {
-            StepQuestNav(userVM)
+            // state to remember if user is logged in or out (to trigger screen change)
+            var loggedIn by remember { mutableStateOf(userInfo.isUserLoggedIn()) }
+
+            // if user is logged in show the app screens
+            if (loggedIn) {
+                StepQuestNav(
+                    userVM = userVM,
+                    userInfo = userInfo,
+                    onLogout = {
+                        userInfo.saveLoginState(false)
+                        loggedIn = false
+                    }
+                )
+            // if user is not logged in show the authentication screen
+            } else {
+                AuthScreen(
+                    userInfo = userInfo,
+                    onLoginSuccess = {
+                        userInfo.saveLoginState(true)
+                        loggedIn = true
+                    }
+                )
+            }
 //            HomeScreen()
         }
     }
@@ -104,9 +136,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 // navigation container
 @Composable
-fun StepQuestNav(userVM: UserViewModel) {
+fun StepQuestNav(userVM: UserViewModel, userInfo:UserInformation, onLogout: () -> Unit ) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(navController) }
@@ -124,7 +157,12 @@ fun StepQuestNav(userVM: UserViewModel) {
             composable("challenges") { ChallengesScreen(navController, userVM) }
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController = navController) }
-            composable("profile") { ProfileScreen() }
+            composable("profile") { ProfileScreen(navController = navController) }
+            composable("settings") { SettingsScreen(
+                onLogout = {
+                    onLogout()
+                }
+            ) }
             composable("shop"){ ShopScreen(navController, userVM) }
         }
     }

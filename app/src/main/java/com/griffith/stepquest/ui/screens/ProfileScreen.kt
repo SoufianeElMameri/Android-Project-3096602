@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
 
 import com.griffith.stepquest.R
 import coil.compose.rememberAsyncImagePainter
@@ -49,7 +50,7 @@ import com.griffith.stepquest.ui.theme.*
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
     // loading the porifle picture from the local storage if it exists if not load default profile
     val context = LocalContext.current
     // used to refresh the composable if we change the profile picture
@@ -166,7 +167,9 @@ fun ProfileScreen() {
                     imageVector = Icons.Rounded.Settings,
                     contentDescription = "Settings",
                     tint = TextPrimary,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable { navController.navigate("settings") },
                 )
             }
 
