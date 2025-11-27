@@ -79,6 +79,7 @@ class MainActivity : ComponentActivity() {
 
         stepCounter = StepCounter(this)
         userInfo    = UserInformation(this)
+
         // Tell Android to handle system bars
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
@@ -92,6 +93,8 @@ class MainActivity : ComponentActivity() {
 
             // if user is logged in show the app screens
             if (loggedIn) {
+
+                userVM.loadUserData(userInfo)
                 StepQuestNav(
                     userVM = userVM,
                     userInfo = userInfo,
@@ -156,7 +159,7 @@ fun StepQuestNav(userVM: UserViewModel, userInfo:UserInformation, onLogout: () -
             composable("home") { HomeScreen(navController, userVM) }
             composable("challenges") { ChallengesScreen(navController, userVM) }
             composable("badges") { BadgesScreen(navController) }
-            composable("rank") { RankScreen(navController = navController) }
+            composable("rank") { RankScreen(navController = navController, userVM = userVM) }
             composable("profile") { ProfileScreen(navController = navController) }
             composable("settings") { SettingsScreen(userInfo,
                 onLogout = {
