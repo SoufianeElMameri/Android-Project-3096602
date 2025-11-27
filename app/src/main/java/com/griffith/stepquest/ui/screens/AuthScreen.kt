@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.theme.*
 import androidx.compose.ui.draw.clip
+import androidx.compose.material3.OutlinedTextField
 
 @Composable
 fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
@@ -215,17 +216,15 @@ fun CostumeTextField(
                 )
                 .padding(horizontal = 14.dp, vertical = 4.dp)
         ) {
-            TextField(
+            // use outlined text field for better visual effects
+            OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(label, color = TextSecondary) },
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Black
+                    unfocusedIndicatorColor = Color.Transparent
                 ),
                 visualTransformation = if (isPassword)
                     PasswordVisualTransformation() else
