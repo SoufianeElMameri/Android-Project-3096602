@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -50,11 +51,16 @@ import java.io.File
 import java.io.FileOutputStream
 import com.griffith.stepquest.ui.theme.*
 
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
-fun SettingsScreen(onLogout: () -> Unit) {
+fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
 
     val context = LocalContext.current
+    var showUsernameDialog by remember { mutableStateOf(false) }
+    var showPasswordDialog by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
@@ -106,20 +112,53 @@ fun SettingsScreen(onLogout: () -> Unit) {
                 title = "Change User Name",
                 iconRes = R.drawable.username
             ) {
-            }
-
-            SettingsItem(
-                title = "Change Email",
-                iconRes = R.drawable.mail
-            ) {
+                showUsernameDialog = true
             }
 
             SettingsItem(
                 title = "Change Password",
                 iconRes = R.drawable.pwd
+            ) {
+                showPasswordDialog = true
+            }
+            if (showUsernameDialog) {
+                ChangeUsernameDialog(
+                    userInfo = userInfo,
+                    iconRes = R.drawable.username,
+                    onDismiss = { showUsernameDialog = false }
+                )
+            }
+
+            if (showPasswordDialog) {
+                ChangePasswordDialog(
+                    userInfo = userInfo,
+                    iconRes = R.drawable.pwd,
+                    onDismiss = { showPasswordDialog = false }
+                )
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+//***************************************************** LEGAL SECTION *****************************************************
+            Text(
+                text = "Legal",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Black
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SettingsItem(
+                title = "Terms & Conditions",
+                iconRes = R.drawable.tc
+            ) {}
+
+            SettingsItem(
+                title = "Privacy Policy",
+                iconRes = R.drawable.privacy
             ) {}
 
             Spacer(modifier = Modifier.height(30.dp))
+
 //***************************************************** logout button *****************************************************
             Button(
                 onClick = {
@@ -178,5 +217,235 @@ fun SettingsItem(title: String, iconRes: Int, onClick: () -> Unit) {
             fontWeight = FontWeight.Medium,
             color = Black
         )
+    }
+}
+
+// component to create a dialog for the user to change their name
+@Composable
+fun ChangeUsernameDialog(
+    userInfo: UserInformation,
+    iconRes: Int,
+    onDismiss: () -> Unit
+) {
+    var newName by remember { mutableStateOf(userInfo.getUsername() ?: "") }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    Dialog(onDismissRequest = { onDismiss() }) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(8.dp, RoundedCornerShape(18.dp))
+                .background(White, RoundedCornerShape(18.dp))
+                .padding(20.dp)
+        ) {
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//***************************************************** HEADER TITLE WITH IMAGE *****************************************************
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Change Username",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Black
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+//***************************************************** NEW USER NAME FIELD *****************************************************
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = {
+                        newName = it
+                        error = null
+                    },
+                    label = { Text("New Username") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = error != null
+                )
+
+                if (error != null) {
+                    Text(error!!, color = Color.Red, fontSize = 13.sp)
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+//***************************************************** CONFIRM CANCEL BUTTONS *****************************************************
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        text = "Cancel",
+                        fontSize = 16.sp,
+                        modifier = Modifier.clickable { onDismiss() }
+                    )
+
+                    Text(
+                        text = "Save",
+                        fontSize = 16.sp,
+                        modifier = Modifier.clickable {
+                            if (newName.isBlank()) {
+                                error = "Username cannot be empty"
+                                return@clickable
+                            }
+
+                            userInfo.saveUsername(newName)
+                            onDismiss()
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+// component to create a dialog for the user to change their username
+@Composable
+fun ChangePasswordDialog(
+    userInfo: UserInformation,
+    iconRes: Int,
+    onDismiss: () -> Unit
+) {
+    var oldPass by remember { mutableStateOf("") }
+    var newPass by remember { mutableStateOf("") }
+    var confirmPass by remember { mutableStateOf("") }
+
+    var error by remember { mutableStateOf<String?>(null) }
+
+    Dialog(onDismissRequest = { onDismiss() }) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(8.dp, RoundedCornerShape(18.dp))
+                .background(White, RoundedCornerShape(18.dp))
+                .padding(20.dp)
+        ) {
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//***************************************************** HEADER TITLE WITH IMAGE *****************************************************
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Change Password",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Black
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+//***************************************************** OLD PASSWORD FIELD *****************************************************
+
+                OutlinedTextField(
+                    value = oldPass,
+                    onValueChange = {
+                        oldPass = it
+                        error = null
+                    },
+                    label = { Text("Old Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    isError = error != null
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+//***************************************************** NEW PASSWORD FIELD *****************************************************
+
+                OutlinedTextField(
+                    value = newPass,
+                    onValueChange = {
+                        newPass = it
+                        error = null
+                    },
+                    label = { Text("New Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    isError = error != null
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+//***************************************************** CONFIRM PASSWORD FIELD *****************************************************
+                OutlinedTextField(
+                    value = confirmPass,
+                    onValueChange = {
+                        confirmPass = it
+                        error = null
+                    },
+                    label = { Text("Confirm New Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    isError = error != null
+                )
+
+                if (error != null) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(error!!, color = Color.Red, fontSize = 13.sp)
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+//***************************************************** CONFIRM CANCEL BUTTONS *****************************************************
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        text = "Cancel",
+                        fontSize = 16.sp,
+                        modifier = Modifier.clickable { onDismiss() }
+                    )
+
+                    Text(
+                        text = "Save",
+                        fontSize = 16.sp,
+                        modifier = Modifier.clickable {
+
+                            val storedPass = userInfo.getPassword() ?: ""
+
+                            if (oldPass != storedPass) {
+                                error = "Old password is incorrect"
+                                return@clickable
+                            }
+
+                            if (newPass.isBlank()) {
+                                error = "New password cannot be empty"
+                                return@clickable
+                            }
+
+                            if (newPass != confirmPass) {
+                                error = "Passwords do not match"
+                                return@clickable
+                            }
+
+                            userInfo.savePassword(newPass)
+                            onDismiss()
+                        }
+                    )
+                }
+            }
+        }
     }
 }
