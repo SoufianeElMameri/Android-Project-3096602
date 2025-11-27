@@ -283,25 +283,43 @@ fun ChangeUsernameDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
-                    Text(
-                        text = "Cancel",
-                        fontSize = 16.sp,
-                        modifier = Modifier.clickable { onDismiss() }
-                    )
+                    // CANCEL BUTTON
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFE53935), RoundedCornerShape(10.dp)) // red
+                            .clickable { onDismiss() }
+                            .padding(vertical = 10.dp, horizontal = 20.dp)
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            fontSize = 15.sp,
+                            color = White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
 
-                    Text(
-                        text = "Save",
-                        fontSize = 16.sp,
-                        modifier = Modifier.clickable {
-                            if (newName.isBlank()) {
-                                error = "Username cannot be empty"
-                                return@clickable
+                    // SAVE BUTTON
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFF43A047), RoundedCornerShape(10.dp)) // green
+                            .clickable {
+                                if (newName.isBlank()) {
+                                    error = "Username cannot be empty"
+                                    return@clickable
+                                }
+
+                                userInfo.saveUsername(newName)
+                                onDismiss()
                             }
-
-                            userInfo.saveUsername(newName)
-                            onDismiss()
-                        }
-                    )
+                            .padding(vertical = 10.dp, horizontal = 20.dp)
+                    ) {
+                        Text(
+                            text = "Save",
+                            fontSize = 15.sp,
+                            color = White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
         }
@@ -411,39 +429,56 @@ fun ChangePasswordDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    // CANCEL BUTTON
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFE53935), RoundedCornerShape(10.dp)) // red
+                            .clickable { onDismiss() }
+                            .padding(vertical = 10.dp, horizontal = 20.dp)
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            fontSize = 15.sp,
+                            color = White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
 
-                    Text(
-                        text = "Cancel",
-                        fontSize = 16.sp,
-                        modifier = Modifier.clickable { onDismiss() }
-                    )
+                    // SAVE BUTTON
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFF43A047), RoundedCornerShape(10.dp)) // green
+                            .clickable {
 
-                    Text(
-                        text = "Save",
-                        fontSize = 16.sp,
-                        modifier = Modifier.clickable {
+                                val storedPass = userInfo.getPassword() ?: ""
 
-                            val storedPass = userInfo.getPassword() ?: ""
+                                if (oldPass != storedPass) {
+                                    error = "Old password is incorrect"
+                                    return@clickable
+                                }
 
-                            if (oldPass != storedPass) {
-                                error = "Old password is incorrect"
-                                return@clickable
+                                if (newPass.isBlank()) {
+                                    error = "New password cannot be empty"
+                                    return@clickable
+                                }
+
+                                if (newPass != confirmPass) {
+                                    error = "Passwords do not match"
+                                    return@clickable
+                                }
+
+                                userInfo.savePassword(newPass)
+                                onDismiss()
                             }
-
-                            if (newPass.isBlank()) {
-                                error = "New password cannot be empty"
-                                return@clickable
-                            }
-
-                            if (newPass != confirmPass) {
-                                error = "Passwords do not match"
-                                return@clickable
-                            }
-
-                            userInfo.savePassword(newPass)
-                            onDismiss()
-                        }
-                    )
+                            .padding(vertical = 10.dp, horizontal = 20.dp)
+                    ) {
+                        Text(
+                            text = "Save",
+                            fontSize = 15.sp,
+                            color = White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
         }
