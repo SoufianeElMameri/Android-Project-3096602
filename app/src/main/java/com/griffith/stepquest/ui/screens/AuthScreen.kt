@@ -214,7 +214,7 @@ fun CostumeTextField(
                     color = White,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(horizontal = 14.dp, vertical = 4.dp)
+                .padding(horizontal = 4.dp, vertical = 4.dp)
         ) {
             // use outlined text field for better visual effects
             OutlinedTextField(
@@ -222,10 +222,10 @@ fun CostumeTextField(
                 onValueChange = onValueChange,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(label, color = TextSecondary) },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
+//                colors = TextFieldDefaults.colors(
+//                    focusedIndicatorColor = Color.Transparent,
+//                    unfocusedIndicatorColor = Color.Transparent
+//                ),
                 visualTransformation = if (isPassword)
                     PasswordVisualTransformation() else
                     VisualTransformation.None,
