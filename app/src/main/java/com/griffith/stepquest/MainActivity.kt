@@ -158,12 +158,12 @@ fun StepQuestNav(userVM: UserViewModel, userInfo:UserInformation, onLogout: () -
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController = navController) }
             composable("profile") { ProfileScreen(navController = navController) }
-            composable("settings") { SettingsScreen(
+            composable("settings") { SettingsScreen(userInfo,
                 onLogout = {
                     onLogout()
                 }
             ) }
-            composable("shop"){ ShopScreen(navController, userVM) }
+//            composable("shop"){ ShopScreen(navController, userVM) }
         }
     }
 }
