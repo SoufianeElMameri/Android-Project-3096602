@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -22,6 +21,7 @@ import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.theme.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.OutlinedTextField
+
 
 @Composable
 fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
@@ -49,7 +49,7 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                     listOf(BackgroundTop, BackgroundBottom)
                 )
             ),
-        color = Color.Transparent
+        color = Glass
     ) {
 
         Column(
@@ -59,6 +59,38 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+//*************************************************** HEADER TITLE ***************************************************
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(bottom = 28.dp)
+            ) {
+                Text(
+                    text = "Welcome",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
+
+                Text(
+                    text = "to",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = TextPrimary
+                )
+
+                Text(
+                    text = "StepQuest",
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Dark
+                )
+            }
+            if (isRegister) {
+                Spacer(modifier = Modifier.height(20.dp))
+            }else{
+                Spacer(modifier = Modifier.height(60.dp))
+            }
 //*************************************************** REGISTER OR LOGIN OPTIONS ***************************************************
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -67,8 +99,8 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                     .padding(horizontal = 20.dp)
             ) {
 
-                val activeBg = Color(0x74FFEB43)
-                val inactiveBg = Color.Transparent
+                val activeBg = LightBronze
+                val inactiveBg = Glass
 
                 Box(
                     modifier = Modifier
@@ -77,7 +109,7 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                         .padding(horizontal = 18.dp, vertical = 8.dp)
                         .clickable { isRegister = false }
                 ) {
-                    Text("Login", fontSize = 20.sp, color = if (!isRegister) Black else TextSecondary)
+                    Text("Login", fontSize = 20.sp, color = if (!isRegister) Dark else TextSecondary)
                 }
 
                 Box(
@@ -87,105 +119,115 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                         .padding(horizontal = 18.dp, vertical = 8.dp)
                         .clickable { isRegister = true }
                 ) {
-                    Text("Register", fontSize = 20.sp, color = if (isRegister) Black else TextSecondary)
+                    Text("Register", fontSize = 20.sp, color = if (isRegister) Dark else TextSecondary)
                 }
             }
             Spacer(modifier = Modifier.height(30.dp))
 //*************************************************** REGISTER OR LOGIN TEXT FIELDS ***************************************************
-            // only show the username text field if the user is trying to register
-            if (isRegister) {
-                CostumeTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = "Username",
-                    error = usernameError
-                )
-            }
-            // always show the email text field
-            CostumeTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = "Email",
-                error = emailError
-            )
 
-            // always show the password text field
-
-            CostumeTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = "Password",
-                isPassword = true,
-                error = pwdError
-            )
-
-            // only show the confirm password text field if the user is trying to register
-            if (isRegister) {
-                CostumeTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = "Confirm Password",
-                    isPassword = true,
-                    error = pwdConfirmError
-                )
-            }
-
-            Button(
-                onClick = {
-
-                    // reset errors
-                    usernameError = ""
-                    emailError = ""
-                    pwdError = ""
-                    pwdConfirmError = ""
-
-                    // check if the user is trying to register and if the username is empty
-                    if (isRegister) {
-                        if (username.isBlank()) {
-                            usernameError = "Username required"
-                            return@Button
-                        }
-                    }
-                    // check if the email is empty
-                    if (email.isBlank()) {
-                        emailError = "Email required"
-                        return@Button
-                    }
-
-                    // check if the password is empty
-                    if (password.isBlank()) {
-                        pwdError = "Password required"
-                        return@Button
-                    }
-
-                    // check if the user is trying to register and if the password confirmation is empty
-                    if (isRegister) {
-                        if (confirmPassword.isBlank()) {
-                            pwdConfirmError = "Confirm your password"
-                            return@Button
-                        }
-                        // check if the confirm password mismatches the password
-                        if (password != confirmPassword) {
-                            pwdConfirmError = "Passwords do not match"
-                            return@Button
-                        }
-                        // save on register
-                        userInfo.saveUsername(username)
-                        userInfo.saveEmail(email)
-                        userInfo.savePassword(password)
-                    }
-
-                    // login or register mark user as logged
-                    userInfo.saveLoginState(true)
-                    // call onlogin success func
-                    onLoginSuccess()
-                },
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 12.dp,
+                        shape = RoundedCornerShape(20.dp),
+                        clip = false
+                    )
+                    .background(Bright, RoundedCornerShape(20.dp))
+                    .padding(22.dp)
             ) {
-                Text(
-                    text = if (isRegister) "Register" else "Login",
-                    fontSize = 18.sp
-                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // only show the username text field if the user is trying to register
+                    if (isRegister) {
+                        CostumeTextField(
+                            value = username,
+                            onValueChange = { username = it },
+                            label = "Username",
+                            error = usernameError
+                        )
+                    }
+                    // always show the email text field
+                    CostumeTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = "Email",
+                        error = emailError
+                    )
+                    // always show the password text field
+                    CostumeTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "Password",
+                        isPassword = true,
+                        error = pwdError
+                    )
+                    // only show the confirm password text field if the user is trying to register
+                    if (isRegister) {
+                        CostumeTextField(
+                            value = confirmPassword,
+                            onValueChange = { confirmPassword = it },
+                            label = "Confirm Password",
+                            isPassword = true,
+                            error = pwdConfirmError
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            // reset errors
+                            usernameError = ""
+                            emailError = ""
+                            pwdError = ""
+                            pwdConfirmError = ""
+
+                            // check if the username is empty
+                            if (isRegister && username.isBlank()) {
+                                usernameError = "Username required"
+                                return@Button
+                            }
+                            // check if the email is empty
+                            if (email.isBlank()) {
+                                emailError = "Email required"
+                                return@Button
+                            }
+                            // check if the Password is empty
+                            if (password.isBlank()) {
+                                pwdError = "Password required"
+                                return@Button
+                            }
+                            // check if the Confirm Password is empty
+                            if (isRegister) {
+                                if (confirmPassword.isBlank()) {
+                                    pwdConfirmError = "Confirm your password"
+                                    return@Button
+                                }
+                                // check if the Confirm Password matches the password
+                                if (password != confirmPassword) {
+                                    pwdConfirmError = "Passwords do not match"
+                                    return@Button
+                                }
+                                // save informations if everything is fine
+                                userInfo.saveUsername(username)
+                                userInfo.saveEmail(email)
+                                userInfo.savePassword(password)
+                            }
+                            // set the login state to true
+                            userInfo.saveLoginState(true)
+                            // Redirect the user
+                            onLoginSuccess()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (isRegister) "Register" else "Login",
+                            fontSize = 18.sp
+                        )
+                    }
+                }
             }
         }
     }
@@ -205,16 +247,6 @@ fun CostumeTextField(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(
-                    elevation = 10.dp,
-                    shape = RoundedCornerShape(12.dp),
-                    clip = false
-                )
-                .background(
-                    color = White,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(horizontal = 4.dp, vertical = 4.dp)
         ) {
             // use outlined text field for better visual effects
             OutlinedTextField(
@@ -236,7 +268,7 @@ fun CostumeTextField(
         if (error.isNotEmpty()) {
             Text(
                 text = error,
-                color = Color.Red,
+                color = AlertRed,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 4.dp, top = 4.dp)
             )
