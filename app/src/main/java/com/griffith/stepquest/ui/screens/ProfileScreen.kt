@@ -133,7 +133,7 @@ fun ProfileScreen(navController: NavController) {
                             )
                             .border(
                                 width = 3.dp,
-                                color = White,
+                                color = Bright,
                                 shape = CircleShape
                             )
                             .clip(CircleShape),
@@ -144,13 +144,13 @@ fun ProfileScreen(navController: NavController) {
                         modifier = Modifier
                             .size(20.dp)
                             .align(Alignment.BottomEnd)
-                            .background(White, CircleShape),
+                            .background(Bright, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Edit,
                             contentDescription = "Edit Profile",
-                            tint = Black,
+                            tint = Dark,
                             modifier = Modifier.size(14.dp)
                         )
                     }
@@ -160,7 +160,7 @@ fun ProfileScreen(navController: NavController) {
                     text = "Profile",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Black
+                    color = Dark
                 )
 
                 Icon(
@@ -199,7 +199,7 @@ fun ProfileScreen(navController: NavController) {
                         text = "Level 12",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Black
+                        color = Dark
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -218,7 +218,7 @@ fun ProfileScreen(navController: NavController) {
                 text = "Overview",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Black
+                color = Dark
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -265,7 +265,7 @@ fun ProfileScreen(navController: NavController) {
                 text = "Your Medals",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Black
+                color = Dark
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -320,7 +320,7 @@ fun ProfileScreen(navController: NavController) {
                 text = "Your Rank",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Black
+                color = Dark
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -367,7 +367,7 @@ fun OverviewCard(title: String, value: String, iconRes: Int) {
                 clip = false
             )
             .background(
-                White,
+                Bright,
                 shape = RoundedCornerShape(20.dp)
             ),
         contentAlignment = Alignment.Center
@@ -377,14 +377,14 @@ fun OverviewCard(title: String, value: String, iconRes: Int) {
                 text = title,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Black
+                color = Dark
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Black
+                color = Dark
             )
             Spacer(modifier = Modifier.height(6.dp))
             Image(

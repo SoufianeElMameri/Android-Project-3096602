@@ -109,7 +109,7 @@ fun BadgesScreen(navController: NavController) {
                     )
                 )
             ),
-        color = Color.Transparent
+        color = Glass
     ) {
         Column(
             modifier = Modifier
@@ -198,7 +198,7 @@ fun BadgesScreen(navController: NavController) {
                             text = badge.name,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Black
+                            color = Dark
                         )
                     }
                 }

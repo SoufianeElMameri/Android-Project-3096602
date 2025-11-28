@@ -139,7 +139,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
             .padding(vertical = 6.dp, horizontal = 8.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = White)
+        colors = CardDefaults.cardColors(containerColor = Bright)
     ) {
         Column(
             modifier = Modifier
@@ -155,7 +155,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                         text = title,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Black
+                        color = Dark
                     )
                     Text(
                         text = "$progress / $goal steps",
@@ -184,7 +184,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                         ) {
                             Text(
                                 text = "+$difficulty",
-                                color = White,
+                                color = Bright,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )

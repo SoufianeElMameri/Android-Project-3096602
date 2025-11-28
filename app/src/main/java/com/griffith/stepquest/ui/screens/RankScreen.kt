@@ -111,7 +111,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                 text = "Top Walkers",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Black
+                    color = Dark
                 ),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -126,7 +126,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                         colors = CardDefaults.cardColors(
                             containerColor =
                                 if (player.id == userId) Color(0xFFD7FFD9)
-                                else White
+                                else Bright
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
@@ -163,7 +163,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                                 Text(
                                     text = player.name,
                                     fontWeight = if (player.name == "You") FontWeight.Bold else FontWeight.Normal,
-                                    color = Black
+                                    color = Dark
                                 )
                             }
                             Text(

@@ -55,7 +55,7 @@ fun HeaderBar(headerTitle:String, navController: NavController){
             text = headerTitle,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = Black
+                color = Dark
             )
         )
         Image(
@@ -75,7 +75,7 @@ fun HeaderBar(headerTitle:String, navController: NavController){
                 )
                 .border(
                     width = 3.dp,
-                    color = White,
+                    color = Bright,
                     shape = CircleShape
                 )
                 .clip(CircleShape)

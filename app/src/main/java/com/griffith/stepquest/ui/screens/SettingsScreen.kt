@@ -92,7 +92,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                     text = "Settings",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Black
+                    color = Dark
                 )
             }
 
@@ -103,7 +103,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                 text = "Account",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Black
+                color = Dark
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -142,7 +142,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                 text = "Legal",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Black
+                color = Dark
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -174,7 +174,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                 Text(
                     text = "Logout",
                     fontSize = 18.sp,
-                    color = White
+                    color = Bright
                 )
             }
         }
@@ -196,7 +196,7 @@ fun SettingsItem(title: String, iconRes: Int, onClick: () -> Unit) {
                 clip = false
             )
             .background(
-                White,
+                Bright,
                 shape = RoundedCornerShape(14.dp)
             )
             .padding(14.dp),
@@ -215,7 +215,7 @@ fun SettingsItem(title: String, iconRes: Int, onClick: () -> Unit) {
             text = title,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            color = Black
+            color = Dark
         )
     }
 }
@@ -236,7 +236,7 @@ fun ChangeUsernameDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(8.dp, RoundedCornerShape(18.dp))
-                .background(White, RoundedCornerShape(18.dp))
+                .background(Bright, RoundedCornerShape(18.dp))
                 .padding(20.dp)
         ) {
 
@@ -254,7 +254,7 @@ fun ChangeUsernameDialog(
                     text = "Change Username",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Black
+                    color = Dark
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -293,7 +293,7 @@ fun ChangeUsernameDialog(
                         Text(
                             text = "Cancel",
                             fontSize = 15.sp,
-                            color = White,
+                            color = Bright,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -316,7 +316,7 @@ fun ChangeUsernameDialog(
                         Text(
                             text = "Save",
                             fontSize = 15.sp,
-                            color = White,
+                            color = Bright,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -346,7 +346,7 @@ fun ChangePasswordDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(8.dp, RoundedCornerShape(18.dp))
-                .background(White, RoundedCornerShape(18.dp))
+                .background(Bright, RoundedCornerShape(18.dp))
                 .padding(20.dp)
         ) {
 
@@ -364,7 +364,7 @@ fun ChangePasswordDialog(
                     text = "Change Password",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Black
+                    color = Dark
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -439,7 +439,7 @@ fun ChangePasswordDialog(
                         Text(
                             text = "Cancel",
                             fontSize = 15.sp,
-                            color = White,
+                            color = Bright,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -475,7 +475,7 @@ fun ChangePasswordDialog(
                         Text(
                             text = "Save",
                             fontSize = 15.sp,
-                            color = White,
+                            color = Bright,
                             fontWeight = FontWeight.Medium
                         )
                     }

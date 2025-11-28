@@ -146,7 +146,7 @@ fun HeaderBar(navController: NavController, coins: Int) {
                 )
                 .border(
                     width = 3.dp,
-                    color = White,
+                    color = Bright,
                     shape = CircleShape
                 )
                 .clip(CircleShape)
@@ -268,7 +268,7 @@ fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modif
             .padding(horizontal = 4.dp),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = White)
+        colors = CardDefaults.cardColors(containerColor = Bright)
     ) {
         Column {
             Text(
@@ -298,13 +298,13 @@ fun StatCard(title: String, value: Int, iconRes: Int, modifier: Modifier = Modif
                         text = "$value",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Black
+                        color = Dark
                     )
                     Text(
                         text = "Steps",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Black
+                        color = Dark
                     )
                 }
 
