@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,7 +55,7 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel) {
                     )
                 )
             ),
-        color = Color.Transparent
+        color = Glass
     ) {
         Column(
             modifier = Modifier
@@ -167,7 +166,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                 Box(
                     modifier = Modifier
                         .background(
-                            color = if (isCompleted) Color(0xFF4ADE80) else Color(0xFFBDBDBD),
+                            color = if (isCompleted) LimeColor else BadgeLockedDark,
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable(enabled = isCompleted && !alreadyClaimed.value) {
@@ -219,7 +218,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                     Icon(
                         imageVector = Icons.Default.Star,
                         contentDescription = "Star",
-                        tint = Color(0xFFFFC107),
+                        tint = IconGold,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -232,13 +231,13 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
-                    .background(Color(0xFFE6E6E6), RoundedCornerShape(4.dp))
+                    .background(EmptyBarColor, RoundedCornerShape(4.dp))
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(progressRatio)
-                        .background(Color(0xFF4ADE80), RoundedCornerShape(4.dp))
+                        .background(LimeColor, RoundedCornerShape(4.dp))
                 )
             }
         }
@@ -252,7 +251,7 @@ fun DailyTip(tip: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 10.dp)
-            .background(Color(0xFFe8ffe8),
+            .background(LightLimeColor,
                 shape = RoundedCornerShape(14.dp)
             )
             .padding(14.dp),
@@ -269,7 +268,7 @@ fun DailyTip(tip: String) {
             text = tip,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = Color(0xFF045d32)
+            color = GrassColor
         )
     }
 }

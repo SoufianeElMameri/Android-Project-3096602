@@ -5,12 +5,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.griffith.stepquest.R
+import com.griffith.stepquest.ui.theme.*
 
 // function that creates a navigation bar
 @Composable
@@ -19,7 +19,7 @@ fun BottomNavBar(navController: NavController) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
-        containerColor = Color.Green.copy(alpha = 0.2f),
+        containerColor = NavBackgroundColor,
         tonalElevation = 8.dp
     ){
 
@@ -44,12 +44,12 @@ fun BottomNavBar(navController: NavController) {
             label = {
                 Text(
                     text = "Home",
-                    color = Color.Black,
+                    color = Dark,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             },
             colors = NavigationBarItemDefaults.colors(
-                indicatorColor = Color(0xFF00FF00)
+                indicatorColor = SelectedNavItemColor
             )
         )
 
@@ -74,12 +74,12 @@ fun BottomNavBar(navController: NavController) {
             label = {
                 Text(
                     text = "Challenges",
-                    color = Color.Black,
+                    color = Dark,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             },
             colors = NavigationBarItemDefaults.colors(
-                indicatorColor = Color(0xFF00FF00)
+                indicatorColor = SelectedNavItemColor
             )
         )
 
@@ -105,12 +105,12 @@ fun BottomNavBar(navController: NavController) {
             label = {
                 Text(
                     text = "Badges",
-                    color = Color.Black,
+                    color = Dark,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             },
             colors = NavigationBarItemDefaults.colors(
-                indicatorColor = Color(0xFF00FF00)
+                indicatorColor = SelectedNavItemColor
             )
         )
 //******************************************** RANKS ********************************************
@@ -134,12 +134,12 @@ fun BottomNavBar(navController: NavController) {
             label = {
                 Text(
                     text = "Rank",
-                    color = Color.Black,
+                    color = Dark,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             },
             colors = NavigationBarItemDefaults.colors(
-                indicatorColor = Color(0xFF00FF00)
+                indicatorColor = SelectedNavItemColor
             )
         )
 //******************************************** SHOP ********************************************
@@ -163,7 +163,7 @@ fun BottomNavBar(navController: NavController) {
 //            label = {
 //                Text(
 //                    text = "Shop",
-//                    color = Color.Black,
+//                    color = Dark,
 //                    fontSize = MaterialTheme.typography.labelSmall.fontSize
 //                )
 //            },

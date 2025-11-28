@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -70,7 +69,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                     colors = listOf(BackgroundTop, BackgroundBottom)
                 )
             ),
-        color = Color.Transparent
+        color = Glass
     ) {
 
         Column(
@@ -168,7 +167,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                     .fillMaxWidth()
                     .padding(bottom = 30.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF4444)
+                    containerColor = AlertRed
                 )
             ) {
                 Text(
@@ -272,7 +271,7 @@ fun ChangeUsernameDialog(
                 )
 
                 if (error != null) {
-                    Text(error!!, color = Color.Red, fontSize = 13.sp)
+                    Text(error!!, color = AlertRed, fontSize = 13.sp)
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -286,7 +285,7 @@ fun ChangeUsernameDialog(
                     // CANCEL BUTTON
                     Box(
                         modifier = Modifier
-                            .background(Color(0xFFE53935), RoundedCornerShape(10.dp)) // red
+                            .background(AlertRed, RoundedCornerShape(10.dp)) // red
                             .clickable { onDismiss() }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
@@ -301,7 +300,7 @@ fun ChangeUsernameDialog(
                     // SAVE BUTTON
                     Box(
                         modifier = Modifier
-                            .background(Color(0xFF43A047), RoundedCornerShape(10.dp)) // green
+                            .background(ConfirmGreen, RoundedCornerShape(10.dp)) // green
                             .clickable {
                                 if (newName.isBlank()) {
                                     error = "Username cannot be empty"
@@ -419,7 +418,7 @@ fun ChangePasswordDialog(
 
                 if (error != null) {
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(error!!, color = Color.Red, fontSize = 13.sp)
+                    Text(error!!, color = AlertRed, fontSize = 13.sp)
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -432,7 +431,7 @@ fun ChangePasswordDialog(
                     // CANCEL BUTTON
                     Box(
                         modifier = Modifier
-                            .background(Color(0xFFE53935), RoundedCornerShape(10.dp)) // red
+                            .background(AlertRed, RoundedCornerShape(10.dp)) // red
                             .clickable { onDismiss() }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
@@ -447,7 +446,7 @@ fun ChangePasswordDialog(
                     // SAVE BUTTON
                     Box(
                         modifier = Modifier
-                            .background(Color(0xFF43A047), RoundedCornerShape(10.dp)) // green
+                            .background(ConfirmGreen, RoundedCornerShape(10.dp)) // green
                             .clickable {
 
                                 val storedPass = userInfo.getPassword() ?: ""

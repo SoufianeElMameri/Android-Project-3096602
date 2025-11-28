@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -90,7 +89,7 @@ fun ProfileScreen(navController: NavController) {
                     colors = listOf(BackgroundTop, BackgroundBottom)
                 )
             ),
-        color = Color.Transparent
+        color = Glass
     ) {
 
         Column(
@@ -187,7 +186,7 @@ fun ProfileScreen(navController: NavController) {
                     )
                     .background(
                         brush = Brush.verticalGradient(
-                            listOf(Color(0xFFA6FFCB), Color(0xFFFFF3B0))
+                            listOf(CardTopColor,CardBottomColor)
                         ),
                         shape = RoundedCornerShape(25.dp)
                     ),
@@ -281,7 +280,7 @@ fun ProfileScreen(navController: NavController) {
                     )
                     .background(
                         brush = Brush.verticalGradient(
-                            listOf(Color(0xFFA6FFCB), Color(0xFFFFF3B0))
+                            listOf(CardTopColor, CardBottomColor)
                         ),
                         shape = RoundedCornerShape(22.dp)
                     ),
@@ -336,7 +335,7 @@ fun ProfileScreen(navController: NavController) {
                     )
                     .background(
                         brush = Brush.verticalGradient(
-                            listOf(Color(0xFFA6FFCB), Color(0xFFFFF3B0))
+                            listOf(CardTopColor, CardBottomColor)
                         ),
                         shape = RoundedCornerShape(22.dp)
                     ),

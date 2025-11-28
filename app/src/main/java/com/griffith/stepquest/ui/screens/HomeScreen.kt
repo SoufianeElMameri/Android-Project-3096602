@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.*
 
@@ -73,7 +72,7 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel) {
                     )
                 )
             ),
-        color = Color.Transparent
+        color = Glass
     ){
         Column(
             modifier = Modifier
@@ -179,7 +178,7 @@ fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
 
             // Background arc
             drawArc(
-                color = Color(0xFFB2B2A7),
+                color = EmptyBarColor,
                 startAngle = 135f,
                 sweepAngle = sweepAngle,
                 useCenter = false,
@@ -191,7 +190,7 @@ fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
 
             // Progress arc
             drawArc(
-                color = Color(0xFF4ADE80),
+                color = ProgressBarColor,
                 startAngle = 135f,
                 sweepAngle = sweepAngle * progress,
                 useCenter = false,
@@ -239,7 +238,7 @@ fun StreakSection(streaks : Int) {
             text = "$streaks-Day Streak",
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,
-            color = Color(0xFFFF6B00)
+            color = FireTextColor
         )
     }
 }
@@ -379,7 +378,7 @@ fun WeeklyChart(data: Map<String, Int>) {
                                 .width(20.dp)
                                 .height(barHeight.dp)
                                 .background(
-                                    Color(0xFF4ADE80),
+                                    LimeColor,
                                     RoundedCornerShape(6.dp)
                                 )
                         )

@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,7 +60,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                     )
                 )
             ),
-        color = Color.Transparent
+        color = Glass
     ) {
         Column(
             modifier = Modifier
@@ -101,7 +100,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                             text = tier,
                             fontSize = if (isCurrent) 20.sp else 15.sp,
                             fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isCurrent) Color(0xFF00C853) else Color.Black.copy(alpha = 0.6f)
+                            color = if (isCurrent) LimeColor else Dark
                         )
                     }
                 }
@@ -125,7 +124,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
                             containerColor =
-                                if (player.id == userId) Color(0xFFD7FFD9)
+                                if (player.id == userId) LightLimeColor
                                 else Bright
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -170,7 +169,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                                 text = "${player.steps} steps",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF162D20)
+                                color = GrassColor
                             )
                         }
                     }
