@@ -60,6 +60,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
     val context = LocalContext.current
     var showUsernameDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
 
     Surface(
         modifier = Modifier
@@ -124,7 +125,8 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                 ChangeUsernameDialog(
                     userInfo = userInfo,
                     iconRes = R.drawable.username,
-                    onDismiss = { showUsernameDialog = false }
+                    onDismiss = { showUsernameDialog = false },
+                    onSuccess = { successMessage = it }
                 )
             }
 
@@ -132,7 +134,14 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
                 ChangePasswordDialog(
                     userInfo = userInfo,
                     iconRes = R.drawable.pwd,
-                    onDismiss = { showPasswordDialog = false }
+                    onDismiss = { showPasswordDialog = false },
+                    onSuccess = { successMessage = it }
+                )
+            }
+            if (successMessage != null) {
+                SuccessDialog(
+                    message = successMessage!!,
+                    onDismiss = { successMessage = null }
                 )
             }
             Spacer(modifier = Modifier.height(30.dp))
@@ -181,7 +190,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
 }
 
 
-// REUSABLE COMPONENT TO CREATE SETTINGS ITEMS
+// reusable compoenent to create settings items
 @Composable
 fun SettingsItem(title: String, iconRes: Int, onClick: () -> Unit) {
     Row(
@@ -219,15 +228,12 @@ fun SettingsItem(title: String, iconRes: Int, onClick: () -> Unit) {
     }
 }
 
-// component to create a dialog for the user to change their name
+// component to create a dialog for the user to change their user name
 @Composable
-fun ChangeUsernameDialog(
-    userInfo: UserInformation,
-    iconRes: Int,
-    onDismiss: () -> Unit
-) {
+fun ChangeUsernameDialog(userInfo: UserInformation, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
     var newName by remember { mutableStateOf(userInfo.getUsername() ?: "") }
     var error by remember { mutableStateOf<String?>(null) }
+
 
     Dialog(onDismissRequest = { onDismiss() }) {
 
@@ -282,7 +288,7 @@ fun ChangeUsernameDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
-                    // CANCEL BUTTON
+                    // cancel button
                     Box(
                         modifier = Modifier
                             .background(AlertRed, RoundedCornerShape(10.dp)) // red
@@ -297,7 +303,7 @@ fun ChangeUsernameDialog(
                         )
                     }
 
-                    // SAVE BUTTON
+                    // save button
                     Box(
                         modifier = Modifier
                             .background(ConfirmGreen, RoundedCornerShape(10.dp)) // green
@@ -309,6 +315,7 @@ fun ChangeUsernameDialog(
 
                                 userInfo.saveUsername(newName)
                                 onDismiss()
+                                onSuccess("Username changed successfully!")
                             }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
@@ -328,11 +335,8 @@ fun ChangeUsernameDialog(
 
 // component to create a dialog for the user to change their username
 @Composable
-fun ChangePasswordDialog(
-    userInfo: UserInformation,
-    iconRes: Int,
-    onDismiss: () -> Unit
-) {
+fun ChangePasswordDialog(userInfo: UserInformation, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
+
     var oldPass by remember { mutableStateOf("") }
     var newPass by remember { mutableStateOf("") }
     var confirmPass by remember { mutableStateOf("") }
@@ -428,7 +432,7 @@ fun ChangePasswordDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // CANCEL BUTTON
+                    // cancel botton
                     Box(
                         modifier = Modifier
                             .background(AlertRed, RoundedCornerShape(10.dp)) // red
@@ -443,7 +447,7 @@ fun ChangePasswordDialog(
                         )
                     }
 
-                    // SAVE BUTTON
+                    // save botton
                     Box(
                         modifier = Modifier
                             .background(ConfirmGreen, RoundedCornerShape(10.dp)) // green
@@ -468,6 +472,7 @@ fun ChangePasswordDialog(
 
                                 userInfo.savePassword(newPass)
                                 onDismiss()
+                                onSuccess("Password changed successfully!")
                             }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
@@ -478,6 +483,58 @@ fun ChangePasswordDialog(
                             fontWeight = FontWeight.Medium
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+// function that creates a success popup
+@Composable
+fun SuccessDialog(message: String, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(8.dp, RoundedCornerShape(18.dp))
+                .background(Bright, RoundedCornerShape(18.dp))
+                .padding(22.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Icon(
+                    painter = painterResource(id = R.drawable.check),
+                    contentDescription = null,
+                    tint = ConfirmGreen,
+                    modifier = Modifier.size(46.dp)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = message,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Dark
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Box(
+                    modifier = Modifier
+                        .background(ConfirmGreen, RoundedCornerShape(10.dp))
+                        .clickable { onDismiss() }
+                        .padding(vertical = 10.dp, horizontal = 26.dp)
+                ) {
+                    Text(
+                        text = "OK",
+                        fontSize = 15.sp,
+                        color = Bright,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
