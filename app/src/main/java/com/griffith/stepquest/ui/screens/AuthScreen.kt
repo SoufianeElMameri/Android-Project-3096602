@@ -21,6 +21,7 @@ import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.theme.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.OutlinedTextField
+import com.griffith.stepquest.data.FirebaseAuthManger
 
 
 @Composable
@@ -211,14 +212,22 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                                     return@Button
                                 }
                                 // save informations if everything is fine
-                                userInfo.saveUsername(username)
-                                userInfo.saveEmail(email)
-                                userInfo.savePassword(password)
+                                FirebaseAuthManger.registerUser(
+                                    username = username,
+                                    email = email,
+                                    password = password,
+                                    onSuccess = { onLoginSuccess() },
+                                    onError = { msg -> emailError = msg }
+                                )
                             }
-                            // set the login state to true
-                            userInfo.saveLoginState(true)
-                            // Redirect the user
-                            onLoginSuccess()
+                            else {
+                                FirebaseAuthManger.loginUser(
+                                    email = email,
+                                    password = password,
+                                    onSuccess = { onLoginSuccess() },
+                                    onError = { msg -> emailError = msg }
+                                )
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {

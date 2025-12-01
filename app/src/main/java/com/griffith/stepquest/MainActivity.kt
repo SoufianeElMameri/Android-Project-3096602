@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.screens.AuthScreen
 import com.griffith.stepquest.ui.screens.SettingsScreen
+import com.griffith.stepquest.data.FirebaseAuthManger
 
 class MainActivity : ComponentActivity() {
     private val userVM: UserViewModel by viewModels()
@@ -89,18 +90,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             // state to remember if user is logged in or out (to trigger screen change)
-            var loggedIn by remember { mutableStateOf(userInfo.isUserLoggedIn()) }
+            var isLoggedIn by remember { mutableStateOf(FirebaseAuthManger.isLoggedIn()) }
 
             // if user is logged in show the app screens
-            if (loggedIn) {
+            if (isLoggedIn) {
 
                 userVM.loadUserData(userInfo)
+
                 StepQuestNav(
                     userVM = userVM,
                     userInfo = userInfo,
                     onLogout = {
-                        userInfo.saveLoginState(false)
-                        loggedIn = false
+                        FirebaseAuthManger.logoutUser()
+                        isLoggedIn = false
                     }
                 )
             // if user is not logged in show the authentication screen
@@ -108,8 +110,7 @@ class MainActivity : ComponentActivity() {
                 AuthScreen(
                     userInfo = userInfo,
                     onLoginSuccess = {
-                        userInfo.saveLoginState(true)
-                        loggedIn = true
+                        isLoggedIn = true
                     }
                 )
             }
