@@ -217,7 +217,27 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                                     email = email,
                                     password = password,
                                     onSuccess = { onLoginSuccess() },
-                                    onError = { msg -> emailError = msg }
+                                    onError = { msg ->
+                                        val lower = msg.lowercase()
+
+                                        when {
+                                            "password" in lower -> {
+                                                pwdError = msg
+                                            }
+                                            "email" in lower -> {
+                                                emailError = msg
+                                            }
+                                            "user" in lower && "record" in lower -> {
+                                                emailError = "No account found with this email"
+                                            }
+                                            "credential" in lower || "wrong" in lower -> {
+                                                pwdError = "Incorrect password"
+                                            }
+                                            else -> {
+                                                pwdConfirmError = msg
+                                            }
+                                        }
+                                    }
                                 )
                             }
                             else {
@@ -225,7 +245,27 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                                     email = email,
                                     password = password,
                                     onSuccess = { onLoginSuccess() },
-                                    onError = { msg -> emailError = msg }
+                                    onError = { msg ->
+                                        val lowerMsg = msg.lowercase()
+
+                                        when {
+                                            "password" in lowerMsg -> {
+                                                pwdError = msg
+                                            }
+                                            "email" in lowerMsg -> {
+                                                emailError = msg
+                                            }
+                                            "user" in lowerMsg && "record" in lowerMsg -> {
+                                                emailError = "No account found with this email"
+                                            }
+                                            "credential" in lowerMsg || "wrong" in lowerMsg -> {
+                                                pwdError = "Incorrect password"
+                                            }
+                                            else -> {
+                                                pwdConfirmError = msg
+                                            }
+                                        }
+                                    }
                                 )
                             }
                         },
