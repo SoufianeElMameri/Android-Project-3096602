@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "440845051782",
+    "project_id": "stepquest-e6652",
+    "storage_bucket": "stepquest-e6652.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:440845051782:android:bb84b3a4bc2c1376386e07",
+        "android_client_info": {
+          "package_name": "com.griffith.stepquest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdpj1ql-Kc7F_YB4LaExefP-IaGFJSaUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
