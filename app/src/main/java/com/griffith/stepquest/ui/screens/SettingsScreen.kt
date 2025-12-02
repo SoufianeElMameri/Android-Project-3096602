@@ -49,6 +49,7 @@ import com.griffith.stepquest.data.UserInformation
 import java.io.File
 import java.io.FileOutputStream
 import com.griffith.stepquest.ui.theme.*
+import com.griffith.stepquest.data.ProfileManager
 
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.input.PasswordVisualTransformation

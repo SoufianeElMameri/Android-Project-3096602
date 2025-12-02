@@ -15,7 +15,7 @@ import kotlin.text.get
 // a model to keep track of coins and add coins
 class UserViewModel : ViewModel() {
 
-
+    private var totalStepsLoaded = false
     private var lastSave = 0L
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -97,14 +97,25 @@ class UserViewModel : ViewModel() {
             .update("userRank", userRank)
     }
 
-    fun addToTotalSteps(amount: Int) {
-        totalSteps += amount
-
+    fun loadTotalSteps() {
         val user = auth.currentUser ?: return
 
         db.collection("users")
             .document(user.uid)
-            .update("total_steps", totalSteps)
+            .collection("daily_steps")
+            .get()
+            .addOnSuccessListener { docs ->
+                var sum = 0
+                for (doc in docs) {
+                    val s = doc.getLong("steps")?.toInt() ?: 0
+                    sum += s
+                }
+                totalSteps = sum
+
+                db.collection("users")
+                    .document(user.uid)
+                    .update("total_steps", totalSteps)
+            }
     }
 
     fun addUserExperience(amount: Int) {
@@ -148,6 +159,11 @@ class UserViewModel : ViewModel() {
 
     // function that loads user data from the database
     fun loadUserData() {
+        if(!totalStepsLoaded){
+            loadTotalSteps()
+            totalStepsLoaded = true
+        }
+
         val user = auth.currentUser
         if (user == null) {
             return

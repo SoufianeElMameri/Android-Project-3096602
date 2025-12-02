@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         // call request permission function
         requestStepPermission()
 
-        stepCounter = StepCounter(this)
+        stepCounter = StepCounter(this, userVM)
         userInfo    = UserInformation(this)
 
         // Tell Android to handle system bars
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
             // if user is logged in show the app screens
             if (isLoggedIn) {
 
-                userVM.loadUserData(userInfo)
+                userVM.loadUserData()
 
                 StepQuestNav(
                     userVM = userVM,
@@ -110,6 +110,7 @@ class MainActivity : ComponentActivity() {
                 AuthScreen(
                     userInfo = userInfo,
                     onLoginSuccess = {
+                        userVM.loadUserStepsFromDb()
                         isLoggedIn = true
                     }
                 )
