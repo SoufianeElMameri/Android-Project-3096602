@@ -70,6 +70,13 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
         if (savedDay == "") {
             savedDay = today
             baselineSteps = rawSteps
+
+            prefs.edit().putString("savedDay", savedDay).apply()
+            prefs.edit().putInt("baselineSteps", baselineSteps).apply()
+            prefs.edit().putBoolean("initialized", true).apply()
+
+            initialized = true
+            return
         } else if (savedDay != today) {
 
             userViewModel.saveDailySteps(savedDay, currentSteps)
@@ -81,6 +88,9 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
             prefs.edit().putString("savedDay", savedDay).apply()
             prefs.edit().putInt("baselineSteps", baselineSteps).apply()
             prefs.edit().putBoolean("initialized", true).apply()
+
+            initialized = true
+            return
         }
 
         initialized = true

@@ -31,14 +31,22 @@ class UserViewModel : ViewModel() {
     // holds the number of coins the user has
     var coinStash by mutableStateOf(0)
         private set
+
     // holds the number of steps the user did
     var steps by mutableStateOf(0)
         private set
+
     var totalSteps by mutableStateOf(0)
         private set
+
     var userExperience by mutableStateOf(0)
         private set
 
+    var weeklySteps by mutableStateOf(0)
+        private set
+
+    var monthlySteps by mutableStateOf(0)
+        private set
 
 
     fun loadUserData(userInfo: UserInformation) {
@@ -223,6 +231,53 @@ class UserViewModel : ViewModel() {
                 totalSteps = totalStepsValue.toInt()
             }
         }
+    }
+
+    fun loadWeeklySteps() {
+        val user = auth.currentUser ?: return
+        val today = Date()
+        val cal = java.util.Calendar.getInstance()
+        cal.time = today
+        cal.set(java.util.Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        db.collection("users").document(user.uid).collection("daily_steps")
+            .get()
+            .addOnSuccessListener { docs ->
+                var sum = 0
+                for (doc in docs) {
+                    val d = sdf.parse(doc.id) ?: continue
+                    if (!d.before(cal.time) && !d.after(today)) {
+                        val s = doc.getLong("steps")?.toInt() ?: 0
+                        sum += s
+                    }
+                }
+                weeklySteps = sum
+            }
+    }
+
+    fun loadMonthlySteps() {
+        val user = auth.currentUser ?: return
+        val today = Date()
+        val cal = java.util.Calendar.getInstance()
+        cal.time = today
+        val month = cal.get(java.util.Calendar.MONTH)
+        val year = cal.get(java.util.Calendar.YEAR)
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        db.collection("users").document(user.uid).collection("daily_steps")
+            .get()
+            .addOnSuccessListener { docs ->
+                var sum = 0
+                for (doc in docs) {
+                    val d = sdf.parse(doc.id) ?: continue
+                    val c = java.util.Calendar.getInstance()
+                    c.time = d
+                    if (c.get(java.util.Calendar.MONTH) == month && c.get(java.util.Calendar.YEAR) == year) {
+                        val s = doc.getLong("steps")?.toInt() ?: 0
+                        sum += s
+                    }
+                }
+                monthlySteps = sum
+            }
     }
 
 
