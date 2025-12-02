@@ -26,7 +26,7 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
 
     // function to get today's date
     private fun getToday(): String {
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
         return sdf.format(Date())
     }
     // check if the mobile has step counter sensor
