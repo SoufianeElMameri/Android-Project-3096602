@@ -10,9 +10,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
+import com.griffith.stepquest.ui.viewmodels.UserViewModel
+
 
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
-class StepCounter(private val context: Context) : SensorEventListener {
+class StepCounter(private val context: Context, private val userViewModel: UserViewModel) : SensorEventListener {
 
     private var sensorManager: SensorManager? = null
     private var stepSensor: Sensor? = null
@@ -21,9 +23,6 @@ class StepCounter(private val context: Context) : SensorEventListener {
     private var initialized = false
     var currentSteps: Int = 0
         private set
-
-    // local storage variable
-    private val prefs = context.getSharedPreferences("steps_prefs", Context.MODE_PRIVATE)
 
     // function to get today's date
     private fun getToday(): String {
@@ -54,72 +53,39 @@ class StepCounter(private val context: Context) : SensorEventListener {
 
     // initialize the data at the start of the app
     private fun initializeData(rawSteps: Int) {
+        val today = getToday()
 
-        Log.d("StepCounter", "initializing Data")
-        // check if it has been already initialized (app running already)
-        if (initialized) {
-            Log.d("StepCounter", "Already initialized Data")
+        // return if already initalized for today
+        if (initialized && savedDay == today) {
             return
         }
 
-        savedDay = prefs.getString("saved_day", null) ?: ""
-        Log.d("StepCounter", "Checking saved day = $savedDay")
-        val today = getToday()
-        Log.d("StepCounter", "Getting today = $today")
 
-        // if no date has been saved before we create new saves (date + baseline )
+
         if (savedDay == "") {
             savedDay = today
-
-            prefs.edit {
-                putString("saved_day", today)
-            }
-
             baselineSteps = rawSteps
-            prefs.edit {
-                putInt("baseline_steps", baselineSteps)
-            }
-        // if current date is not todayu's date( new date save it and save new baseline)
         } else if (savedDay != today) {
+
+            userViewModel.saveDailySteps(savedDay, currentSteps)
+            userViewModel.addToTotalSteps(currentSteps)
+
             savedDay = today
-
-            prefs.edit {
-                putString("saved_day", today)
-            }
-
-            // reset baseline for today
             baselineSteps = rawSteps
-            prefs.edit {
-                putInt("baseline_steps", baselineSteps)
-                Log.d("StepCounter", "Updated baseline steps = $baselineSteps")
-            }
-        } else {
-            baselineSteps = prefs.getInt("baseline_steps", 0)
-            Log.d("StepCounter", "Getting baseline steps = $baselineSteps")
         }
 
         initialized = true
     }
 
-    // detect change and store the change
+    // function to update steps on sensore change
     override fun onSensorChanged(event: SensorEvent?) {
-
         if (event == null) return
         if (event.sensor == null) return
         if (event.sensor!!.type != Sensor.TYPE_STEP_COUNTER) return
 
-
-
         val rawSteps = event.values[0].toInt()
-        initializeData(rawSteps)
-        // first step after opening the app we initialize baseline
-        if (!prefs.contains("baseline_steps")) {
-            baselineSteps = rawSteps
 
-            prefs.edit {
-                putInt("baseline_steps", baselineSteps)
-            }
-        }
+        initializeData(rawSteps)
 
         val daily = rawSteps - baselineSteps
 
@@ -128,13 +94,11 @@ class StepCounter(private val context: Context) : SensorEventListener {
         } else {
             currentSteps = daily
         }
-        Log.d("StepCounter", "raw=$rawSteps baseline=$baselineSteps daily=$currentSteps")
+
+        userViewModel.updateSteps(currentSteps)
     }
 
-    // detect accuracy change
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-
-    }
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
 
 }
