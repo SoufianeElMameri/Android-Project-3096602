@@ -16,6 +16,9 @@ import com.griffith.stepquest.ui.viewmodels.UserViewModel
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
 class StepCounter(private val context: Context, private val userViewModel: UserViewModel) : SensorEventListener {
 
+    private val prefs = context.getSharedPreferences("step_prefs", Context.MODE_PRIVATE)
+
+
     private var sensorManager: SensorManager? = null
     private var stepSensor: Sensor? = null
     private var baselineSteps = 0
@@ -26,7 +29,7 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
 
     // function to get today's date
     private fun getToday(): String {
-        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         return sdf.format(Date())
     }
     // check if the mobile has step counter sensor
@@ -39,6 +42,10 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
 
     // to start reading steps
     fun start() {
+        savedDay = prefs.getString("savedDay", "") ?: ""
+        baselineSteps = prefs.getInt("baselineSteps", 0)
+        initialized = prefs.getBoolean("initialized", false)
+
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         stepSensor?.let {
@@ -60,8 +67,6 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
             return
         }
 
-
-
         if (savedDay == "") {
             savedDay = today
             baselineSteps = rawSteps
@@ -72,6 +77,10 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
 
             savedDay = today
             baselineSteps = rawSteps
+
+            prefs.edit().putString("savedDay", savedDay).apply()
+            prefs.edit().putInt("baselineSteps", baselineSteps).apply()
+            prefs.edit().putBoolean("initialized", true).apply()
         }
 
         initialized = true
