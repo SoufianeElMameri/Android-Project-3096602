@@ -42,14 +42,35 @@ import androidx.navigation.NavController
 
 import com.griffith.stepquest.R
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 import java.io.File
 import java.io.FileOutputStream
 import com.griffith.stepquest.ui.theme.*
+import com.griffith.stepquest.data.ProfileManager
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
 fun ProfileScreen(navController: NavController) {
+
+    var firebaseUrl by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val url = doc.getString("profile_picture")
+                    if (url != null) {
+                        firebaseUrl = url
+                    }
+                }
+        }
+    }
     // loading the porifle picture from the local storage if it exists if not load default profile
     val context = LocalContext.current
     // used to refresh the composable if we change the profile picture
@@ -57,30 +78,50 @@ fun ProfileScreen(navController: NavController) {
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let {
+        if (uri != null) {
+
             val bitmap =
                 if (Build.VERSION.SDK_INT < 28) {
-                    MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
                 } else {
-                    val source = ImageDecoder.createSource(context.contentResolver, it)
+                    val source = ImageDecoder.createSource(context.contentResolver, uri)
                     ImageDecoder.decodeBitmap(source)
                 }
-            // saving the bitmap as a png in the local storage
+
             val file = File(context.filesDir, "profile_picture.png")
             FileOutputStream(file).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                refresh = !refresh
             }
+
+            ProfileManager.uploadProfileImage(
+                uri,
+                onSuccess = { },
+                onError = { }
+            )
+
+            refresh = !refresh
         }
     }
 
     val file = File(context.filesDir, "profile_picture.png")
-    val profileImage = if (file.exists()) {
+    var localBitmap: Bitmap? = null
+
+    if (file.exists()) {
         refresh
-        BitmapFactory.decodeFile(file.absolutePath)
-    } else {
-        BitmapFactory.decodeResource(context.resources, R.drawable.default_profile)
+        localBitmap = BitmapFactory.decodeFile(file.absolutePath)
     }
+
+    val finalPainter =
+        if (firebaseUrl.isNotEmpty())
+            rememberAsyncImagePainter(firebaseUrl)
+        else if (localBitmap != null)
+            rememberAsyncImagePainter(localBitmap)
+        else
+            painterResource(R.drawable.default_profile)
+
+
+    val profileUrl = ""
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -116,12 +157,7 @@ fun ProfileScreen(navController: NavController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = if (profileImage != null)
-                            rememberAsyncImagePainter(
-                                model = profileImage
-                            )
-                        else
-                            painterResource(id = R.drawable.default_profile),
+                        painter = finalPainter,
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(60.dp)
