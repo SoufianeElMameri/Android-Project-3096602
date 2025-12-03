@@ -122,7 +122,10 @@ class UserViewModel : ViewModel() {
 
                 db.collection("users")
                     .document(user.uid)
-                    .update("total_steps", totalSteps)
+                    .set(
+                        mapOf("total_steps" to totalSteps),
+                        com.google.firebase.firestore.SetOptions.merge()
+                    )
             }
     }
 
@@ -167,15 +170,13 @@ class UserViewModel : ViewModel() {
 
     // function that loads user data from the database
     fun loadUserData() {
-        if(!totalStepsLoaded){
-            loadTotalSteps()
-            totalStepsLoaded = true
-        }
-
         val user = auth.currentUser
         if (user == null) {
             return
         }
+
+        loadTotalSteps()
+
 
         val today = getToday()
 

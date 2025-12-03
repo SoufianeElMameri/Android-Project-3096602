@@ -80,7 +80,6 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
         } else if (savedDay != today) {
 
             userViewModel.saveDailySteps(savedDay, currentSteps)
-            userViewModel.addToTotalSteps(currentSteps)
 
             savedDay = today
             baselineSteps = rawSteps
