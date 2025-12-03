@@ -77,7 +77,11 @@ class AuthViewModel : ViewModel() {
                             "username" to username,
                             "coins" to 0,
                             "userRank" to "Bronze",
-                            "userExperience" to 0
+                            "userExperience" to 0,
+                            "dailyGoal" to 6000,
+                            "currentStreak" to 0,
+                            "bestStreak" to 0,
+                            "lastStreakDate" to ""
                         )
                     )
                 authSuccess = true
