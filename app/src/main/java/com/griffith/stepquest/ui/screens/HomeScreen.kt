@@ -42,6 +42,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.griffith.stepquest.data.StepCounter
 import java.io.File
 import com.griffith.stepquest.ui.theme.*
+import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
+import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 val stepHistory = mapOf(
@@ -56,11 +58,11 @@ val stepHistory = mapOf(
 
 
 @Composable
-fun HomeScreen(navController: NavController, userVM: UserViewModel) {
+fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel) {
     // get the mobile screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp
     // grab the current steps the user did
-    val steps = userVM.steps
+    val steps = stepsVM.steps
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -81,7 +83,7 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 //***************************************************** HEADER BAR **************************************************
-            HeaderBar(navController, userVM.coinStash)
+            HeaderBar(navController, coinsVM.coinStash)
 //***************************************************** PROGRESS CIRCLE *********************************************
             StepProgressCircle(steps, 10000)
             Spacer(Modifier.height((screenWidth * 0.02).dp))

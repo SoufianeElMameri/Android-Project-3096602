@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import com.griffith.stepquest.ui.theme.*
+import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 data class Player(
@@ -33,10 +34,10 @@ data class Player(
 
 // Ranks sccreen shocasse the user rank and the current leaderboard for that rank
 @Composable
-fun RankScreen(currentTier: String = "Gold",  navController: NavController, userVM: UserViewModel) {
+fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel,) {
     val userId = 1
     val userName  = userVM.userName
-    val userSteps = userVM.steps
+    val userSteps = stepsVM.steps
     val ranks = listOf("Bronze", "Silver", "Gold", "Diamond", "Legend")
     val players = listOf(
         Player(1, "Soufiane", 24000, 1),
@@ -77,7 +78,7 @@ fun RankScreen(currentTier: String = "Gold",  navController: NavController, user
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 ranks.forEach { tier ->
-                    val isCurrent = tier.equals(currentTier, ignoreCase = true)
+                    val isCurrent = tier.equals("Gold", ignoreCase = true)
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {

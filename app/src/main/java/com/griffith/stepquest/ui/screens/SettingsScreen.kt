@@ -53,10 +53,11 @@ import com.griffith.stepquest.data.ProfileManager
 
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
-fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
+fun SettingsScreen(userVM: UserViewModel, onLogout: () -> Unit) {
 
     val context = LocalContext.current
     var showUsernameDialog by remember { mutableStateOf(false) }
@@ -124,7 +125,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
             }
             if (showUsernameDialog) {
                 ChangeUsernameDialog(
-                    userInfo = userInfo,
+                    userVM = userVM,
                     iconRes = R.drawable.username,
                     onDismiss = { showUsernameDialog = false },
                     onSuccess = { successMessage = it }
@@ -133,7 +134,7 @@ fun SettingsScreen(userInfo: UserInformation, onLogout: () -> Unit) {
 
             if (showPasswordDialog) {
                 ChangePasswordDialog(
-                    userInfo = userInfo,
+                    userVM = userVM,
                     iconRes = R.drawable.pwd,
                     onDismiss = { showPasswordDialog = false },
                     onSuccess = { successMessage = it }
@@ -231,8 +232,8 @@ fun SettingsItem(title: String, iconRes: Int, onClick: () -> Unit) {
 
 // component to create a dialog for the user to change their user name
 @Composable
-fun ChangeUsernameDialog(userInfo: UserInformation, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
-    var newName by remember { mutableStateOf(userInfo.getUsername() ?: "") }
+fun ChangeUsernameDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
+    var newName by remember { mutableStateOf(userVM.getUsername()) }
     var error by remember { mutableStateOf<String?>(null) }
 
 
@@ -314,7 +315,7 @@ fun ChangeUsernameDialog(userInfo: UserInformation, iconRes: Int, onDismiss: () 
                                     return@clickable
                                 }
 
-                                userInfo.saveUsername(newName)
+                                userVM.updateUserName(newName)
                                 onDismiss()
                                 onSuccess("Username changed successfully!")
                             }
@@ -336,7 +337,7 @@ fun ChangeUsernameDialog(userInfo: UserInformation, iconRes: Int, onDismiss: () 
 
 // component to create a dialog for the user to change their username
 @Composable
-fun ChangePasswordDialog(userInfo: UserInformation, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
+fun ChangePasswordDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
 
     var oldPass by remember { mutableStateOf("") }
     var newPass by remember { mutableStateOf("") }

@@ -46,9 +46,18 @@ import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.screens.AuthScreen
 import com.griffith.stepquest.ui.screens.SettingsScreen
 import com.griffith.stepquest.data.FirebaseAuthManger
+import com.griffith.stepquest.ui.viewmodels.AuthViewModel
+import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
+import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 
 class MainActivity : ComponentActivity() {
+
+    // VIEW MODELS
     private val userVM: UserViewModel by viewModels()
+    private val stepsVM: StepsViewModel by viewModels()
+    private val coinsVM: CoinsViewModel by viewModels()
+    private val authVM: AuthViewModel by viewModels()
+
     private lateinit var stepCounter: StepCounter
     private lateinit var userInfo: UserInformation
 
@@ -58,7 +67,7 @@ class MainActivity : ComponentActivity() {
     private val stepUpdateRunnable = object : Runnable {
 
         override fun run() {
-            userVM.updateSteps(stepCounter.currentSteps)
+            stepsVM.updateSteps(stepCounter.currentSteps)
             // update every 1 second
             handler.postDelayed(this, 1000)
         }
@@ -72,6 +81,7 @@ class MainActivity : ComponentActivity() {
             requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), 1001)
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,9 +106,13 @@ class MainActivity : ComponentActivity() {
             if (isLoggedIn) {
 
                 userVM.loadUserData()
+                coinsVM.loadCoins()
+                stepsVM.loadTotalSteps()
 
                 StepQuestNav(
                     userVM = userVM,
+                    stepsVM = stepsVM,
+                    coinsVM = coinsVM,
                     userInfo = userInfo,
                     onLogout = {
                         FirebaseAuthManger.logoutUser()
@@ -108,9 +122,9 @@ class MainActivity : ComponentActivity() {
             // if user is not logged in show the authentication screen
             } else {
                 AuthScreen(
-                    userInfo = userInfo,
+                    authVM,
                     onLoginSuccess = {
-                        userVM.loadUserStepsFromDb()
+                        stepsVM.loadUserStepsFromDb()
                         isLoggedIn = true
                     }
                 )
@@ -144,7 +158,7 @@ class MainActivity : ComponentActivity() {
 
 // navigation container
 @Composable
-fun StepQuestNav(userVM: UserViewModel, userInfo:UserInformation, onLogout: () -> Unit ) {
+fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel, userInfo:UserInformation, onLogout: () -> Unit ) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(navController) }
@@ -158,12 +172,12 @@ fun StepQuestNav(userVM: UserViewModel, userInfo:UserInformation, onLogout: () -
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
-            composable("home") { HomeScreen(navController, userVM) }
-            composable("challenges") { ChallengesScreen(navController, userVM) }
+            composable("home") { HomeScreen(navController, userVM, stepsVM, coinsVM) }
+            composable("challenges") { ChallengesScreen(navController, userVM, stepsVM, coinsVM) }
             composable("badges") { BadgesScreen(navController) }
-            composable("rank") { RankScreen(navController = navController, userVM = userVM) }
+            composable("rank") { RankScreen(navController, userVM, stepsVM) }
             composable("profile") { ProfileScreen(navController = navController) }
-            composable("settings") { SettingsScreen(userInfo,
+            composable("settings") { SettingsScreen(userVM,
                 onLogout = {
                     onLogout()
                 }

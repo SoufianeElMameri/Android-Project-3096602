@@ -22,10 +22,11 @@ import com.griffith.stepquest.ui.theme.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.OutlinedTextField
 import com.griffith.stepquest.data.FirebaseAuthManger
+import com.griffith.stepquest.ui.viewmodels.AuthViewModel
 
 
 @Composable
-fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
+fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
 
     // which tab user is on
     var isRegister by remember { mutableStateOf(false) }
@@ -35,12 +36,6 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-
-    // error states
-    var usernameError by remember { mutableStateOf("") }
-    var emailError by remember { mutableStateOf("") }
-    var pwdError by remember { mutableStateOf("") }
-    var pwdConfirmError by remember { mutableStateOf("") }
 
     Surface(
         modifier = Modifier
@@ -148,7 +143,7 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                             value = username,
                             onValueChange = { username = it },
                             label = "Username",
-                            error = usernameError
+                            error = authVM.usernameError
                         )
                     }
                     // always show the email text field
@@ -156,7 +151,7 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                         value = email,
                         onValueChange = { email = it },
                         label = "Email",
-                        error = emailError
+                        error = authVM.emailError
                     )
                     // always show the password text field
                     CostumeTextField(
@@ -164,7 +159,7 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                         onValueChange = { password = it },
                         label = "Password",
                         isPassword = true,
-                        error = pwdError
+                        error = authVM.pwdError
                     )
                     // only show the confirm password text field if the user is trying to register
                     if (isRegister) {
@@ -173,100 +168,18 @@ fun AuthScreen(userInfo: UserInformation, onLoginSuccess: () -> Unit) {
                             onValueChange = { confirmPassword = it },
                             label = "Confirm Password",
                             isPassword = true,
-                            error = pwdConfirmError
+                            error = authVM.pwdConfirmError
                         )
                     }
 
                     Button(
                         onClick = {
-                            // reset errors
-                            usernameError = ""
-                            emailError = ""
-                            pwdError = ""
-                            pwdConfirmError = ""
-
-                            // check if the username is empty
-                            if (isRegister && username.isBlank()) {
-                                usernameError = "Username required"
-                                return@Button
-                            }
-                            // check if the email is empty
-                            if (email.isBlank()) {
-                                emailError = "Email required"
-                                return@Button
-                            }
-                            // check if the Password is empty
-                            if (password.isBlank()) {
-                                pwdError = "Password required"
-                                return@Button
-                            }
-                            // check if the Confirm Password is empty
                             if (isRegister) {
-                                if (confirmPassword.isBlank()) {
-                                    pwdConfirmError = "Confirm your password"
-                                    return@Button
-                                }
-                                // check if the Confirm Password matches the password
-                                if (password != confirmPassword) {
-                                    pwdConfirmError = "Passwords do not match"
-                                    return@Button
-                                }
-                                // save informations if everything is fine
-                                FirebaseAuthManger.registerUser(
-                                    username = username,
-                                    email = email,
-                                    password = password,
-                                    onSuccess = { onLoginSuccess() },
-                                    onError = { msg ->
-                                        val lower = msg.lowercase()
-
-                                        when {
-                                            "password" in lower -> {
-                                                pwdError = msg
-                                            }
-                                            "email" in lower -> {
-                                                emailError = msg
-                                            }
-                                            "user" in lower && "record" in lower -> {
-                                                emailError = "No account found with this email"
-                                            }
-                                            "credential" in lower || "wrong" in lower -> {
-                                                pwdError = "Incorrect password"
-                                            }
-                                            else -> {
-                                                pwdConfirmError = msg
-                                            }
-                                        }
-                                    }
-                                )
-                            }
-                            else {
-                                FirebaseAuthManger.loginUser(
-                                    email = email,
-                                    password = password,
-                                    onSuccess = { onLoginSuccess() },
-                                    onError = { msg ->
-                                        val lowerMsg = msg.lowercase()
-
-                                        when {
-                                            "password" in lowerMsg -> {
-                                                pwdError = msg
-                                            }
-                                            "email" in lowerMsg -> {
-                                                emailError = msg
-                                            }
-                                            "user" in lowerMsg && "record" in lowerMsg -> {
-                                                emailError = "No account found with this email"
-                                            }
-                                            "credential" in lowerMsg || "wrong" in lowerMsg -> {
-                                                pwdError = "Incorrect password"
-                                            }
-                                            else -> {
-                                                pwdConfirmError = msg
-                                            }
-                                        }
-                                    }
-                                )
+                                authVM.register(username, email, password, confirmPassword)
+                                if (authVM.authSuccess) onLoginSuccess()
+                            } else {
+                                authVM.login(email, password)
+                                if (authVM.authSuccess) onLoginSuccess()
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
