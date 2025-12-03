@@ -53,11 +53,12 @@ import com.griffith.stepquest.data.ProfileManager
 
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.griffith.stepquest.ui.viewmodels.PwdViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
-fun SettingsScreen(userVM: UserViewModel, onLogout: () -> Unit) {
+fun SettingsScreen(userVM: UserViewModel  , pwdVM: PwdViewModel, onLogout: () -> Unit) {
 
     val context = LocalContext.current
     var showUsernameDialog by remember { mutableStateOf(false) }
@@ -134,7 +135,7 @@ fun SettingsScreen(userVM: UserViewModel, onLogout: () -> Unit) {
 
             if (showPasswordDialog) {
                 ChangePasswordDialog(
-                    userVM = userVM,
+                    pwdVM = pwdVM,
                     iconRes = R.drawable.pwd,
                     onDismiss = { showPasswordDialog = false },
                     onSuccess = { successMessage = it }
@@ -337,8 +338,9 @@ fun ChangeUsernameDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> U
 
 // component to create a dialog for the user to change their username
 @Composable
-fun ChangePasswordDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
+fun ChangePasswordDialog(pwdVM: PwdViewModel, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
 
+    val context = LocalContext.current
     var oldPass by remember { mutableStateOf("") }
     var newPass by remember { mutableStateOf("") }
     var confirmPass by remember { mutableStateOf("") }
@@ -455,26 +457,32 @@ fun ChangePasswordDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> U
                             .background(ConfirmGreen, RoundedCornerShape(10.dp)) // green
                             .clickable {
 
-                                val storedPass = userInfo.getPassword() ?: ""
+                                pwdVM.changePassword(
+                                    context = context,
+                                    oldPass = oldPass,
+                                    newPass = newPass,
+                                    confirmPass = confirmPass
+                                )
 
-                                if (oldPass != storedPass) {
-                                    error = "Old password is incorrect"
+                                if (pwdVM.oldPasswordError.isNotEmpty()) {
+                                    error = pwdVM.oldPasswordError
                                     return@clickable
                                 }
 
-                                if (newPass.isBlank()) {
-                                    error = "New password cannot be empty"
+                                if (pwdVM.newPasswordError.isNotEmpty()) {
+                                    error = pwdVM.newPasswordError
                                     return@clickable
                                 }
 
-                                if (newPass != confirmPass) {
-                                    error = "Passwords do not match"
+                                if (pwdVM.confirmPasswordError.isNotEmpty()) {
+                                    error = pwdVM.confirmPasswordError
                                     return@clickable
                                 }
 
-                                userInfo.savePassword(newPass)
-                                onDismiss()
-                                onSuccess("Password changed successfully!")
+                                if (pwdVM.passwordChangeSuccess) {
+                                    onDismiss()
+                                    onSuccess("Password changed successfully!")
+                                }
                             }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
