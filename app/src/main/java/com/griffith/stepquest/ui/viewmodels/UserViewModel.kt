@@ -23,8 +23,18 @@ class UserViewModel : ViewModel() {
     var userName by mutableStateOf("User")
         private set
 
+    var currentStreak by mutableStateOf(0)
+        private set
+
+    var bestStreak by mutableStateOf(0)
+        private set
+
+    var lastStreakDate by mutableStateOf("")
+        private set
+
     var userRank by mutableStateOf("Bronze")
         private set
+
 
     var userExperience by mutableStateOf(0)
         private set
@@ -74,6 +84,69 @@ class UserViewModel : ViewModel() {
             .update("userExperience", userExperience)
     }
 
+    fun updateStreak(todaySteps: Int, dailyGoal: Int) {
+
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val today = sdf.format(Date())
+
+        val parsedToday = sdf.parse(today)
+        if (parsedToday == null) {
+            return
+        }
+
+        val cal = java.util.Calendar.getInstance()
+        cal.time = parsedToday
+        cal.add(java.util.Calendar.DAY_OF_YEAR, -1)
+        val yesterday = sdf.format(cal.time)
+
+        var streakBroken = false
+        if (lastStreakDate != today && lastStreakDate != yesterday) {
+            streakBroken = true
+        }
+
+        if (streakBroken) {
+            currentStreak = 0
+        }
+
+        var hitGoal = false
+        if (todaySteps >= dailyGoal) {
+            hitGoal = true
+        }
+
+        if (!hitGoal) {
+            return
+        }
+
+        if (lastStreakDate == yesterday) {
+            currentStreak = currentStreak + 1
+        } else {
+            currentStreak = 1
+        }
+
+        if (currentStreak > bestStreak) {
+            bestStreak = currentStreak
+        }
+
+        lastStreakDate = today
+
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val ref = db.collection("users").document(user.uid)
+
+        ref.set(
+            mapOf(
+                "currentStreak" to currentStreak,
+                "bestStreak" to bestStreak,
+                "lastStreakDate" to lastStreakDate
+            ),
+            com.google.firebase.firestore.SetOptions.merge()
+        )
+    }
+
+
 
     // function that loads user data from the database
     fun loadUserData() {
@@ -90,6 +163,21 @@ class UserViewModel : ViewModel() {
             } else {
                 userName = name
             }
+            val currentStreakValue = doc.getLong("currentStreak")
+            if (currentStreakValue != null) {
+                currentStreak = currentStreakValue.toInt()
+            }
+
+            val bestStreakValue = doc.getLong("bestStreak")
+            if (bestStreakValue != null) {
+                bestStreak = bestStreakValue.toInt()
+            }
+
+            val lastDateValue = doc.getString("lastStreakDate")
+            if (lastDateValue != null) {
+                lastStreakDate = lastDateValue
+            }
+
             val userExperienceValue = doc.getLong("userExperience")
             if (userExperienceValue != null) {
                 userExperience = userExperienceValue.toInt()

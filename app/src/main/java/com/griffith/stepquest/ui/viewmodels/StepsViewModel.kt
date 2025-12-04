@@ -25,6 +25,9 @@ class StepsViewModel : ViewModel() {
     var steps by mutableStateOf(0)
         private set
 
+    var dailyGoal by mutableStateOf(6000)
+        private set
+
     var totalSteps by mutableStateOf(0)
         private set
 
@@ -33,7 +36,6 @@ class StepsViewModel : ViewModel() {
 
     var monthlySteps by mutableStateOf(0)
         private set
-
 
     // update the total steps the user did
     fun updateSteps(newSteps: Int) {
@@ -125,6 +127,45 @@ class StepsViewModel : ViewModel() {
                 totalSteps = totalStepsValue.toInt()
             }
         }
+    }
+
+    fun loadDailyStepGoal() {
+
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val mainRef = db.collection("users").document(user.uid)
+
+        mainRef.get().addOnSuccessListener { doc ->
+
+            val goalValue = doc.getLong("dailyGoal")
+
+            if (goalValue != null) {
+                dailyGoal = goalValue.toInt()
+            } else {
+                dailyGoal = 0
+            }
+        }
+    }
+
+
+    fun increaseDailyGoal() {
+
+        dailyGoal = dailyGoal + 500
+
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val ref = db.collection("users").document(user.uid)
+
+        ref.set(
+            mapOf("dailyGoal" to dailyGoal),
+            com.google.firebase.firestore.SetOptions.merge()
+        )
     }
 
     fun loadWeeklySteps() {
