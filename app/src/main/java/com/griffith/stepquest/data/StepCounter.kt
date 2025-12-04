@@ -10,11 +10,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
+import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
-class StepCounter(private val context: Context, private val userViewModel: UserViewModel) : SensorEventListener {
+class StepCounter(private val context: Context, private val stepViewModel: StepsViewModel) : SensorEventListener {
 
     private val prefs = context.getSharedPreferences("step_prefs", Context.MODE_PRIVATE)
 
@@ -79,7 +80,7 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
             return
         } else if (savedDay != today) {
 
-            userViewModel.saveDailySteps(savedDay, currentSteps)
+            stepViewModel.saveDailySteps(savedDay, currentSteps)
 
             savedDay = today
             baselineSteps = rawSteps
@@ -113,7 +114,7 @@ class StepCounter(private val context: Context, private val userViewModel: UserV
             currentSteps = daily
         }
 
-        userViewModel.updateSteps(currentSteps)
+        stepViewModel.updateSteps(currentSteps)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
