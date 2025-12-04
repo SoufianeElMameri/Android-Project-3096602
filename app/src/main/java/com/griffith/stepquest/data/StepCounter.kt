@@ -15,7 +15,7 @@ import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
-class StepCounter(private val context: Context, private val stepViewModel: StepsViewModel) : SensorEventListener {
+class StepCounter(private val context: Context, private val stepViewModel: StepsViewModel, private val userViewModel: UserViewModel) : SensorEventListener {
 
     private val prefs = context.getSharedPreferences("step_prefs", Context.MODE_PRIVATE)
 
@@ -81,6 +81,8 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         } else if (savedDay != today) {
 
             stepViewModel.saveDailySteps(savedDay, currentSteps)
+            val dailyGoal = stepViewModel.dailyGoal
+            userViewModel.updateStreak(currentSteps, dailyGoal)
 
             savedDay = today
             baselineSteps = rawSteps

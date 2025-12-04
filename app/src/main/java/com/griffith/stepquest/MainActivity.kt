@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
         // call request permission function
         requestStepPermission()
 
-        stepCounter = StepCounter(this, stepsVM)
+        stepCounter = StepCounter(this, stepsVM, userVM)
         userInfo    = UserInformation(this)
 
         // Tell Android to handle system bars

@@ -145,7 +145,7 @@ class StepsViewModel : ViewModel() {
             if (goalValue != null) {
                 dailyGoal = goalValue.toInt()
             } else {
-                dailyGoal = 0
+                dailyGoal = 6000
             }
         }
     }

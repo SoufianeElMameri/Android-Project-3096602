@@ -84,12 +84,17 @@ class UserViewModel : ViewModel() {
             .update("userExperience", userExperience)
     }
 
-    fun updateStreak(todaySteps: Int, dailyGoal: Int) {
+    fun updateStreak(yesterdaySteps: Int, dailyGoal: Int) {
+
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
 
         val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-        val today = sdf.format(Date())
+        val todayString = sdf.format(Date())
 
-        val parsedToday = sdf.parse(today)
+        val parsedToday = sdf.parse(todayString)
         if (parsedToday == null) {
             return
         }
@@ -97,42 +102,33 @@ class UserViewModel : ViewModel() {
         val cal = java.util.Calendar.getInstance()
         cal.time = parsedToday
         cal.add(java.util.Calendar.DAY_OF_YEAR, -1)
-        val yesterday = sdf.format(cal.time)
+        val yesterdayString = sdf.format(cal.time)
 
-        var streakBroken = false
-        if (lastStreakDate != today && lastStreakDate != yesterday) {
-            streakBroken = true
-        }
-
-        if (streakBroken) {
-            currentStreak = 0
-        }
-
-        var hitGoal = false
-        if (todaySteps >= dailyGoal) {
-            hitGoal = true
-        }
-
-        if (!hitGoal) {
+        if (lastStreakDate == yesterdayString) {
             return
         }
 
-        if (lastStreakDate == yesterday) {
-            currentStreak = currentStreak + 1
+        if (yesterdaySteps >= dailyGoal) {
+
+            val prevCal = java.util.Calendar.getInstance()
+            prevCal.time = cal.time
+            prevCal.add(java.util.Calendar.DAY_OF_YEAR, -1)
+            val previousDayString = sdf.format(prevCal.time)
+
+            if (lastStreakDate == previousDayString) {
+                currentStreak = currentStreak + 1
+            } else {
+                currentStreak = 1
+            }
         } else {
-            currentStreak = 1
+            currentStreak = 0
         }
 
         if (currentStreak > bestStreak) {
             bestStreak = currentStreak
         }
 
-        lastStreakDate = today
-
-        val user = auth.currentUser
-        if (user == null) {
-            return
-        }
+        lastStreakDate = yesterdayString
 
         val ref = db.collection("users").document(user.uid)
 
@@ -145,6 +141,7 @@ class UserViewModel : ViewModel() {
             com.google.firebase.firestore.SetOptions.merge()
         )
     }
+
 
 
 
