@@ -63,6 +63,10 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
     val screenWidth = LocalConfiguration.current.screenWidthDp
     // grab the current steps the user did
     val steps = stepsVM.steps
+    val dailyStepGoal = stepsVM.dailyGoal
+    val currentStreak = userVM.currentStreak
+    val weeklyStats   = stepsVM.weeklySteps
+    val monthlyStats   = stepsVM.monthlySteps
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -85,13 +89,13 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
 //***************************************************** HEADER BAR **************************************************
             HeaderBar(navController, coinsVM.coinStash)
 //***************************************************** PROGRESS CIRCLE *********************************************
-            StepProgressCircle(steps, 10000)
+            StepProgressCircle(steps, dailyStepGoal)
             Spacer(Modifier.height((screenWidth * 0.02).dp))
 //***************************************************** STREAKS *****************************************************
-            StreakSection(4)
+            StreakSection(currentStreak)
             Spacer(Modifier.height((screenWidth * 0.06).dp))
 //***************************************************** WEAKLY MONTHLY STEPS COUNT **********************************
-            WeeklyMonthlyCards()
+            WeeklyMonthlyCards(weeklyStats,monthlyStats )
             Spacer(Modifier.height((screenWidth * 0.06).dp))
 //***************************************************** WEAKLY CHART ************************************************
             WeeklyChart(stepHistory)
@@ -247,7 +251,7 @@ fun StreakSection(streaks : Int) {
 
 // creating weekly and monthly stat cards aligned
 @Composable
-fun WeeklyMonthlyCards() {
+fun WeeklyMonthlyCards(weeklyStats : Int ,monthlyStats : Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,8 +259,8 @@ fun WeeklyMonthlyCards() {
         // adding space between cards
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        StatCard("Weekly", 18232, R.drawable.shoe, Modifier.weight(1f))
-        StatCard("Monthly", 72123, R.drawable.shoe, Modifier.weight(1f))
+        StatCard("Weekly", weeklyStats, R.drawable.shoe, Modifier.weight(1f))
+        StatCard("Monthly", monthlyStats, R.drawable.shoe, Modifier.weight(1f))
     }
 }
 

@@ -225,5 +225,11 @@ class StepsViewModel : ViewModel() {
             }
     }
 
+    fun loadStepsStats(){
+        loadDailyStepGoal()
+        loadTotalSteps()
+        loadWeeklySteps()
+        loadMonthlySteps()
+    }
 
 }

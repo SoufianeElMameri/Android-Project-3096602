@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
 
                 userVM.loadUserData()
                 coinsVM.loadCoins()
-                stepsVM.loadTotalSteps()
+                stepsVM.loadStepsStats()
                 userVM.updateStreak(stepsVM.steps, stepsVM.dailyGoal)
                 
                 StepQuestNav(
