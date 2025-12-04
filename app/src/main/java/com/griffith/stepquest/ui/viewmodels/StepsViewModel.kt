@@ -37,6 +37,9 @@ class StepsViewModel : ViewModel() {
     var monthlySteps by mutableStateOf(0)
         private set
 
+    var weeklyHistory by mutableStateOf<Map<String, Int>>(emptyMap())
+        private set
+
     // update the total steps the user did
     fun updateSteps(newSteps: Int) {
         steps = newSteps
@@ -225,11 +228,69 @@ class StepsViewModel : ViewModel() {
             }
     }
 
+
+    fun loadWeeklyHistory() {
+
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val cal = java.util.Calendar.getInstance()
+        cal.firstDayOfWeek = java.util.Calendar.MONDAY
+        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY)
+
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
+
+        val weekDates = ArrayList<String>()
+        val dayNames = LinkedHashMap<String, String>()
+
+        for (i in 0 until 7) {
+            val dateString = sdf.format(cal.time)
+            val dayName = dayFormat.format(cal.time)
+            dayNames[dayName] = dateString
+            weekDates.add(dateString)
+            cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
+        }
+
+        val stepsRef = db.collection("users")
+            .document(user.uid)
+            .collection("daily_steps")
+
+        stepsRef.whereIn("__name__", weekDates)
+            .get()
+            .addOnSuccessListener { docs ->
+
+                val result = LinkedHashMap<String, Int>()
+
+                for ((day, dateStr) in dayNames) {
+                    result[day] = 0
+                }
+
+                for (doc in docs) {
+                    val dateStr = doc.id
+                    val stepsValue = doc.getLong("steps")?.toInt() ?: 0
+
+                    for ((day, d) in dayNames) {
+                        if (d == dateStr) {
+                            result[day] = stepsValue
+                        }
+                    }
+                }
+
+                weeklyHistory = result
+            }
+    }
+
+
+
     fun loadStepsStats(){
         loadDailyStepGoal()
         loadTotalSteps()
         loadWeeklySteps()
         loadMonthlySteps()
+        loadWeeklyHistory()
     }
 
 }

@@ -46,27 +46,18 @@ import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
-val stepHistory = mapOf(
-    "Mon" to 5400,
-    "Tue" to 6200,
-    "Wed" to 8000,
-    "Thu" to 3000,
-    "Fri" to 9200,
-    "Sat" to 7000,
-    "Sun" to 6500
-)
-
-
 @Composable
 fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel) {
     // get the mobile screen width
     val screenWidth = LocalConfiguration.current.screenWidthDp
     // grab the current steps the user did
-    val steps = stepsVM.steps
-    val dailyStepGoal = stepsVM.dailyGoal
-    val currentStreak = userVM.currentStreak
-    val weeklyStats   = stepsVM.weeklySteps
-    val monthlyStats   = stepsVM.monthlySteps
+    val steps           = stepsVM.steps
+    val dailyStepGoal   = stepsVM.dailyGoal
+    val currentStreak   = userVM.currentStreak
+    val weeklyStats     = stepsVM.weeklySteps
+    val monthlyStats    = stepsVM.monthlySteps
+    val weeklyHistory   = stepsVM.weeklyHistory
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -98,7 +89,7 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
             WeeklyMonthlyCards(weeklyStats,monthlyStats )
             Spacer(Modifier.height((screenWidth * 0.06).dp))
 //***************************************************** WEAKLY CHART ************************************************
-            WeeklyChart(stepHistory)
+            WeeklyChart(weeklyHistory)
         }
     }
 }
@@ -231,6 +222,11 @@ fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
 // steak section showcasing the current streak
 @Composable
 fun StreakSection(streaks : Int) {
+    var day = "Day"
+    if (streaks > 1){
+        day = "Days"
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -241,7 +237,7 @@ fun StreakSection(streaks : Int) {
         )
         Spacer(Modifier.width(6.dp))
         Text(
-            text = "$streaks-Day Streak",
+            text = "$streaks-$day Streak",
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,
             color = FireTextColor
