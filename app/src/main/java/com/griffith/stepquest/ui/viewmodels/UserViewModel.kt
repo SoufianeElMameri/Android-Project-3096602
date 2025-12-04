@@ -92,15 +92,8 @@ class UserViewModel : ViewModel() {
         }
 
         val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-        val todayString = sdf.format(Date())
-
-        val parsedToday = sdf.parse(todayString)
-        if (parsedToday == null) {
-            return
-        }
 
         val cal = java.util.Calendar.getInstance()
-        cal.time = parsedToday
         cal.add(java.util.Calendar.DAY_OF_YEAR, -1)
         val yesterdayString = sdf.format(cal.time)
 
@@ -120,6 +113,7 @@ class UserViewModel : ViewModel() {
             } else {
                 currentStreak = 1
             }
+            lastStreakDate = yesterdayString
         } else {
             currentStreak = 0
         }
@@ -127,8 +121,6 @@ class UserViewModel : ViewModel() {
         if (currentStreak > bestStreak) {
             bestStreak = currentStreak
         }
-
-        lastStreakDate = yesterdayString
 
         val ref = db.collection("users").document(user.uid)
 
