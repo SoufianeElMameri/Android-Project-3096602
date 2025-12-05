@@ -49,12 +49,16 @@ import java.io.File
 import java.io.FileOutputStream
 import com.griffith.stepquest.ui.theme.*
 import com.griffith.stepquest.data.ProfileManager
+import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
 
     var firebaseUrl by remember { mutableStateOf("") }
+
+    val title = userVM.userTitle
+    val level = userVM.userLevel
 
     LaunchedEffect(Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -231,7 +235,7 @@ fun ProfileScreen(navController: NavController) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = "Level 12",
+                        text = "$level",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = Dark
@@ -240,7 +244,7 @@ fun ProfileScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Active Explorer",
+                        text = title,
                         fontSize = 18.sp,
                         color = TextPrimary
                     )

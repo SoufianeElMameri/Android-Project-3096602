@@ -1,5 +1,7 @@
 package com.griffith.stepquest.ui.viewmodels
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -43,6 +45,12 @@ class UserViewModel : ViewModel() {
         return userName
     }
 
+    var userLevel by mutableStateOf(1)
+        private set
+
+    var userTitle by mutableStateOf("")
+        private set
+
     // update the user name
     fun updateUserName(newUserName: String) {
         userName = newUserName
@@ -56,7 +64,6 @@ class UserViewModel : ViewModel() {
             .document(user.uid)
             .update("username", userName)
     }
-
 
     fun updateUserRank(newRank: String) {
         userRank = newRank
@@ -134,8 +141,15 @@ class UserViewModel : ViewModel() {
         )
     }
 
+    fun loadUserLevel(context: Context, expVM: ExpViewModel) {
+        expVM.loadLocal(context) {
+            val pair = expVM.getLevelAndTitle(userExperience)
+            userLevel = pair.first
+            userTitle = pair.second
 
-
+            Log.d("EXP_DEBUG", "USER RESULTS → Level=$userLevel Title=$userTitle")
+        }
+    }
 
     // function that loads user data from the database
     fun loadUserData() {
@@ -143,6 +157,7 @@ class UserViewModel : ViewModel() {
         if (user == null) {
             return
         }
+
         val mainRef = db.collection("users").document(user.uid)
 
         mainRef.get().addOnSuccessListener { doc ->
