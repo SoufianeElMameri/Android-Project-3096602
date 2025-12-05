@@ -48,6 +48,7 @@ import com.griffith.stepquest.ui.screens.SettingsScreen
 import com.griffith.stepquest.data.FirebaseAuthManger
 import com.griffith.stepquest.ui.viewmodels.AuthViewModel
 import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
+import com.griffith.stepquest.ui.viewmodels.ExpViewModel
 import com.griffith.stepquest.ui.viewmodels.PwdViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
     private val coinsVM: CoinsViewModel by viewModels()
     private val authVM: AuthViewModel by viewModels()
     private val pwdVM: PwdViewModel by viewModels()
+    private val expVM: ExpViewModel by viewModels()
 
     private lateinit var stepCounter: StepCounter
     private lateinit var userInfo: UserInformation
@@ -108,6 +110,7 @@ class MainActivity : ComponentActivity() {
             if (isLoggedIn) {
 
                 userVM.loadUserData()
+                userVM.loadUserLevel(this, expVM)
                 coinsVM.loadCoins()
                 stepsVM.loadStepsStats()
                 userVM.updateStreak(stepsVM.steps, stepsVM.dailyGoal)
@@ -181,7 +184,7 @@ fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsV
             composable("challenges") { ChallengesScreen(navController, userVM, stepsVM, coinsVM) }
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController, userVM, stepsVM) }
-            composable("profile") { ProfileScreen(navController = navController) }
+            composable("profile") { ProfileScreen(navController = navController, userVM) }
             composable("settings") { SettingsScreen(userVM,pwdVM,
                 onLogout = {
                     onLogout()

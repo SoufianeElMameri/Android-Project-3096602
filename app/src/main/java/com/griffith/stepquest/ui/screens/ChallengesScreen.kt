@@ -83,7 +83,9 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
                 steps,
                 5000,
                 1,
-                onClaim = { coins -> coinsVM.addCoins(coins) }
+                onClaim = { coins, xp ->
+                    coinsVM.addCoins(coins)
+                    userVM.addUserExperience(xp) }
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
@@ -91,7 +93,9 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
                 steps,
                 10000,
                 2,
-                onClaim = { coins -> coinsVM.addCoins(coins) }
+                onClaim = { coins, xp ->
+                    coinsVM.addCoins(coins)
+                    userVM.addUserExperience(xp) }
             )
             Spacer(Modifier.height(20.dp))
             ChallengeCard(
@@ -99,7 +103,9 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
                 steps,
                 15000,
                 3,
-                onClaim = { coins -> coinsVM.addCoins(coins) }
+                onClaim = { coins, xp ->
+                    coinsVM.addCoins(coins)
+                    userVM.addUserExperience(xp)}
             )
             Spacer(Modifier.height(20.dp))
 //***************************************************** TODAY'S TIP *****************************************************
@@ -128,12 +134,12 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
 
 // function to help create challenge cards
 @Composable
-fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onClaim: (Int) -> Unit, modifier: Modifier = Modifier ){
+fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onClaim: (Int, Int) -> Unit, modifier: Modifier = Modifier ){
     // to keep track of claimed challenges
     val alreadyClaimed = remember { mutableStateOf(false) }
     val progressRatio = (progress.toFloat() / goal).coerceIn(0f, 1f)
     val isCompleted = progress >= goal
-
+    val experience = difficulty * 10
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -173,7 +179,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                         )
                         .clickable(enabled = isCompleted && !alreadyClaimed.value) {
                             alreadyClaimed.value = true
-                            onClaim(difficulty)
+                            onClaim(difficulty, experience)
                         }
                         .padding(horizontal = 5.dp, vertical = 6.dp)
                 ) {
@@ -207,21 +213,41 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
             }
 
             Spacer(Modifier.height(10.dp))
-
-            // Difficulty stars
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Difficulty:",
-                    fontSize = 12.sp,
-                    color = TextSecondary
-                )
-                Spacer(Modifier.width(8.dp))
-                repeat(difficulty) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Star",
-                        tint = IconGold,
-                        modifier = Modifier.size(18.dp)
+            // Difficulty and experience
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // difficulty row
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Difficulty:",
+                        fontSize = 12.sp,
+                        color = TextSecondary
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    repeat(difficulty) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Star",
+                            tint = IconGold,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+                // Experience row
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Experience: $experience",
+                        fontSize = 12.sp,
+                        color = TextSecondary
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Image(
+                        painter = painterResource(R.drawable.xp),
+                        contentDescription = "Experience",
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
