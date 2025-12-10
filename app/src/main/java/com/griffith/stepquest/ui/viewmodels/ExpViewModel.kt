@@ -109,23 +109,29 @@ class ExpViewModel : ViewModel() {
         onDone()
     }
 
-    fun getLevelAndTitle(userXp: Int): Pair<Int, String> {
+    fun getLevelAndTitle(userXp: Int): Triple<Int, String, Int> {
         Log.d("EXP_DEBUG", "getLevelAndTitle called with userXp=$userXp")
         Log.d("EXP_DEBUG", "levels loaded: $levels")
         var resultLevel = 1
         var resultTitle = ""
-        for (lvl in levels) {
+        var nextLevelXp = 0
+        for (i in levels.indices) {
+            val lvl = levels[i]
             Log.d("EXP_DEBUG", "Checking level=${lvl.level} xp=${lvl.xp} title=${lvl.title}")
 
             if (userXp >= lvl.xp) {
                 resultLevel = lvl.level
                 resultTitle = lvl.title
-
+                if (i + 1 < levels.size) {
+                    nextLevelXp = levels[i + 1].xp
+                } else {
+                    nextLevelXp = lvl.xp
+                }
                 Log.d("EXP_DEBUG", "MATCH → new result: $resultLevel / $resultTitle")
             }
         }
         Log.d("EXP_DEBUG", "FINAL → level=$resultLevel title=$resultTitle")
-        return Pair(resultLevel, resultTitle)
+        return Triple(resultLevel, resultTitle, nextLevelXp)
     }
 }
 
