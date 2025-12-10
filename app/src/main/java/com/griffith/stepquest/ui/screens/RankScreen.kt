@@ -22,33 +22,37 @@ import androidx.navigation.NavController
 import com.griffith.stepquest.R
 import com.griffith.stepquest.ui.components.HeaderBar
 import com.griffith.stepquest.ui.theme.*
+import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
+import androidx.compose.runtime.LaunchedEffect
 
-data class Player(
-    val id : Int,
-    val name: String,
-    val steps: Int,
-    val rank: Int
-)
+
+
+fun mapRankToNumber(rank: String): Int {
+    return when (rank) {
+        "Gold" -> 1
+        "Silver" -> 2
+        "Bronze" -> 3
+        "Diamond" -> 4
+        "Legend" -> 5
+        else -> 999
+    }
+}
 
 // Ranks sccreen shocasse the user rank and the current leaderboard for that rank
 @Composable
-fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel,) {
-    val userId = 1
-    val userName  = userVM.userName
-    val userSteps = stepsVM.steps
+fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel,rankVM: RankViewModel) {
+    val players = rankVM.players
+    LaunchedEffect(true) {
+        rankVM.loadRankPlayers(
+            currentName = userVM.userName,
+            currentRank = userVM.userRank,
+            currentWeeklySteps = stepsVM.weeklySteps
+        )
+    }
+
     val ranks = listOf("Bronze", "Silver", "Gold", "Diamond", "Legend")
-    val players = listOf(
-        Player(1, "Soufiane", 24000, 1),
-        Player(2, "Ahmed", 22000, 2),
-        Player(3, "Mhamad", 20000, 3),
-        Player(4, "Simo", 18500, 4),
-        Player(5, "Reda", 17500, 5),
-        Player(6, "Jack", 16200, 6),
-        Player(7, "jhon", 15500, 7),
-        Player(8, userName, userSteps, 8),
-    )
 
     Surface(
         modifier = Modifier
@@ -78,7 +82,7 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 ranks.forEach { tier ->
-                    val isCurrent = tier.equals("Gold", ignoreCase = true)
+                    val isCurrent = tier.equals(userVM.userRank, ignoreCase = true)
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -125,7 +129,7 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
                             containerColor =
-                                if (player.id == userId) LightLimeColor
+                                if (player.uid == userVM.userUID) LightLimeColor
                                 else Bright
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -139,11 +143,11 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 // adding medal to the top three walkers
-                                if (player.rank <= 3) {
-                                    val medal = when (player.rank) {
-                                        1 -> R.drawable.gold_medal
-                                        2 -> R.drawable.silver_medal
-                                        3 -> R.drawable.bronze_medal
+                                if (index <= 2) {
+                                    val medal = when (index) {
+                                        0 -> R.drawable.gold_medal
+                                        1 -> R.drawable.silver_medal
+                                        2 -> R.drawable.bronze_medal
                                         else -> R.drawable.bronze_medal
                                     }
                                     Image(
@@ -154,7 +158,7 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                                     Spacer(modifier = Modifier.width(8.dp))
                                 } else {
                                     Text(
-                                        text = "#${player.rank}",
+                                        text = "#${index + 1}",
                                         fontWeight = FontWeight.SemiBold,
                                         color = TextSecondary
                                     )
