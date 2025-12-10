@@ -57,8 +57,10 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
 
     var firebaseUrl by remember { mutableStateOf("") }
 
-    val title = userVM.userTitle
-    val level = userVM.userLevel
+    val title       = userVM.userTitle
+    val level       = userVM.userLevel
+    val nextLevel   = userVM.userNextLevelExp
+    val userXp      = userVM.userExperience
 
     LaunchedEffect(Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -215,6 +217,7 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
             Spacer(modifier = Modifier.height(20.dp))
 
 //********************************************** USER LEVEL CARD *********************************************
+            val progressRatio = (userXp.toFloat() / nextLevel.toFloat()).coerceIn(0f, 1f)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -225,17 +228,18 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
                         clip = false
                     )
                     .background(
-                        brush = Brush.verticalGradient(
-                            listOf(CardTopColor,CardBottomColor)
-                        ),
+                        color = Bright,
                         shape = RoundedCornerShape(25.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
 
                     Text(
-                        text = "$level",
+                        text = "Level: $level",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         color = Dark
@@ -247,6 +251,30 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
                         text = title,
                         fontSize = 18.sp,
                         color = TextPrimary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .background(EmptyBarColor, RoundedCornerShape(4.dp))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(progressRatio)
+                                .background(LimeColor, RoundedCornerShape(4.dp))
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        text = "$userXp / $nextLevel XP",
+                        fontSize = 12.sp,
+                        color = TextSecondary
                     )
                 }
             }
