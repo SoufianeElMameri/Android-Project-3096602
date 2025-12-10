@@ -73,7 +73,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     // initialize the data at the start of the app
     private fun initializeData(rawSteps: Int) {
         val today = getToday()
-
+        stepViewModel.loadWeeklyHistory(saveToDb = true, rankViewModel, userViewModel)
         // return if already initalized for today
         if (initialized && savedDay == today) {
             return

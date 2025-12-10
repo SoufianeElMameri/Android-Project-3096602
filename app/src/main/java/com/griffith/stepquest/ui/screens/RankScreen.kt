@@ -46,9 +46,7 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
     val players = rankVM.players
     LaunchedEffect(true) {
         rankVM.loadRankPlayers(
-            currentName = userVM.userName,
-            currentRank = userVM.userRank,
-            currentWeeklySteps = stepsVM.weeklySteps
+            currentRank = userVM.userRank
         )
     }
 

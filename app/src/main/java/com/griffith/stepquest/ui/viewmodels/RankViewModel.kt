@@ -34,13 +34,20 @@ class RankViewModel : ViewModel() {
         data["weeklysteps"] = weeklySteps
         data["rank"] = rank
 
-        val ref = db.collection("leaderboard")
-            .document(user.uid)
+        val ref = db.collection("leaderboard").document(user.uid)
 
         ref.set(data)
+            .addOnSuccessListener {
+                println("Leaderboard entry saved for ${user.uid}")
+            }
+            .addOnFailureListener { e ->
+                println("FAILED to save leaderboard entry: ${e.message}")
+            }
     }
 
-    fun loadRankPlayers(currentName: String, currentRank: String, currentWeeklySteps: Int) {
+    fun loadRankPlayers(
+        currentRank: String
+    ) {
 
         val user = auth.currentUser
         if (user == null) {
@@ -68,13 +75,7 @@ class RankViewModel : ViewModel() {
                     }
 
                     val stepsLong = doc.getLong("weeklysteps")
-                    val stepsValue: Int
-
-                    if (stepsLong == null) {
-                        stepsValue = 0
-                    } else {
-                        stepsValue = stepsLong.toInt()
-                    }
+                    val stepsValue = if (stepsLong == null) 0 else stepsLong.toInt()
 
                     val rankValue = doc.getString("rank")
                     if (rankValue == null) {
@@ -84,15 +85,6 @@ class RankViewModel : ViewModel() {
                     val player = Player(uidValue, nameValue, stepsValue, rankValue)
                     list.add(player)
                 }
-
-                val currentPlayer = Player(
-                    uid = user.uid,
-                    name = currentName,
-                    steps = currentWeeklySteps,
-                    rank = currentRank
-                )
-
-                list.add(currentPlayer)
 
                 list.sortByDescending { it.steps }
 
