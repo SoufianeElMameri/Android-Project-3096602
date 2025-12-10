@@ -171,33 +171,6 @@ class StepsViewModel : ViewModel() {
         )
     }
 
-    fun loadWeeklySteps() {
-
-        val user = auth.currentUser
-        if (user == null) {
-            return
-        }
-
-        val today = Date()
-        val cal = java.util.Calendar.getInstance()
-        cal.time = today
-        cal.set(java.util.Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
-        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-        db.collection("users").document(user.uid).collection("daily_steps")
-            .get()
-            .addOnSuccessListener { docs ->
-                var sum = 0
-                for (doc in docs) {
-                    val d = sdf.parse(doc.id) ?: continue
-                    if (!d.before(cal.time) && !d.after(today)) {
-                        val s = doc.getLong("steps")?.toInt() ?: 0
-                        sum += s
-                    }
-                }
-                weeklySteps = sum
-            }
-    }
-
     fun loadMonthlySteps() {
 
         val user = auth.currentUser
@@ -205,82 +178,137 @@ class StepsViewModel : ViewModel() {
             return
         }
 
-        val today = Date()
         val cal = java.util.Calendar.getInstance()
-        cal.time = today
-        val month = cal.get(java.util.Calendar.MONTH)
-        val year = cal.get(java.util.Calendar.YEAR)
         val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-        db.collection("users").document(user.uid).collection("daily_steps")
-            .get()
-            .addOnSuccessListener { docs ->
-                var sum = 0
-                for (doc in docs) {
-                    val d = sdf.parse(doc.id) ?: continue
-                    val c = java.util.Calendar.getInstance()
-                    c.time = d
-                    if (c.get(java.util.Calendar.MONTH) == month && c.get(java.util.Calendar.YEAR) == year) {
-                        val s = doc.getLong("steps")?.toInt() ?: 0
-                        sum += s
-                    }
-                }
-                monthlySteps = sum
-            }
-    }
 
+        val monthDates = ArrayList<String>()
 
-    fun loadWeeklyHistory() {
+        cal.set(java.util.Calendar.DAY_OF_MONTH, 1)
 
-        val user = auth.currentUser
-        if (user == null) {
-            return
+        val targetMonth = cal.get(java.util.Calendar.MONTH)
+        val targetYear = cal.get(java.util.Calendar.YEAR)
+
+        while (cal.get(java.util.Calendar.MONTH) == targetMonth && cal.get(java.util.Calendar.YEAR) == targetYear) {
+            monthDates.add(sdf.format(cal.time))
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
         }
 
-        val cal = java.util.Calendar.getInstance()
-        cal.firstDayOfWeek = java.util.Calendar.MONDAY
-        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY)
+        val firstBatch = monthDates.take(30)
+        val secondBatch = if (monthDates.size > 30) monthDates.drop(30) else emptyList()
 
-        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-        val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
-
-        val weekDates = ArrayList<String>()
-        val dayNames = LinkedHashMap<String, String>()
-
-        for (i in 0 until 7) {
-            val dateString = sdf.format(cal.time)
-            val dayName = dayFormat.format(cal.time)
-            dayNames[dayName] = dateString
-            weekDates.add(dateString)
-            cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
-        }
+        var sum = 0
 
         val stepsRef = db.collection("users")
             .document(user.uid)
             .collection("daily_steps")
 
-        stepsRef.whereIn("__name__", weekDates)
+        stepsRef.whereIn("__name__", firstBatch)
             .get()
-            .addOnSuccessListener { docs ->
+            .addOnSuccessListener { docs1 ->
 
-                val result = LinkedHashMap<String, Int>()
-
-                for ((day, dateStr) in dayNames) {
-                    result[day] = 0
+                for (doc in docs1) {
+                    val s = doc.getLong("steps")?.toInt() ?: 0
+                    sum += s
                 }
 
-                for (doc in docs) {
-                    val dateStr = doc.id
-                    val stepsValue = doc.getLong("steps")?.toInt() ?: 0
+                if (secondBatch.isEmpty()) {
+                    monthlySteps = sum
+                    return@addOnSuccessListener
+                }
 
-                    for ((day, d) in dayNames) {
-                        if (d == dateStr) {
-                            result[day] = stepsValue
+                stepsRef.whereIn("__name__", secondBatch)
+                    .get()
+                    .addOnSuccessListener { docs2 ->
+
+                        for (doc in docs2) {
+                            val s = doc.getLong("steps")?.toInt() ?: 0
+                            sum += s
+                        }
+
+                        monthlySteps = sum
+                    }
+            }
+    }
+
+    var weeklyStatsLoaded = false
+    fun loadWeeklyHistory(saveToDb: Boolean = false, rankedViewModel: RankViewModel? = null, userViewModel: UserViewModel? = null) {
+        if(!weeklyStatsLoaded) {
+            weeklyStatsLoaded = true
+            val user = auth.currentUser
+            if (user == null) {
+                return
+            }
+
+            val cal = java.util.Calendar.getInstance()
+            cal.firstDayOfWeek = java.util.Calendar.MONDAY
+            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY)
+
+            val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+            val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
+
+            val weekDates = ArrayList<String>()
+            val dayNames = LinkedHashMap<String, String>()
+
+            for (i in 0 until 7) {
+                val dateString = sdf.format(cal.time)
+                val dayName = dayFormat.format(cal.time)
+                dayNames[dayName] = dateString
+                weekDates.add(dateString)
+                cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
+            }
+
+            val stepsRef = db.collection("users")
+                .document(user.uid)
+                .collection("daily_steps")
+
+            stepsRef.whereIn("__name__", weekDates)
+                .get()
+                .addOnSuccessListener { docs ->
+
+                    val result = LinkedHashMap<String, Int>()
+
+                    for ((day, dateStr) in dayNames) {
+                        result[day] = 0
+                    }
+
+                    for (doc in docs) {
+                        val dateStr = doc.id
+                        val stepsValue = doc.getLong("steps")?.toInt() ?: 0
+
+                        for ((day, d) in dayNames) {
+                            if (d == dateStr) {
+                                result[day] = stepsValue
+                            }
                         }
                     }
-                }
 
-                weeklyHistory = result
-            }
+                    weeklyHistory = result
+
+                    weeklySteps = result.values.sum()
+
+                    if (saveToDb && rankedViewModel != null && userViewModel != null)  {
+                        val userRef = db.collection("users")
+                            .document(user.uid)
+
+                        userRef.set(
+                            mapOf(
+                                "weeklySteps" to weeklySteps
+                            ),
+                            com.google.firebase.firestore.SetOptions.merge()
+                        )
+
+                        rankedViewModel.saveToLeaderboard(
+                            userViewModel.userName,
+                            weeklySteps,
+                            userViewModel.userRank
+                        )
+
+
+                    }
+
+                }
+        }
+
     }
 
 
@@ -288,9 +316,8 @@ class StepsViewModel : ViewModel() {
     fun loadStepsStats(){
         loadDailyStepGoal()
         loadTotalSteps()
-        loadWeeklySteps()
         loadMonthlySteps()
-        loadWeeklyHistory()
+        loadWeeklyHistory(true)
     }
 
 }
