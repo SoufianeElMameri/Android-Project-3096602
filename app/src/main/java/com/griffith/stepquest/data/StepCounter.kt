@@ -10,21 +10,27 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
+import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
-class StepCounter(private val context: Context, private val stepViewModel: StepsViewModel, private val userViewModel: UserViewModel) : SensorEventListener {
+class StepCounter(private val context: Context, private val stepViewModel: StepsViewModel, private val userViewModel: UserViewModel, private val rankViewModel: RankViewModel) : SensorEventListener {
 
     private val prefs = context.getSharedPreferences("step_prefs", Context.MODE_PRIVATE)
 
 
     private var sensorManager: SensorManager? = null
     private var stepSensor: Sensor? = null
-    private var baselineSteps = 0
     private var savedDay = ""
     private var initialized = false
+//    private var baselineSteps = 0
+
+    private var offset = 0
+    private var lastSensorValue = 0
+    private var dailySteps = 0
+
     var currentSteps: Int = 0
         private set
 
@@ -44,14 +50,19 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     // to start reading steps
     fun start() {
         savedDay = prefs.getString("savedDay", "") ?: ""
-        baselineSteps = prefs.getInt("baselineSteps", 0)
+//        baselineSteps = prefs.getInt("baselineSteps", 0)
         initialized = prefs.getBoolean("initialized", false)
+
+        lastSensorValue = prefs.getInt("lastSensorValue", 0)
+        offset = prefs.getInt("offset", 0)
+        dailySteps = prefs.getInt("dailySteps", 0)
 
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         stepSensor?.let {
             sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
+        updateNewDaySteps()
     }
 
     // to stop listening to steps
@@ -70,26 +81,44 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
         if (savedDay == "") {
             savedDay = today
-            baselineSteps = rawSteps
 
-            prefs.edit().putString("savedDay", savedDay).apply()
-            prefs.edit().putInt("baselineSteps", baselineSteps).apply()
-            prefs.edit().putBoolean("initialized", true).apply()
+            offset = rawSteps
+            dailySteps = 0
+//            baselineSteps = rawSteps
+
+            prefs.edit {
+                putString("savedDay", savedDay)
+                putInt("offset", offset)
+                putInt("dailySteps", dailySteps)
+                putBoolean("initialized", true)
+            }
+//            prefs.edit { putString("savedDay", savedDay) }
+//            prefs.edit { putInt("baselineSteps", baselineSteps) }
+//            prefs.edit { putBoolean("initialized", true) }
 
             initialized = true
             return
         } else if (savedDay != today) {
 
             stepViewModel.saveDailySteps(savedDay, currentSteps)
+            stepViewModel.loadWeeklyHistory(saveToDb = true, rankViewModel, userViewModel)
             val dailyGoal = stepViewModel.dailyGoal
             userViewModel.updateStreak(currentSteps, dailyGoal)
 
+            // Reset for new day
             savedDay = today
-            baselineSteps = rawSteps
+            offset = rawSteps
+            dailySteps = 0
 
-            prefs.edit().putString("savedDay", savedDay).apply()
-            prefs.edit().putInt("baselineSteps", baselineSteps).apply()
-            prefs.edit().putBoolean("initialized", true).apply()
+            prefs.edit {
+                putString("savedDay", savedDay)
+                putInt("offset", offset)
+                putInt("dailySteps", dailySteps)
+                putBoolean("initialized", true)
+            }
+//            prefs.edit { putString("savedDay", savedDay) }
+//            prefs.edit { putInt("baselineSteps", baselineSteps) }
+//            prefs.edit { putBoolean("initialized", true) }
 
             initialized = true
             return
@@ -98,6 +127,14 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         initialized = true
     }
 
+
+    fun updateNewDaySteps(){
+        val today = getToday()
+        if (savedDay != today) {
+            currentSteps = 0
+        }
+
+    }
     // function to update steps on sensore change
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) return
@@ -106,15 +143,42 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
         val rawSteps = event.values[0].toInt()
 
-        initializeData(rawSteps)
-
-        val daily = rawSteps - baselineSteps
-
-        if (daily < 0) {
-            currentSteps = 0
-        } else {
-            currentSteps = daily
+        if (lastSensorValue == 0) {
+            lastSensorValue = rawSteps
+            offset = rawSteps - dailySteps
+            prefs.edit {
+                putInt("lastSensorValue", lastSensorValue)
+                putInt("offset", offset)
+            }
         }
+        if (rawSteps < lastSensorValue) {
+            offset = rawSteps - dailySteps
+            prefs.edit { putInt("offset", offset) }
+        }
+
+
+        dailySteps = rawSteps - offset
+        currentSteps = dailySteps
+
+
+        lastSensorValue = rawSteps
+        prefs.edit {
+            putInt("dailySteps", dailySteps)
+            putInt("lastSensorValue", lastSensorValue)
+        }
+
+//        if (baselineSteps <1){
+//            baselineSteps = rawSteps
+//        }
+//        val daily = rawSteps - baselineSteps
+//
+//        if (daily < 0) {
+//            currentSteps = 0
+//        } else {
+//            currentSteps = daily
+//        }
+
+        initializeData(rawSteps)
 
         stepViewModel.updateSteps(currentSteps)
     }
