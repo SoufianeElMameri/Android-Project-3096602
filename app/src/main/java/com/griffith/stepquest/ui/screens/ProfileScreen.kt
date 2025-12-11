@@ -94,7 +94,9 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
                     ImageDecoder.decodeBitmap(source)
                 }
 
-            val file = File(context.filesDir, "profile_picture.png")
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+            val file = File(context.filesDir, "profile_picture_$uid.png")
+
             FileOutputStream(file).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
             }
@@ -109,7 +111,9 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
         }
     }
 
-    val file = File(context.filesDir, "profile_picture.png")
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+    val file = File(context.filesDir, "profile_picture_$uid.png")
+
     var localBitmap: Bitmap? = null
 
     if (file.exists()) {

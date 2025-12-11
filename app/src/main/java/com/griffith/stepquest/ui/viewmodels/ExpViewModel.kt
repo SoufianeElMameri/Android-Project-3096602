@@ -72,7 +72,9 @@ class ExpViewModel : ViewModel() {
     }
 
     fun saveLocal(context: Context, list: List<LevelData>) {
-        val prefs = context.getSharedPreferences("exp_levels", Context.MODE_PRIVATE)
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+        val prefs = context.getSharedPreferences("exp_levels_$uid", Context.MODE_PRIVATE)
+
         val json = JSONArray()
 
         for (lvl in list) {
@@ -86,7 +88,9 @@ class ExpViewModel : ViewModel() {
     }
 
     fun loadLocal(context: Context, onDone: () -> Unit) {
-        val prefs = context.getSharedPreferences("exp_levels", Context.MODE_PRIVATE)
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+        val prefs = context.getSharedPreferences("exp_levels_$uid", Context.MODE_PRIVATE)
+
         val json = prefs.getString("levels_json", null)
 
 

@@ -47,6 +47,12 @@ class UserViewModel : ViewModel() {
     var userNextLevelExp by mutableStateOf(0)
         private set
 
+    var totalGoldMedals by mutableStateOf(0)
+        private set
+
+    var rankMedals by mutableStateOf<Map<String, List<String>>>(emptyMap())
+        private set
+
     fun getUsername(): String {
         return userName
     }
@@ -71,19 +77,6 @@ class UserViewModel : ViewModel() {
             .update("username", userName)
     }
 
-    fun updateUserRank(newRank: String) {
-        userRank = newRank
-
-        val user = auth.currentUser
-        if (user == null) {
-            return
-        }
-
-        db.collection("users")
-            .document(user.uid)
-            .update("userRank", userRank)
-    }
-
     fun addUserExperience(amount: Int) {
         userExperience += amount
 
@@ -99,73 +92,70 @@ class UserViewModel : ViewModel() {
 
     fun updateStreak(yesterdaySteps: Int, dailyGoal: Int) {
 
-        Log.d("STREAK", "updateStreak called")
-        Log.d("STREAK", "yesterdaySteps=$yesterdaySteps dailyGoal=$dailyGoal")
-
         val user = auth.currentUser
         if (user == null) {
-            Log.d("STREAK", "User is null, returning")
             return
         }
 
         val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-
-        val cal = java.util.Calendar.getInstance()
-        cal.add(java.util.Calendar.DAY_OF_YEAR, -1)
-        val yesterdayString = sdf.format(cal.time)
-
-        Log.d("STREAK", "yesterdayString=$yesterdayString lastStreakDate=$lastStreakDate")
-
-        if (lastStreakDate == yesterdayString) {
-            Log.d("STREAK", "Already updated for yesterday, returning")
-            return
-        }
-
-        if (yesterdaySteps >= dailyGoal) {
-
-            Log.d("STREAK", "Goal met")
-
-            val prevCal = java.util.Calendar.getInstance()
-            prevCal.time = cal.time
-            prevCal.add(java.util.Calendar.DAY_OF_YEAR, -1)
-            val previousDayString = sdf.format(prevCal.time)
-
-            Log.d("STREAK", "previousDayString=$previousDayString")
-
-            if (lastStreakDate == previousDayString) {
-                currentStreak = currentStreak + 1
-                Log.d("STREAK", "Streak incremented to $currentStreak")
-            } else {
-                currentStreak = 1
-                Log.d("STREAK", "Streak reset to 1")
-            }
-
-            lastStreakDate = yesterdayString
-            Log.d("STREAK", "lastStreakDate updated to $lastStreakDate")
-
-        } else {
-            currentStreak = 0
-            Log.d("STREAK", "Goal failed, streak reset to 0")
-        }
-
-        if (currentStreak > bestStreak) {
-            bestStreak = currentStreak
-            Log.d("STREAK", "New bestStreak=$bestStreak")
-        }
+        val today = sdf.format(Date())
 
         val ref = db.collection("users").document(user.uid)
 
-        ref.set(
-            mapOf(
-                "currentStreak" to currentStreak,
-                "bestStreak" to bestStreak,
-                "lastStreakDate" to lastStreakDate
-            ),
-            com.google.firebase.firestore.SetOptions.merge()
-        )
+        ref.get().addOnSuccessListener { doc ->
 
-        Log.d("STREAK", "Firestore updated")
+            val lastCheck = doc.getString("lastStreakCheck")
+            if (lastCheck == today) {
+                return@addOnSuccessListener
+            }
+
+            val cal = java.util.Calendar.getInstance()
+            cal.add(java.util.Calendar.DAY_OF_YEAR, -1)
+            val yesterdayString = sdf.format(cal.time)
+
+            if (lastStreakDate == yesterdayString) {
+                ref.set(
+                    mapOf("lastStreakCheck" to today),
+                    com.google.firebase.firestore.SetOptions.merge()
+                )
+                return@addOnSuccessListener
+            }
+
+            if (yesterdaySteps >= dailyGoal) {
+
+                val prevCal = java.util.Calendar.getInstance()
+                prevCal.time = cal.time
+                prevCal.add(java.util.Calendar.DAY_OF_YEAR, -1)
+                val previousDayString = sdf.format(prevCal.time)
+
+                if (lastStreakDate == previousDayString) {
+                    currentStreak = currentStreak + 1
+                } else {
+                    currentStreak = 1
+                }
+
+                lastStreakDate = yesterdayString
+
+            } else {
+                currentStreak = 0
+            }
+
+            if (currentStreak > bestStreak) {
+                bestStreak = currentStreak
+            }
+
+            ref.set(
+                mapOf(
+                    "currentStreak" to currentStreak,
+                    "bestStreak" to bestStreak,
+                    "lastStreakDate" to lastStreakDate,
+                    "lastStreakCheck" to today
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+        }
     }
+
 
     fun loadUserLevel(context: Context, expVM: ExpViewModel) {
         expVM.loadLocal(context) {
@@ -178,46 +168,30 @@ class UserViewModel : ViewModel() {
     }
 
     // function that loads user data from the database
-    fun loadUserData() {
+    fun loadUserData(onDone: (() -> Unit)? = null) {
         val user = auth.currentUser
         if (user == null) {
+            onDone?.invoke()
             return
         }
 
         val mainRef = db.collection("users").document(user.uid)
 
-        mainRef.get().addOnSuccessListener { doc ->
-            val name = doc.getString("username")
-            if (name == null) {
-                userName = ""
-            } else {
-                userName = name
-            }
-            val currentStreakValue = doc.getLong("currentStreak")
-            if (currentStreakValue != null) {
-                currentStreak = currentStreakValue.toInt()
-            }
+        mainRef.get()
+            .addOnSuccessListener { doc ->
 
-            val bestStreakValue = doc.getLong("bestStreak")
-            if (bestStreakValue != null) {
-                bestStreak = bestStreakValue.toInt()
-            }
+                userName = doc.getString("username") ?: ""
+                currentStreak = doc.getLong("currentStreak")?.toInt() ?: 0
+                bestStreak = doc.getLong("bestStreak")?.toInt() ?: 0
+                lastStreakDate = doc.getString("lastStreakDate") ?: ""
+                userExperience = doc.getLong("userExperience")?.toInt() ?: 0
+                userRank = doc.getString("userRank") ?: "Bronze"
 
-            val lastDateValue = doc.getString("lastStreakDate")
-            if (lastDateValue != null) {
-                lastStreakDate = lastDateValue
+                onDone?.invoke()
             }
-
-            val userExperienceValue = doc.getLong("userExperience")
-            if (userExperienceValue != null) {
-                userExperience = userExperienceValue.toInt()
+            .addOnFailureListener {
+                onDone?.invoke()
             }
-
-            val userRankValue = doc.getString("userRank")
-            if (userRankValue != null) {
-                userRank = userRankValue
-            }
-        }
     }
 
     fun saveToLeaderboard(uid: String, name: String, weeklySteps: Int, rank: String) {
@@ -232,6 +206,93 @@ class UserViewModel : ViewModel() {
         db.collection("leaderboard")
             .document(uid)
             .set(data)
+    }
+
+    fun giveMedal(rank: String, medalName: String) {
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val updated = rankMedals.toMutableMap()
+        val list = updated[rank]?.toMutableList() ?: mutableListOf()
+        list.add(medalName)
+        updated[rank] = list
+        rankMedals = updated
+
+        db.collection("users").document(user.uid)
+            .set(mapOf("rankMedals" to updated), com.google.firebase.firestore.SetOptions.merge())
+    }
+
+    fun loadMedals() {
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        db.collection("users")
+            .document(user.uid)
+            .get()
+            .addOnSuccessListener { doc ->
+
+                val raw = doc.get("rankMedals")
+                if (raw == null) {
+                    rankMedals = emptyMap()
+                    totalGoldMedals = 0
+                    return@addOnSuccessListener
+                }
+
+                val rawMap = raw as Map<*, *>
+                val cleanMap = HashMap<String, List<String>>()
+
+                for (entry in rawMap.entries) {
+                    val k = entry.key
+                    val v = entry.value
+                    if (k is String && v is List<*>) {
+                        val onlyStrings = mutableListOf<String>()
+                        for (item in v) {
+                            if (item is String) {
+                                onlyStrings.add(item)
+                            }
+                        }
+                        cleanMap[k] = onlyStrings
+                    }
+                }
+
+                rankMedals = cleanMap
+
+                var goldCount = 0
+                for (pair in cleanMap.entries) {
+                    for (m in pair.value) {
+                        if (m == "Gold") {
+                            goldCount = goldCount + 1
+                        }
+                    }
+                }
+
+                totalGoldMedals = goldCount
+            }
+    }
+
+
+    fun promoteRank() {
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val next = when (userRank) {
+            "Bronze" -> "Silver"
+            "Silver" -> "Gold"
+            "Gold" -> "Diamond"
+            "Diamond" -> "Legend"
+            else -> userRank
+        }
+
+        userRank = next
+
+        db.collection("users").document(user.uid)
+            .set(mapOf("userRank" to userRank), com.google.firebase.firestore.SetOptions.merge())
     }
 
 }

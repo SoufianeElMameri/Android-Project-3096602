@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.auth.FirebaseAuth
 import com.griffith.stepquest.R
 import java.io.File
 import com.griffith.stepquest.ui.theme.*
@@ -38,7 +39,8 @@ import com.griffith.stepquest.ui.theme.*
 fun HeaderBar(headerTitle:String, navController: NavController){
     // loading the porifle picture from the local storage if it exists if not load default profile
     val context = LocalContext.current
-    val file = File(context.filesDir, "profile_picture.png")
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+    val file = File(context.filesDir, "profile_picture_$uid.png")
     val profileImage = if (file.exists()) {
         BitmapFactory.decodeFile(file.absolutePath)
     } else {
@@ -65,6 +67,7 @@ fun HeaderBar(headerTitle:String, navController: NavController){
                 )
             else
                 painterResource(id = R.drawable.default_profile),
+
             contentDescription = "Profile Picture",
             modifier = Modifier
                 .size(60.dp)
