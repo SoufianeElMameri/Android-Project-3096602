@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.edit
+import com.google.firebase.auth.FirebaseAuth
 import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
@@ -18,7 +19,9 @@ import com.griffith.stepquest.ui.viewmodels.UserViewModel
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
 class StepCounter(private val context: Context, private val stepViewModel: StepsViewModel, private val userViewModel: UserViewModel, private val rankViewModel: RankViewModel) : SensorEventListener {
 
-    private val prefs = context.getSharedPreferences("step_prefs", Context.MODE_PRIVATE)
+    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+    private val prefs = context.getSharedPreferences("step_prefs_$userId", Context.MODE_PRIVATE)
+
 
 
     private var sensorManager: SensorManager? = null
@@ -182,6 +185,57 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
         stepViewModel.updateSteps(currentSteps)
     }
+
+
+    fun forceReadSensor(done: ((Int) -> Unit)? = null) {
+        if (stepSensor == null) {
+            done?.invoke(currentSteps)
+            return
+        }
+
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent?) {
+                if (event == null) return
+                val raw = event.values[0].toInt()
+
+                if (lastSensorValue == 0) {
+                    lastSensorValue = raw
+                    offset = raw - dailySteps
+                }
+
+                if (raw < lastSensorValue) {
+                    offset = raw - dailySteps
+                }
+
+                dailySteps = raw - offset
+                currentSteps = dailySteps
+                lastSensorValue = raw
+
+                prefs.edit {
+                    putInt("dailySteps", dailySteps)
+                    putInt("lastSensorValue", lastSensorValue)
+                    putInt("offset", offset)
+                }
+                stepViewModel.updateSteps(currentSteps)
+
+                sensorManager.unregisterListener(this)
+
+                done?.invoke(currentSteps)
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+
+        sensorManager.registerListener(
+            listener,
+            stepSensor,
+            SensorManager.SENSOR_DELAY_FASTEST
+        )
+    }
+
+
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
