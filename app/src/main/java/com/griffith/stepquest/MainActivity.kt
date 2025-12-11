@@ -38,6 +38,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +79,7 @@ class MainActivity : ComponentActivity() {
             handler.postDelayed(this, 1000)
         }
     }
+
     // request permission from user to use sensor
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun requestStepPermission() {
@@ -111,12 +113,16 @@ class MainActivity : ComponentActivity() {
             // if user is logged in show the app screens
             if (isLoggedIn) {
 
-                userVM.loadUserData()
-                userVM.loadUserLevel(this, expVM)
-                userVM.updateStreak(6000, stepsVM.dailyGoal)
-                coinsVM.loadCoins()
-                stepsVM.loadStepsStats()
-                userVM.updateStreak(stepsVM.steps, stepsVM.dailyGoal)
+                LaunchedEffect(Unit) {
+                    userVM.loadUserData {
+                        userVM.loadUserLevel(this@MainActivity, expVM)
+                        coinsVM.loadCoins()
+                        stepsVM.loadStepsStats()
+                        rankVM.loadWeeklyPopupDate {
+                            rankVM.weeklyRankCheck(userVM, coinsVM)
+                        }
+                    }
+                }
                 
                 StepQuestNav(
                     userVM   = userVM,
@@ -128,8 +134,11 @@ class MainActivity : ComponentActivity() {
                     onLogout = {
                         FirebaseAuthManger.logoutUser()
                         isLoggedIn = false
+                        // kill all viewmodel by reloading the main activity
+                        viewModelStore.clear()
                     }
                 )
+
             // if user is not logged in show the authentication screen
             } else {
                 AuthScreen(
@@ -137,7 +146,6 @@ class MainActivity : ComponentActivity() {
                     onLoginSuccess = {
                         stepsVM.loadUserStepsFromDb()
                         isLoggedIn = true
-                        userVM.updateStreak(stepsVM.steps, stepsVM.dailyGoal)
                     }
                 )
             }
@@ -153,6 +161,10 @@ class MainActivity : ComponentActivity() {
                 Log.d("Main", "Device has stepCounter")
                 stepCounter.start()
                 handler.post(stepUpdateRunnable)
+                stepCounter.forceReadSensor { steps ->
+                    stepsVM.updateSteps(steps)
+                    userVM.updateStreak(steps, stepsVM.dailyGoal)
+                }
             }
             else{
                 Log.d("Main", "Device doesn't have stepCounter")
@@ -166,7 +178,6 @@ class MainActivity : ComponentActivity() {
         stepCounter.stop()
     }
 }
-
 
 // navigation container
 @Composable
@@ -184,7 +195,7 @@ fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsV
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
-            composable("home") { HomeScreen(navController, userVM, stepsVM, coinsVM) }
+            composable("home") { HomeScreen(navController, userVM, stepsVM, coinsVM, rankVM) }
             composable("challenges") { ChallengesScreen(navController, userVM, stepsVM, coinsVM) }
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController, userVM, stepsVM, rankVM) }
