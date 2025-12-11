@@ -230,81 +230,77 @@ class StepsViewModel : ViewModel() {
             }
     }
 
-    var weeklyStatsLoaded = false
     fun loadWeeklyHistory(saveToDb: Boolean = false, rankedViewModel: RankViewModel? = null, userViewModel: UserViewModel? = null) {
-        if(!weeklyStatsLoaded) {
-            weeklyStatsLoaded = true
-            val user = auth.currentUser
-            if (user == null) {
-                return
-            }
 
-            val cal = java.util.Calendar.getInstance()
-            cal.firstDayOfWeek = java.util.Calendar.MONDAY
-            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY)
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
 
-            val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-            val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
+        val cal = java.util.Calendar.getInstance()
+        cal.firstDayOfWeek = java.util.Calendar.MONDAY
+        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY)
 
-            val weekDates = ArrayList<String>()
-            val dayNames = LinkedHashMap<String, String>()
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
 
-            for (i in 0 until 7) {
-                val dateString = sdf.format(cal.time)
-                val dayName = dayFormat.format(cal.time)
-                dayNames[dayName] = dateString
-                weekDates.add(dateString)
-                cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
-            }
+        val weekDates = ArrayList<String>()
+        val dayNames = LinkedHashMap<String, String>()
 
-            val stepsRef = db.collection("users")
-                .document(user.uid)
-                .collection("daily_steps")
+        for (i in 0 until 7) {
+            val dateString = sdf.format(cal.time)
+            val dayName = dayFormat.format(cal.time)
+            dayNames[dayName] = dateString
+            weekDates.add(dateString)
+            cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
+        }
 
-            stepsRef.whereIn("__name__", weekDates)
-                .get()
-                .addOnSuccessListener { docs ->
+        val stepsRef = db.collection("users")
+            .document(user.uid)
+            .collection("daily_steps")
 
-                    val result = LinkedHashMap<String, Int>()
+        stepsRef.whereIn("__name__", weekDates)
+            .get()
+            .addOnSuccessListener { docs ->
 
-                    for ((day, dateStr) in dayNames) {
-                        result[day] = 0
-                    }
+                val result = LinkedHashMap<String, Int>()
 
-                    for (doc in docs) {
-                        val dateStr = doc.id
-                        val stepsValue = doc.getLong("steps")?.toInt() ?: 0
+                for ((day, dateStr) in dayNames) {
+                    result[day] = 0
+                }
 
-                        for ((day, d) in dayNames) {
-                            if (d == dateStr) {
-                                result[day] = stepsValue
-                            }
+                for (doc in docs) {
+                    val dateStr = doc.id
+                    val stepsValue = doc.getLong("steps")?.toInt() ?: 0
+
+                    for ((day, d) in dayNames) {
+                        if (d == dateStr) {
+                            result[day] = stepsValue
                         }
                     }
+                }
 
-                    weeklyHistory = result
+                weeklyHistory = result
 
-                    weeklySteps = result.values.sum()
+                weeklySteps = result.values.sum()
 
-                    if (saveToDb && rankedViewModel != null && userViewModel != null)  {
-                        val userRef = db.collection("users")
-                            .document(user.uid)
+                if (saveToDb && rankedViewModel != null && userViewModel != null)  {
+                    val userRef = db.collection("users")
+                        .document(user.uid)
 
-                        userRef.set(
-                            mapOf(
-                                "weeklySteps" to weeklySteps
-                            ),
-                            com.google.firebase.firestore.SetOptions.merge()
-                        )
+                    userRef.set(
+                        mapOf(
+                            "weeklySteps" to weeklySteps
+                        ),
+                        com.google.firebase.firestore.SetOptions.merge()
+                    )
 
-                        rankedViewModel.saveToLeaderboard(
-                            userViewModel.userName,
-                            weeklySteps,
-                            userViewModel.userRank
-                        )
+                    rankedViewModel.saveToLeaderboard(
+                        userViewModel.userName,
+                        weeklySteps,
+                        userViewModel.userRank
+                    )
 
-
-                    }
 
                 }
         }
