@@ -13,6 +13,8 @@ data class Player(
     val steps: Int,
     val rank: String
 )
+
+
 class RankViewModel : ViewModel() {
 
     // firestore and auth instances
@@ -137,6 +139,7 @@ class RankViewModel : ViewModel() {
 
     // check weekly rank on Monday and give rewards
     fun weeklyRankCheck(userVM: UserViewModel, coinsVM: CoinsViewModel) {
+
         // get today's date in simple format
         val sdf = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
         val today = sdf.format(java.util.Date())
@@ -151,10 +154,10 @@ class RankViewModel : ViewModel() {
         val cal = java.util.Calendar.getInstance()
         val isMonday = (cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.MONDAY)
 
-//        if (!isMonday) {
-//            weeklyResult = null
-//            return
-//        }
+        if (!isMonday) {
+            weeklyResult = null
+            return
+        }
 
         // check which groupd the user belongs to by comparing to his rank
         val currentRank = userVM.userRank
@@ -191,7 +194,7 @@ class RankViewModel : ViewModel() {
                     userVM.addUserExperience(1000)
                     coinsVM.addCoins(50)
                     saveWeeklyPopupDate(today)
-                    weeklyResult = "GOLD"
+                    weeklyResult = "GOLD|EXP:1000|COINS:50|RANKUP:${userVM.userRank}"
                     return@addOnSuccessListener
                 }
 
@@ -201,7 +204,7 @@ class RankViewModel : ViewModel() {
                     userVM.addUserExperience(500)
                     coinsVM.addCoins(25)
                     saveWeeklyPopupDate(today)
-                    weeklyResult = "SILVER"
+                    weeklyResult = "SILVER|EXP:500|COINS:25"
                     return@addOnSuccessListener
                 }
 
@@ -211,7 +214,7 @@ class RankViewModel : ViewModel() {
                     userVM.addUserExperience(250)
                     coinsVM.addCoins(10)
                     saveWeeklyPopupDate(today)
-                    weeklyResult = "BRONZE"
+                    weeklyResult = "BRONZE|EXP:250|COINS:10"
                     return@addOnSuccessListener
                 }
 
@@ -220,6 +223,4 @@ class RankViewModel : ViewModel() {
                 weeklyResult = "LOSER"
             }
     }
-
-
 }
