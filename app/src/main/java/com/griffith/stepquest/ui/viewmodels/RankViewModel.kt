@@ -140,7 +140,7 @@ class RankViewModel : ViewModel() {
     // check weekly rank on Monday and give rewards
     fun weeklyRankCheck(userVM: UserViewModel, coinsVM: CoinsViewModel) {
 
-        // get today's date in simple format
+        // get today's date in a simple format
         val sdf = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
         val today = sdf.format(java.util.Date())
 
