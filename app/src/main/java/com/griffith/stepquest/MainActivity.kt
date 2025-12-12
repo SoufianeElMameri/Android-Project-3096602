@@ -46,6 +46,8 @@ import androidx.compose.runtime.setValue
 import com.griffith.stepquest.ui.screens.AuthScreen
 import com.griffith.stepquest.ui.screens.SettingsScreen
 import com.griffith.stepquest.data.FirebaseAuthManger
+import com.griffith.stepquest.ui.screens.PrivacyPolicyScreen
+import com.griffith.stepquest.ui.screens.TermsAndConditionsScreen
 import com.griffith.stepquest.ui.viewmodels.AuthViewModel
 import com.griffith.stepquest.ui.viewmodels.BadgeViewModel
 import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
@@ -113,10 +115,9 @@ class MainActivity : ComponentActivity() {
             if (isLoggedIn) {
 
                 LaunchedEffect(Unit) {
-                    userVM.loadUserData {
-                        userVM.loadUserLevel(this@MainActivity, expVM)
+                    userVM.loadUserData (this@MainActivity, expVM){
                         coinsVM.loadCoins()
-                        stepsVM.loadStepsStats()
+                        stepsVM.loadStepsStats(userVM)
                         rankVM.loadWeeklyPopupDate {
                             rankVM.weeklyRankCheck(userVM, coinsVM)
                         }
@@ -200,11 +201,18 @@ fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsV
             composable("badges") { BadgesScreen(navController, userVM, badgeVM) }
             composable("rank") { RankScreen(navController, userVM, stepsVM, rankVM) }
             composable("profile") { ProfileScreen(navController = navController, userVM, stepsVM) }
-            composable("settings") { SettingsScreen(userVM,pwdVM,
+            composable("settings") { SettingsScreen(navController,userVM,pwdVM,
                 onLogout = {
                     onLogout()
                 }
             ) }
+            composable("terms") {
+                TermsAndConditionsScreen(navController)
+            }
+
+            composable("privacy") {
+                PrivacyPolicyScreen(navController)
+            }
 //            composable("shop"){ ShopScreen(navController, userVM) }
         }
     }

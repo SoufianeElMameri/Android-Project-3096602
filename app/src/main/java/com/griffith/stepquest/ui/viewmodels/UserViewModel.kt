@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -27,10 +28,10 @@ class UserViewModel : ViewModel() {
     var userName by mutableStateOf("User")
         private set
 
-    var currentStreak by mutableStateOf(0)
+    var currentStreak by mutableIntStateOf(0)
         private set
 
-    var bestStreak by mutableStateOf(0)
+    var bestStreak by mutableIntStateOf(0)
         private set
 
     var lastStreakDate by mutableStateOf("")
@@ -40,13 +41,13 @@ class UserViewModel : ViewModel() {
         private set
 
 
-    var userExperience by mutableStateOf(0)
+    var userExperience by mutableIntStateOf(0)
         private set
 
-    var userNextLevelExp by mutableStateOf(0)
+    var userNextLevelExp by mutableIntStateOf(0)
         private set
 
-    var totalGoldMedals by mutableStateOf(0)
+    var totalGoldMedals by mutableIntStateOf(0)
         private set
 
     var rankMedals by mutableStateOf<Map<String, List<String>>>(emptyMap())
@@ -59,7 +60,7 @@ class UserViewModel : ViewModel() {
         return userName
     }
 
-    var userLevel by mutableStateOf(1)
+    var userLevel by mutableIntStateOf(1)
         private set
 
     var userTitle by mutableStateOf("")
@@ -170,7 +171,7 @@ class UserViewModel : ViewModel() {
     }
 
     // function that loads user data from the database
-    fun loadUserData(onDone: (() -> Unit)? = null) {
+    fun loadUserData(context: Context, expVM: ExpViewModel, onDone: (() -> Unit)? = null) {
         val user = auth.currentUser
         if (user == null) {
             onDone?.invoke()
@@ -188,6 +189,7 @@ class UserViewModel : ViewModel() {
                 lastStreakDate = doc.getString("lastStreakDate") ?: ""
                 userExperience = doc.getLong("userExperience")?.toInt() ?: 0
                 userRank = doc.getString("userRank") ?: "Bronze"
+                loadUserLevel(context, expVM)
                 loadMedals()
                 loadBadges()
                 onDone?.invoke()
@@ -195,20 +197,6 @@ class UserViewModel : ViewModel() {
             .addOnFailureListener {
                 onDone?.invoke()
             }
-    }
-
-    fun saveToLeaderboard(uid: String, name: String, weeklySteps: Int, rank: String) {
-
-        val data = hashMapOf(
-            "uid" to uid,
-            "name" to name,
-            "weeklysteps" to weeklySteps,
-            "rank" to rank
-        )
-
-        db.collection("leaderboard")
-            .document(uid)
-            .set(data)
     }
 
     fun giveMedal(rank: String, medalName: String) {
