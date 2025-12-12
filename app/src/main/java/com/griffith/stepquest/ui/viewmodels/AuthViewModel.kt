@@ -9,9 +9,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class AuthViewModel : ViewModel() {
 
+    // firebase auth instance
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
+    // error messages
     var usernameError by mutableStateOf("")
         private set
 
@@ -24,19 +26,23 @@ class AuthViewModel : ViewModel() {
     var pwdConfirmError by mutableStateOf("")
         private set
 
+    // auth success to navigate on success
     var authSuccess by mutableStateOf(false)
         private set
 
+    // reset all error messages before a new action
     fun resetErrors() {
         usernameError = ""
         emailError = ""
         pwdError = ""
         pwdConfirmError = ""
     }
-
+//***************************************************** REGISTER *****************************************************
+    // register a new user with email and password
     fun register(username: String, email: String, password: String, confirm: String) {
         resetErrors()
 
+        // validate fields
         if (username.isBlank()) {
             usernameError = "Username required"
             return
@@ -62,6 +68,7 @@ class AuthViewModel : ViewModel() {
             return
         }
 
+        // create firebase auth account
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 val user = auth.currentUser
@@ -100,14 +107,18 @@ class AuthViewModel : ViewModel() {
                 }
             }
     }
+//***************************************************** LOGIN *****************************************************
 
+    // login existing user
     fun login(email: String, password: String) {
         resetErrors()
 
+        // validate email
         if (email.isBlank()){
             emailError = "Email required"
             return
         }
+//        validate password
         if (password.isBlank()){
             pwdError = "Password required"
             return

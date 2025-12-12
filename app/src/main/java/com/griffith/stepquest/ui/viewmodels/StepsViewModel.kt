@@ -16,13 +16,13 @@ import kotlin.text.get
 // a model to keep track of coins and add coins
 class StepsViewModel : ViewModel() {
 
-
+    // variable to keep track of the last save time
     private var lastSave = 0L
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // holds the number of steps the user did
+    // variables to store stats
     var steps by mutableIntStateOf(0)
         private set
 
@@ -52,6 +52,7 @@ class StepsViewModel : ViewModel() {
         }
     }
 
+    // function to load the total suer steps
     fun loadTotalSteps() {
 
         val user = auth.currentUser
@@ -132,7 +133,7 @@ class StepsViewModel : ViewModel() {
             }
         }
     }
-
+    // function to load the user's step goals
     fun loadDailyStepGoal(userVM : UserViewModel) {
 
         val user = auth.currentUser
@@ -147,13 +148,14 @@ class StepsViewModel : ViewModel() {
             val goalValue = doc.getLong("dailyGoal")
 
             if (goalValue != null) {
+                // automatically increment the user step goal based on his level
                 dailyGoal = goalValue.toInt() + (500 * userVM.userLevel )
             } else {
                 dailyGoal = 3000
             }
         }
     }
-
+    // load total steps for the current month
     fun loadMonthlySteps() {
 
         val user = auth.currentUser
@@ -166,16 +168,19 @@ class StepsViewModel : ViewModel() {
 
         val monthDates = ArrayList<String>()
 
+        // start from first day of the month
         cal.set(java.util.Calendar.DAY_OF_MONTH, 1)
 
         val targetMonth = cal.get(java.util.Calendar.MONTH)
         val targetYear = cal.get(java.util.Calendar.YEAR)
 
+        // collect all dates in the current month
         while (cal.get(java.util.Calendar.MONTH) == targetMonth && cal.get(java.util.Calendar.YEAR) == targetYear) {
             monthDates.add(sdf.format(cal.time))
             cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
         }
 
+        // split the month dates into two lists because firestore whereIn only allows max 30 items
         val firstBatch = monthDates.take(30)
         val secondBatch = if (monthDates.size > 30) monthDates.drop(30) else emptyList()
 
@@ -212,7 +217,7 @@ class StepsViewModel : ViewModel() {
                     }
             }
     }
-
+    // function that loads the current week's stats and the total weekly steps
     fun loadWeeklyHistory(saveToDb: Boolean = false, rankedViewModel: RankViewModel? = null, userViewModel: UserViewModel? = null) {
 
         val user = auth.currentUser
@@ -230,6 +235,7 @@ class StepsViewModel : ViewModel() {
         val weekDates = ArrayList<String>()
         val dayNames = LinkedHashMap<String, String>()
 
+        // build list of week dates and day names
         for (i in 0 until 7) {
             val dateString = sdf.format(cal.time)
             val dayName = dayFormat.format(cal.time)
@@ -247,11 +253,12 @@ class StepsViewModel : ViewModel() {
             .addOnSuccessListener { docs ->
 
                 val result = LinkedHashMap<String, Int>()
-
+                // initialize days with zero steps
                 for ((day, dateStr) in dayNames) {
                     result[day] = 0
                 }
 
+                // fill in available steps for each day
                 for (doc in docs) {
                     val dateStr = doc.id
                     val stepsValue = doc.getLong("steps")?.toInt() ?: 0
@@ -267,6 +274,7 @@ class StepsViewModel : ViewModel() {
 
                 weeklySteps = result.values.sum()
 
+                // option to save weekly steps and update the leaderboard
                 if (saveToDb && rankedViewModel != null && userViewModel != null)  {
                     val userRef = db.collection("users")
                         .document(user.uid)
@@ -291,7 +299,7 @@ class StepsViewModel : ViewModel() {
     }
 
 
-
+    // function to load all necessary stats when the app starts
     fun loadStepsStats(userVM : UserViewModel){
         loadDailyStepGoal(userVM)
         loadTotalSteps()

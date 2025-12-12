@@ -114,16 +114,9 @@ class MainActivity : ComponentActivity() {
             // if user is logged in show the app screens
             if (isLoggedIn) {
 
-                LaunchedEffect(Unit) {
-                    userVM.loadUserData (this@MainActivity, expVM){
-                        coinsVM.loadCoins()
-                        stepsVM.loadStepsStats(userVM)
-                        rankVM.loadWeeklyPopupDate {
-                            rankVM.weeklyRankCheck(userVM, coinsVM)
-                        }
-                        badgeVM.checkBadges(userVM, stepsVM)
-                    }
-                }
+//                LaunchedEffect(Unit) {
+//
+//                }
                 
                 StepQuestNav(
                     userVM   = userVM,
@@ -162,10 +155,18 @@ class MainActivity : ComponentActivity() {
                 Log.d("Main", "Device has stepCounter")
                 stepCounter.start()
                 handler.post(stepUpdateRunnable)
-                stepCounter.forceReadSensor { steps ->
-                    stepsVM.updateSteps(steps)
-                    userVM.updateStreak(steps, stepsVM.dailyGoal)
+                userVM.loadUserData (this@MainActivity, expVM){
+                    coinsVM.loadCoins()
+                    stepsVM.loadStepsStats(userVM)
+                    rankVM.loadWeeklyPopupDate {
+                        rankVM.weeklyRankCheck(userVM, coinsVM)
+                    }
+                    badgeVM.checkBadges(userVM, stepsVM)
+                    stepCounter.forceReadSensor { steps ->
+                        userVM.updateStreak(6000, stepsVM.dailyGoal)
+                    }
                 }
+
             }
             else{
                 Log.d("Main", "Device doesn't have stepCounter")

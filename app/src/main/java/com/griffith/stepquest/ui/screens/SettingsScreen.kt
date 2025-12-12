@@ -299,7 +299,7 @@ fun ChangeUsernameDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> U
                     // cancel button
                     Box(
                         modifier = Modifier
-                            .background(AlertRed, RoundedCornerShape(10.dp)) // red
+                            .background(AlertRed, RoundedCornerShape(10.dp))
                             .clickable { onDismiss() }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
@@ -314,7 +314,7 @@ fun ChangeUsernameDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> U
                     // save button
                     Box(
                         modifier = Modifier
-                            .background(ConfirmGreen, RoundedCornerShape(10.dp)) // green
+                            .background(ConfirmGreen, RoundedCornerShape(10.dp))
                             .clickable {
                                 if (newName.isBlank()) {
                                     error = "Username cannot be empty"
@@ -473,7 +473,7 @@ fun ChangePasswordDialog(pwdVM: PwdViewModel, iconRes: Int, onDismiss: () -> Uni
                     // cancel botton
                     Box(
                         modifier = Modifier
-                            .background(AlertRed, RoundedCornerShape(10.dp)) // red
+                            .background(AlertRed, RoundedCornerShape(10.dp))
                             .clickable { onDismiss() }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
@@ -488,7 +488,7 @@ fun ChangePasswordDialog(pwdVM: PwdViewModel, iconRes: Int, onDismiss: () -> Uni
                     // save botton
                     Box(
                         modifier = Modifier
-                            .background(ConfirmGreen, RoundedCornerShape(10.dp)) // green
+                            .background(ConfirmGreen, RoundedCornerShape(10.dp))
                             .clickable {
 
                                 pwdVM.changePassword(

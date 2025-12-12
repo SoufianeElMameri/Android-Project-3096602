@@ -154,10 +154,11 @@ class RankViewModel : ViewModel() {
         val cal = java.util.Calendar.getInstance()
         val isMonday = (cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.MONDAY)
 
-//        if (!isMonday) {
-//            weeklyResult = null
-//            return
-//        }
+        // check rank results every monday
+        if (!isMonday) {
+            weeklyResult = null
+            return
+        }
 
         // check which groupd the user belongs to by comparing to his rank
         val currentRank = userVM.userRank

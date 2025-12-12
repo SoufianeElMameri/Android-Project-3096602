@@ -66,6 +66,14 @@ class UserViewModel : ViewModel() {
     var userTitle by mutableStateOf("")
         private set
 
+    // holds the streak popup message
+    var streakPopupMessage by mutableStateOf<String?>(null)
+        private set
+
+    // holds if the streak was broken
+    var streakBroken by mutableStateOf(false)
+        private set
+
     // update the user name
     fun updateUserName(newUserName: String) {
         userName = newUserName
@@ -79,7 +87,7 @@ class UserViewModel : ViewModel() {
             .document(user.uid)
             .update("username", userName)
     }
-
+    // function that adds an amout of exp to the user's exp
     fun addUserExperience(amount: Int) {
         userExperience += amount
 
@@ -92,7 +100,7 @@ class UserViewModel : ViewModel() {
             .document(user.uid)
             .update("userExperience", userExperience)
     }
-
+    // function that updates the user's streak increment, reset, or break
     fun updateStreak(yesterdaySteps: Int, dailyGoal: Int) {
 
         val user = auth.currentUser
@@ -127,20 +135,23 @@ class UserViewModel : ViewModel() {
             if (yesterdaySteps >= dailyGoal) {
 
                 val prevCal = java.util.Calendar.getInstance()
-                prevCal.time = cal.time
-                prevCal.add(java.util.Calendar.DAY_OF_YEAR, -1)
+                prevCal.add(java.util.Calendar.DAY_OF_YEAR, -2)
                 val previousDayString = sdf.format(prevCal.time)
 
                 if (lastStreakDate == previousDayString) {
                     currentStreak = currentStreak + 1
+                    streakPopupMessage = "Streak increased!!!"
                 } else {
                     currentStreak = 1
+                    streakPopupMessage = "New streak started!!!"
                 }
-
+                streakBroken = false
                 lastStreakDate = yesterdayString
 
             } else {
                 currentStreak = 0
+                streakBroken = true
+                streakPopupMessage = "Streak broken"
             }
 
             if (currentStreak > bestStreak) {
@@ -159,7 +170,12 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun resetStreakMessage(){
+        streakPopupMessage = null
+    }
 
+
+    // function to load the user's level, title and expeirence to next level
     fun loadUserLevel(context: Context, expVM: ExpViewModel) {
         expVM.loadLocal(context) {
             val pair = expVM.getLevelAndTitle(userExperience)
@@ -198,7 +214,7 @@ class UserViewModel : ViewModel() {
                 onDone?.invoke()
             }
     }
-
+    // function to give the user a medal
     fun giveMedal(rank: String, medalName: String) {
         val user = auth.currentUser
         if (user == null) {
@@ -232,7 +248,7 @@ class UserViewModel : ViewModel() {
     }
 
 
-
+    // function that loads the user's obtained medals and calculates the total gold medals obtained
     fun loadMedals() {
         val user = auth.currentUser
         if (user == null) {
@@ -273,7 +289,7 @@ class UserViewModel : ViewModel() {
             }
     }
 
-
+    // function that promotes the user to the next rank
     fun promoteRank() {
         val user = auth.currentUser
         if (user == null) {
@@ -293,7 +309,7 @@ class UserViewModel : ViewModel() {
         db.collection("users").document(user.uid)
             .set(mapOf("userRank" to userRank), com.google.firebase.firestore.SetOptions.merge())
     }
-
+    // function that loads all badges obtained by the user
     fun loadBadges() {
         val user = auth.currentUser
         if (user == null) {
@@ -317,6 +333,7 @@ class UserViewModel : ViewModel() {
             }
     }
 
+    // function that gives a badge to the user if not already owned
     fun giveBadge(badgeName: String) {
         val user = auth.currentUser
         if (user == null) {

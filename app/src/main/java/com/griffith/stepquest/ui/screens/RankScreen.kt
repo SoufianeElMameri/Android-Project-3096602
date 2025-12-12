@@ -105,7 +105,7 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                     }
                 }
             }
-//********************************************************* LADER BOARD *********************************************************
+//********************************************************* LEADER BOARD *********************************************************
             Text(
                 text = "Top Walkers",
                 style = MaterialTheme.typography.titleMedium.copy(

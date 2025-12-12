@@ -39,7 +39,9 @@ fun TermsAndConditionsScreen(navController: NavController) {
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start
         ) {
+//***************************************************** HEADER BAR *****************************************************
             HeaderBar("", navController)
+
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Terms & Conditions",

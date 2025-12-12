@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 class PwdViewModel : ViewModel() {
 
+    // variables for error messages
     var oldPasswordError by mutableStateOf("")
         private set
 
@@ -24,6 +25,7 @@ class PwdViewModel : ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
 
+    // reset all errors and success state
     fun resetErrors() {
         oldPasswordError = ""
         newPasswordError = ""
@@ -31,6 +33,7 @@ class PwdViewModel : ViewModel() {
         passwordChangeSuccess = false
     }
 
+    // change the current user password
     fun changePassword(
         context: Context,
         oldPass: String,
@@ -38,7 +41,7 @@ class PwdViewModel : ViewModel() {
         confirmPass: String
     ) {
         resetErrors()
-
+        // validate data
         if (oldPass.isBlank()) {
             oldPasswordError = "Old password is required"
             return
@@ -71,8 +74,10 @@ class PwdViewModel : ViewModel() {
             return
         }
 
+        // create credential using old password
         val credential = EmailAuthProvider.getCredential(email, oldPass)
 
+        // authenticate user before changing password
         user.reauthenticate(credential)
             .addOnSuccessListener {
                 user.updatePassword(newPass)

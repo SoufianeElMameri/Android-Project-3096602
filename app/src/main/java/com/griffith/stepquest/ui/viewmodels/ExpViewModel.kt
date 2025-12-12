@@ -18,7 +18,7 @@ import android.util.Log
 
 
 
-
+// data class that represents the user level the required xp to next level and title for the current level
 data class LevelData(
     val level: Int,
     val xp: Int,
@@ -27,9 +27,11 @@ data class LevelData(
 
 class ExpViewModel : ViewModel() {
 
+    // lost to hold all level data
     var levels: List<LevelData> = emptyList()
         private set
 
+    // load the levels data from firebase
     fun loadLevelsFromFirebase(context: Context, onDone: () -> Unit) {
         FirebaseFirestore.getInstance()
             .collection("levels")
@@ -37,6 +39,7 @@ class ExpViewModel : ViewModel() {
             .get()
             .addOnSuccessListener { doc ->
                 Log.d("EXP_DEBUG", "Firestore document loaded")
+
                 val raw = doc.get("levels")
                 Log.d("EXP_DEBUG", "raw levels value: $raw")
                 if (raw == null) {
@@ -69,13 +72,13 @@ class ExpViewModel : ViewModel() {
                 onDone()
             }
     }
-
+//    save level data locally
     fun saveLocal(context: Context, list: List<LevelData>) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
         val prefs = context.getSharedPreferences("exp_levels_$uid", Context.MODE_PRIVATE)
 
         val json = JSONArray()
-
+//        convert the level list to a json array
         for (lvl in list) {
             val jObject = JSONObject()
             jObject.put("level", lvl.level)
@@ -111,7 +114,7 @@ class ExpViewModel : ViewModel() {
         levels = list
         onDone()
     }
-
+    // get current level, title, and next level xp based on user xp
     fun getLevelAndTitle(userXp: Int): Triple<Int, String, Int> {
         Log.d("EXP_DEBUG", "getLevelAndTitle called with userXp=$userXp")
         Log.d("EXP_DEBUG", "levels loaded: $levels")
