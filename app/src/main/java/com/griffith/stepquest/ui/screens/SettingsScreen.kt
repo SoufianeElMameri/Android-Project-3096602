@@ -52,12 +52,13 @@ import com.griffith.stepquest.data.ProfileManager
 
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.navigation.NavController
 import com.griffith.stepquest.ui.viewmodels.PwdViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
-fun SettingsScreen(userVM: UserViewModel  , pwdVM: PwdViewModel, onLogout: () -> Unit) {
+fun SettingsScreen(navController: NavController, userVM: UserViewModel  , pwdVM: PwdViewModel, onLogout: () -> Unit) {
 
     val context = LocalContext.current
     var showUsernameDialog by remember { mutableStateOf(false) }
@@ -121,6 +122,7 @@ fun SettingsScreen(userVM: UserViewModel  , pwdVM: PwdViewModel, onLogout: () ->
                 title = "Change Password",
                 iconRes = R.drawable.pwd
             ) {
+                pwdVM.resetErrors()
                 showPasswordDialog = true
             }
             if (showUsernameDialog) {
@@ -160,12 +162,16 @@ fun SettingsScreen(userVM: UserViewModel  , pwdVM: PwdViewModel, onLogout: () ->
             SettingsItem(
                 title = "Terms & Conditions",
                 iconRes = R.drawable.tc
-            ) {}
+            ) {
+                navController.navigate("terms")
+            }
 
             SettingsItem(
                 title = "Privacy Policy",
                 iconRes = R.drawable.privacy
-            ) {}
+            ) {
+                navController.navigate("privacy")
+            }
 
             Spacer(modifier = Modifier.height(30.dp))
 
@@ -339,6 +345,7 @@ fun ChangeUsernameDialog(userVM: UserViewModel, iconRes: Int, onDismiss: () -> U
 @Composable
 fun ChangePasswordDialog(pwdVM: PwdViewModel, iconRes: Int, onDismiss: () -> Unit, onSuccess: (String) -> Unit) {
 
+
     val context = LocalContext.current
     var oldPass by remember { mutableStateOf("") }
     var newPass by remember { mutableStateOf("") }
@@ -346,7 +353,35 @@ fun ChangePasswordDialog(pwdVM: PwdViewModel, iconRes: Int, onDismiss: () -> Uni
 
     var error by remember { mutableStateOf<String?>(null) }
 
-    Dialog(onDismissRequest = { onDismiss() }) {
+    // observe password change success
+    LaunchedEffect(pwdVM.passwordChangeSuccess) {
+        if (pwdVM.passwordChangeSuccess) {
+            onDismiss()
+            onSuccess("Password changed successfully!")
+        }
+    }
+
+    // observe error states
+    LaunchedEffect(
+        pwdVM.oldPasswordError,
+        pwdVM.newPasswordError,
+        pwdVM.confirmPasswordError
+    ) {
+        when {
+            pwdVM.oldPasswordError.isNotEmpty() ->
+                error = pwdVM.oldPasswordError
+
+            pwdVM.newPasswordError.isNotEmpty() ->
+                error = pwdVM.newPasswordError
+
+            pwdVM.confirmPasswordError.isNotEmpty() ->
+                error = pwdVM.confirmPasswordError
+        }
+    }
+
+    Dialog(onDismissRequest = {
+        pwdVM.resetErrors()
+        onDismiss() }) {
 
         Box(
             modifier = Modifier
@@ -462,26 +497,6 @@ fun ChangePasswordDialog(pwdVM: PwdViewModel, iconRes: Int, onDismiss: () -> Uni
                                     newPass = newPass,
                                     confirmPass = confirmPass
                                 )
-
-                                if (pwdVM.oldPasswordError.isNotEmpty()) {
-                                    error = pwdVM.oldPasswordError
-                                    return@clickable
-                                }
-
-                                if (pwdVM.newPasswordError.isNotEmpty()) {
-                                    error = pwdVM.newPasswordError
-                                    return@clickable
-                                }
-
-                                if (pwdVM.confirmPasswordError.isNotEmpty()) {
-                                    error = pwdVM.confirmPasswordError
-                                    return@clickable
-                                }
-
-                                if (pwdVM.passwordChangeSuccess) {
-                                    onDismiss()
-                                    onSuccess("Password changed successfully!")
-                                }
                             }
                             .padding(vertical = 10.dp, horizontal = 20.dp)
                     ) {
