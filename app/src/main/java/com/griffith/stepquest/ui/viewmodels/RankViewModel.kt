@@ -154,10 +154,10 @@ class RankViewModel : ViewModel() {
         val cal = java.util.Calendar.getInstance()
         val isMonday = (cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.MONDAY)
 
-        if (!isMonday) {
-            weeklyResult = null
-            return
-        }
+//        if (!isMonday) {
+//            weeklyResult = null
+//            return
+//        }
 
         // check which groupd the user belongs to by comparing to his rank
         val currentRank = userVM.userRank
@@ -194,7 +194,7 @@ class RankViewModel : ViewModel() {
                     userVM.addUserExperience(1000)
                     coinsVM.addCoins(50)
                     saveWeeklyPopupDate(today)
-                    weeklyResult = "GOLD|EXP:1000|COINS:50|RANKUP:${userVM.userRank}"
+                    weeklyResult = "Gold|EXP:1000|COINS:50|RANKUP:${userVM.userRank}"
                     return@addOnSuccessListener
                 }
 
@@ -204,7 +204,7 @@ class RankViewModel : ViewModel() {
                     userVM.addUserExperience(500)
                     coinsVM.addCoins(25)
                     saveWeeklyPopupDate(today)
-                    weeklyResult = "SILVER|EXP:500|COINS:25"
+                    weeklyResult = "Silver|EXP:500|COINS:25"
                     return@addOnSuccessListener
                 }
 
@@ -214,7 +214,7 @@ class RankViewModel : ViewModel() {
                     userVM.addUserExperience(250)
                     coinsVM.addCoins(10)
                     saveWeeklyPopupDate(today)
-                    weeklyResult = "BRONZE|EXP:250|COINS:10"
+                    weeklyResult = "Bronze|EXP:250|COINS:10"
                     return@addOnSuccessListener
                 }
 

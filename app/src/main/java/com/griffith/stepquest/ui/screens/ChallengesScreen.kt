@@ -79,10 +79,20 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
 
 //***************************************************** TODAY CHALLENGES *****************************************************
             ChallengeCard(
+                title = "Walk 3,000 steps today",
+                steps,
+                3000,
+                1,
+                onClaim = { coins, xp ->
+                    coinsVM.addCoins(coins)
+                    userVM.addUserExperience(xp) }
+            )
+            Spacer(Modifier.height(20.dp))
+            ChallengeCard(
                 title = "Walk 5,000 steps today",
                 steps,
                 5000,
-                1,
+                2,
                 onClaim = { coins, xp ->
                     coinsVM.addCoins(coins)
                     userVM.addUserExperience(xp) }
@@ -92,16 +102,6 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
                 title = "Walk 10,000 steps today",
                 steps,
                 10000,
-                2,
-                onClaim = { coins, xp ->
-                    coinsVM.addCoins(coins)
-                    userVM.addUserExperience(xp) }
-            )
-            Spacer(Modifier.height(20.dp))
-            ChallengeCard(
-                title = "Walk 15,000 steps today",
-                steps,
-                15000,
                 3,
                 onClaim = { coins, xp ->
                     coinsVM.addCoins(coins)
