@@ -227,11 +227,15 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 prefs.edit { putInt("offset", offset) }
             }
 
-            val computedSteps = rawSteps - offset
-            val validatedSteps = validateStep(computedSteps)
+            Log.d("STEPSSENSOR_DEBUG"," offset =$offset")
+
+            val computedSteps   = rawSteps - offset
+            val validatedSteps  = validateStep(computedSteps)
 
             if (validatedSteps != computedSteps) {
+                Log.d("STEPSSENSOR_DEBUG"," validatedSteps =$validatedSteps  computedSteps = $computedSteps")
                 offset = rawSteps - validatedSteps
+                Log.d("STEPSSENSOR_DEBUG"," offset =$offset")
             }
 
             dailySteps      = validatedSteps
@@ -366,8 +370,8 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         }
 
         if (hasAccelerometer) {
-            if (lastAccelMagnitude > 3f) {
-                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 3f")
+            if (lastAccelMagnitude > 20f) {
+                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 20f")
 
                 return currentSteps
             }
