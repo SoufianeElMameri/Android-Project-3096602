@@ -53,6 +53,9 @@ class UserViewModel : ViewModel() {
     var rankMedals by mutableStateOf<Map<String, List<String>>>(emptyMap())
         private set
 
+    var badgesObtained by mutableStateOf<List<String>>(emptyList())
+        private set
+
     fun getUsername(): String {
         return userName
     }
@@ -187,6 +190,7 @@ class UserViewModel : ViewModel() {
                 userExperience = doc.getLong("userExperience")?.toInt() ?: 0
                 userRank = doc.getString("userRank") ?: "Bronze"
                 loadMedals()
+                loadBadges()
                 onDone?.invoke()
             }
             .addOnFailureListener {
@@ -301,6 +305,50 @@ class UserViewModel : ViewModel() {
 
         db.collection("users").document(user.uid)
             .set(mapOf("userRank" to userRank), com.google.firebase.firestore.SetOptions.merge())
+    }
+
+    fun loadBadges() {
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        db.collection("users")
+            .document(user.uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                val raw = doc.get("badgesObtained")
+                if (raw is List<*>) {
+                    val clean = ArrayList<String>()
+                    for (item in raw) {
+                        if (item is String) {
+                            clean.add(item)
+                        }
+                    }
+                    badgesObtained = clean
+                }
+            }
+    }
+
+    fun giveBadge(badgeName: String) {
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val updated = badgesObtained.toMutableList()
+        if (!updated.contains(badgeName)) {
+            updated.add(badgeName)
+        }
+
+        badgesObtained = updated
+
+        db.collection("users")
+            .document(user.uid)
+            .set(
+                mapOf("badgesObtained" to updated),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
     }
 
 }

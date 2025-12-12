@@ -31,6 +31,8 @@ import com.griffith.stepquest.ui.components.HeaderBar
 import androidx.compose.ui.draw.shadow
 import androidx.navigation.NavController
 import com.griffith.stepquest.ui.theme.*
+import com.griffith.stepquest.ui.viewmodels.BadgeViewModel
+import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 data class Badge(
     val name: String,
@@ -40,60 +42,12 @@ data class Badge(
 )
 // badges screen where badges are showcased (obtained badges are colored, none obtained are gray scalled)
 @Composable
-fun BadgesScreen(navController: NavController) {
+fun BadgesScreen(navController: NavController, userVM: UserViewModel, badgeVM: BadgeViewModel) {
     // create a list of badges to loop through and display
-    val badges = remember {
-        listOf(
-            Badge(
-                name = "NightWalker",
-                description = "Walk 5,000 steps after 9:00 PM.",
-                imageRes = R.drawable.moon_badge,
-                obtained = true
-            ),
-            Badge(
-                name = "EarlyBird",
-                description = "Walk 5,000 steps before 8:00 AM.",
-                imageRes = R.drawable.sunrise,
-                obtained = false
-            ),
-            Badge(
-                name = "Marathoner",
-                description = "Walk 42,000 total steps in a day.",
-                imageRes = R.drawable.marathon,
-                obtained = false
-            ),
-            Badge(
-                name = "ConsistencyKing",
-                description = "Hit your step goal 7 days in a row.",
-                imageRes = R.drawable.crown,
-                obtained = false
-            ),
-            Badge(
-                name = "WeekendWarrior",
-                description = "Walk 10,000 steps on a Saturday or Sunday.",
-                imageRes = R.drawable.warrior,
-                obtained = false
-            ),
-            Badge(
-                name = "Explorer",
-                description = "Walk in 5 different locations in a week.",
-                imageRes = R.drawable.map,
-                obtained = false
-            ),
-            Badge(
-                name = "StreakMaster",
-                description = "Maintain a 30-day active streak.",
-                imageRes = R.drawable.streak,
-                obtained = false
-            ),
-            Badge(
-                name = "GoalCrusher",
-                description = "Surpass your daily step goal by 50%.",
-                imageRes = R.drawable.success,
-                obtained = false
-            ),
-        )
+    val badges = remember(userVM.badgesObtained) {
+        badgeVM.getAllBadges(userVM.badgesObtained)
     }
+
     // state to display badge details
     var selectedBadge by remember { mutableStateOf<Badge?>(null) }
 
@@ -142,12 +96,10 @@ fun BadgesScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                // loop through the badges and create them inside the grid
                 items(badges) { badge ->
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            // On click display badge description
                             .clickable { selectedBadge = badge },
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -159,7 +111,6 @@ fun BadgesScreen(navController: NavController) {
                                     shape = androidx.compose.foundation.shape.CircleShape,
                                     clip = false
                                 )
-                                // change background color if badge is obtained
                                 .background(
                                     brush = Brush.radialGradient(
                                         colors = if (badge.obtained) {
@@ -185,7 +136,6 @@ fun BadgesScreen(navController: NavController) {
                                 painter = painterResource(id = badge.imageRes),
                                 contentDescription = badge.name,
                                 modifier = Modifier.size(50.dp),
-                                // If badge is not obtained we use remove its saturation
                                 colorFilter = if (!badge.obtained) {
                                     ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
                                 } else null
@@ -193,6 +143,7 @@ fun BadgesScreen(navController: NavController) {
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
                             text = badge.name,
                             fontSize = 13.sp,

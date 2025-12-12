@@ -48,6 +48,7 @@ import com.griffith.stepquest.ui.screens.AuthScreen
 import com.griffith.stepquest.ui.screens.SettingsScreen
 import com.griffith.stepquest.data.FirebaseAuthManger
 import com.griffith.stepquest.ui.viewmodels.AuthViewModel
+import com.griffith.stepquest.ui.viewmodels.BadgeViewModel
 import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
 import com.griffith.stepquest.ui.viewmodels.ExpViewModel
 import com.griffith.stepquest.ui.viewmodels.PwdViewModel
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
     private val pwdVM: PwdViewModel by viewModels()
     private val expVM: ExpViewModel by viewModels()
     private val rankVM: RankViewModel by viewModels()
+    private val badgeVM: BadgeViewModel by viewModels()
 
     private lateinit var stepCounter: StepCounter
     private lateinit var userInfo: UserInformation
@@ -121,6 +123,7 @@ class MainActivity : ComponentActivity() {
                         rankVM.loadWeeklyPopupDate {
                             rankVM.weeklyRankCheck(userVM, coinsVM)
                         }
+                        badgeVM.checkBadges(userVM, stepsVM)
                     }
                 }
                 
@@ -128,9 +131,9 @@ class MainActivity : ComponentActivity() {
                     userVM   = userVM,
                     stepsVM  = stepsVM,
                     coinsVM  = coinsVM,
-                    userInfo = userInfo,
                     pwdVM    = pwdVM,
                     rankVM   = rankVM,
+                    badgeVM  = badgeVM,
                     onLogout = {
                         FirebaseAuthManger.logoutUser()
                         isLoggedIn = false
@@ -181,7 +184,7 @@ class MainActivity : ComponentActivity() {
 
 // navigation container
 @Composable
-fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel, pwdVM: PwdViewModel, rankVM: RankViewModel, userInfo:UserInformation, onLogout: () -> Unit ) {
+fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel, pwdVM: PwdViewModel, rankVM: RankViewModel, badgeVM: BadgeViewModel, onLogout: () -> Unit ) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(navController) }
@@ -197,7 +200,7 @@ fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsV
         ) {
             composable("home") { HomeScreen(navController, userVM, stepsVM, coinsVM, rankVM) }
             composable("challenges") { ChallengesScreen(navController, userVM, stepsVM, coinsVM) }
-            composable("badges") { BadgesScreen(navController) }
+            composable("badges") { BadgesScreen(navController, userVM, badgeVM) }
             composable("rank") { RankScreen(navController, userVM, stepsVM, rankVM) }
             composable("profile") { ProfileScreen(navController = navController, userVM, stepsVM) }
             composable("settings") { SettingsScreen(userVM,pwdVM,
