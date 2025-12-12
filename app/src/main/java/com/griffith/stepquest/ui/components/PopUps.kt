@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
@@ -310,7 +312,6 @@ fun StreakResultPopup(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // FIRE STREAK ICON HEADER
                 Box(
                     modifier = Modifier
                         .size(88.dp)
@@ -332,17 +333,27 @@ fun StreakResultPopup(
                     )
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Column(
+                    modifier = Modifier.padding(26.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "$streak",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = FireTextColor,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = message,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = FireTextColor,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
-                Text(
-                    text = message,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = FireTextColor,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(12.dp))
 
                 if (streakBroken) {
 
@@ -363,7 +374,7 @@ fun StreakResultPopup(
                         )
                     }
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     Button(
                         onClick = { if (coins >= 35) onRepair() },
@@ -385,18 +396,30 @@ fun StreakResultPopup(
 
                 Spacer(Modifier.height(14.dp))
 
-                // PROPER CLOSE CTA (NOT TEXT)
-                Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Glass
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(46.dp)
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(
+                                    Bright,
+                                    BackgroundBottom
+                                )
+                            )
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Bright,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "Close",
-                        fontSize = 16.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Dark
                     )
