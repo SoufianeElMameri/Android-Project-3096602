@@ -2,10 +2,12 @@ package com.griffith.stepquest.ui.viewmodels
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.auth.User
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -14,26 +16,26 @@ import kotlin.text.get
 // a model to keep track of coins and add coins
 class StepsViewModel : ViewModel() {
 
-    private var totalStepsLoaded = false
+
     private var lastSave = 0L
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
     // holds the number of steps the user did
-    var steps by mutableStateOf(0)
+    var steps by mutableIntStateOf(0)
         private set
 
-    var dailyGoal by mutableStateOf(6000)
+    var dailyGoal by mutableIntStateOf(6000)
         private set
 
-    var totalSteps by mutableStateOf(0)
+    var totalSteps by mutableIntStateOf(0)
         private set
 
-    var weeklySteps by mutableStateOf(0)
+    var weeklySteps by mutableIntStateOf(0)
         private set
 
-    var monthlySteps by mutableStateOf(0)
+    var monthlySteps by mutableIntStateOf(0)
         private set
 
     var weeklyHistory by mutableStateOf<Map<String, Int>>(emptyMap())
@@ -131,7 +133,7 @@ class StepsViewModel : ViewModel() {
         }
     }
 
-    fun loadDailyStepGoal() {
+    fun loadDailyStepGoal(userVM : UserViewModel) {
 
         val user = auth.currentUser
         if (user == null) {
@@ -145,29 +147,11 @@ class StepsViewModel : ViewModel() {
             val goalValue = doc.getLong("dailyGoal")
 
             if (goalValue != null) {
-                dailyGoal = goalValue.toInt()
+                dailyGoal = goalValue.toInt() + (500 * userVM.userLevel )
             } else {
-                dailyGoal = 6000
+                dailyGoal = 3000
             }
         }
-    }
-
-
-    fun increaseDailyGoal() {
-
-        dailyGoal = dailyGoal + 500
-
-        val user = auth.currentUser
-        if (user == null) {
-            return
-        }
-
-        val ref = db.collection("users").document(user.uid)
-
-        ref.set(
-            mapOf("dailyGoal" to dailyGoal),
-            com.google.firebase.firestore.SetOptions.merge()
-        )
     }
 
     fun loadMonthlySteps() {
@@ -308,8 +292,8 @@ class StepsViewModel : ViewModel() {
 
 
 
-    fun loadStepsStats(){
-        loadDailyStepGoal()
+    fun loadStepsStats(userVM : UserViewModel){
+        loadDailyStepGoal(userVM)
         loadTotalSteps()
         loadMonthlySteps()
         loadWeeklyHistory(true)
