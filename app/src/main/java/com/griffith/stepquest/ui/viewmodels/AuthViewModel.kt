@@ -41,7 +41,7 @@ class AuthViewModel : ViewModel() {
     // register a new user with email and password
     fun register(username: String, email: String, password: String, confirm: String) {
         resetErrors()
-
+        authSuccess = false
         // validate fields
         if (username.isBlank()) {
             usernameError = "Username required"
@@ -85,7 +85,7 @@ class AuthViewModel : ViewModel() {
                             "coins" to 0,
                             "userRank" to "Bronze",
                             "userExperience" to 0,
-                            "dailyGoal" to 6000,
+                            "dailyGoal" to 3000,
                             "currentStreak" to 0,
                             "bestStreak" to 0,
                             "lastStreakDate" to ""
@@ -112,7 +112,7 @@ class AuthViewModel : ViewModel() {
     // login existing user
     fun login(email: String, password: String) {
         resetErrors()
-
+        authSuccess = false
         // validate email
         if (email.isBlank()){
             emailError = "Email required"
@@ -138,8 +138,10 @@ class AuthViewModel : ViewModel() {
                     "password" in lower -> pwdError = e.message!!
                     "email" in lower -> emailError = e.message!!
                     "user" in lower && "record" in lower -> emailError = "No account found with this email"
-                    else -> pwdConfirmError = e.message!!
+                    else -> pwdError = "Invalid email or password"
+
                 }
             }
     }
+
 }

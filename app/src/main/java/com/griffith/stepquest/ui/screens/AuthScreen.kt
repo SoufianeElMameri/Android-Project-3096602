@@ -30,6 +30,11 @@ fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
     // which tab user is on
     var isRegister by remember { mutableStateOf(false) }
 
+    LaunchedEffect(authVM.authSuccess) {
+        if (authVM.authSuccess) {
+            onLoginSuccess()
+        }
+    }
     // user inputs
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -160,6 +165,7 @@ fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
                         isPassword = true,
                         error = authVM.pwdError
                     )
+
                     // only show the confirm password text field if the user is trying to register
                     if (isRegister) {
                         CostumeTextField(
@@ -175,10 +181,8 @@ fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
                         onClick = {
                             if (isRegister) {
                                 authVM.register(username, email, password, confirmPassword)
-                                if (authVM.authSuccess) onLoginSuccess()
                             } else {
                                 authVM.login(email, password)
-                                if (authVM.authSuccess) onLoginSuccess()
                             }
                         },
                         modifier = Modifier.fillMaxWidth()

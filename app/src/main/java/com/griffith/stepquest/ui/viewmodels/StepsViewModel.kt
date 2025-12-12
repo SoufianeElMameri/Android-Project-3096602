@@ -106,7 +106,7 @@ class StepsViewModel : ViewModel() {
     }
 
     // function to load the user's steps from the database
-    fun loadUserStepsFromDb() {
+    fun loadUserStepsFromDb(onDone: (() -> Unit)? = null) {
 
         val user = auth.currentUser
         if (user == null) {
@@ -132,6 +132,7 @@ class StepsViewModel : ViewModel() {
                 totalSteps = totalStepsValue.toInt()
             }
         }
+        onDone?.invoke()
     }
     // function to load the user's step goals
     fun loadDailyStepGoal(userVM : UserViewModel) {

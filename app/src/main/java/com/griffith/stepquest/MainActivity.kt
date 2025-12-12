@@ -138,8 +138,11 @@ class MainActivity : ComponentActivity() {
                 AuthScreen(
                     authVM,
                     onLoginSuccess = {
-                        stepsVM.loadUserStepsFromDb()
-                        isLoggedIn = true
+
+                        stepsVM.loadUserStepsFromDb(){
+                            onResume()
+                            isLoggedIn = true
+                        }
                     }
                 )
             }
