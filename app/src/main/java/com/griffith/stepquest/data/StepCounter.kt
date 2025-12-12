@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
+import kotlin.math.sqrt
 
 
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
@@ -26,13 +27,22 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
     private var sensorManager: SensorManager? = null
     private var stepSensor: Sensor? = null
+    private var linearAccelSensor: Sensor? = null
+    private var significantMotionSensor: Sensor? = null
+
+
+
     private var savedDay = ""
     private var initialized = false
 //    private var baselineSteps = 0
-
     private var offset = 0
     private var lastSensorValue = 0
     private var dailySteps = 0
+    private var lastLinearMagnitude = 0f
+    private var motionActive = false
+
+    private var hasLinearAccel = false
+    private var hasSignificantMotion = false
 
     var currentSteps: Int = 0
         private set
@@ -61,8 +71,21 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         dailySteps = prefs.getInt("dailySteps", 0)
 
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
         stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        linearAccelSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+        hasLinearAccel = linearAccelSensor != null
+
+        significantMotionSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION)
+        hasSignificantMotion = significantMotionSensor != null
+
         stepSensor?.let {
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+        linearAccelSensor?.let {
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+        significantMotionSensor?.let {
             sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
         updateNewDaySteps()
@@ -84,7 +107,6 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
         if (savedDay == "") {
             savedDay = today
-
             offset = rawSteps
             dailySteps = 0
 //            baselineSteps = rawSteps
@@ -119,10 +141,6 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 putInt("dailySteps", dailySteps)
                 putBoolean("initialized", true)
             }
-//            prefs.edit { putString("savedDay", savedDay) }
-//            prefs.edit { putInt("baselineSteps", baselineSteps) }
-//            prefs.edit { putBoolean("initialized", true) }
-
             initialized = true
             return
         }
@@ -142,48 +160,50 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) return
         if (event.sensor == null) return
-        if (event.sensor!!.type != Sensor.TYPE_STEP_COUNTER) return
 
-        val rawSteps = event.values[0].toInt()
+        if (event.sensor!!.type == Sensor.TYPE_LINEAR_ACCELERATION) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+            val mag = sqrt(x * x + y * y + z * z)
+            lastLinearMagnitude = mag
+        }
+        if (event.sensor!!.type == Sensor.TYPE_SIGNIFICANT_MOTION) {
+            motionActive = true
+        }
 
-        if (lastSensorValue == 0) {
-            lastSensorValue = rawSteps
-            offset = rawSteps - dailySteps
-            prefs.edit {
-                putInt("lastSensorValue", lastSensorValue)
-                putInt("offset", offset)
+        if (event.sensor!!.type == Sensor.TYPE_STEP_COUNTER) {
+            val rawSteps = event.values[0].toInt()
+
+            if (lastSensorValue == 0) {
+                lastSensorValue = rawSteps
+                offset = rawSteps - dailySteps
+                prefs.edit {
+                    putInt("lastSensorValue", lastSensorValue)
+                    putInt("offset", offset)
+                }
             }
+
+            if (rawSteps < lastSensorValue) {
+                offset = rawSteps - dailySteps
+                prefs.edit { putInt("offset", offset) }
+            }
+
+            dailySteps = rawSteps - offset
+            currentSteps = validateStep(dailySteps)
+
+            lastSensorValue = rawSteps
+            prefs.edit {
+                putInt("dailySteps", dailySteps)
+                putInt("lastSensorValue", lastSensorValue)
+            }
+
+            initializeData(rawSteps)
+            stepViewModel.updateSteps(currentSteps)
         }
-        if (rawSteps < lastSensorValue) {
-            offset = rawSteps - dailySteps
-            prefs.edit { putInt("offset", offset) }
-        }
 
 
-        dailySteps = rawSteps - offset
-        currentSteps = dailySteps
 
-
-        lastSensorValue = rawSteps
-        prefs.edit {
-            putInt("dailySteps", dailySteps)
-            putInt("lastSensorValue", lastSensorValue)
-        }
-
-//        if (baselineSteps <1){
-//            baselineSteps = rawSteps
-//        }
-//        val daily = rawSteps - baselineSteps
-//
-//        if (daily < 0) {
-//            currentSteps = 0
-//        } else {
-//            currentSteps = daily
-//        }
-
-        initializeData(rawSteps)
-
-        stepViewModel.updateSteps(currentSteps)
     }
 
 
@@ -210,7 +230,8 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 }
 
                 dailySteps = raw - offset
-                currentSteps = dailySteps
+                currentSteps = validateStep(dailySteps)
+
                 lastSensorValue = raw
 
                 prefs.edit {
@@ -235,6 +256,16 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         )
     }
 
+    private fun validateStep(steps: Int): Int {
+        val linearOk = lastLinearMagnitude > 1.2f
+        Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude")
+        if (motionActive && linearOk) {
+            motionActive = false
+            return steps
+        }
+
+        return currentSteps
+    }
 
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
