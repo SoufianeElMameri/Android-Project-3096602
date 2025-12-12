@@ -26,7 +26,7 @@ import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 import androidx.compose.runtime.LaunchedEffect
-
+import com.griffith.stepquest.utils.IconsMapping
 
 
 fun mapRankToNumber(rank: String): Int {
@@ -84,20 +84,17 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        var rankIcon = R.drawable.no_rank
+
+                        val possibleIcon = IconsMapping.rankIcons[tier]
+                        if (possibleIcon != null) {
+                            rankIcon = possibleIcon
+                        }
+
                         Image(
-                            painter = painterResource(
-                                id = when (tier) {
-                                    "Bronze" -> R.drawable.bronze_rank
-                                    "Silver" -> R.drawable.silver_rank
-                                    "Gold" -> R.drawable.gold_rank
-                                    "Diamond" -> R.drawable.diamond_rank
-                                    "Legend" -> R.drawable.legend_rank
-                                    else -> R.drawable.no_rank
-                                }
-                            ),
+                            painter = painterResource(id = rankIcon),
                             contentDescription = tier,
-                            modifier = Modifier
-                                .size(if (isCurrent) 80.dp else 60.dp)
+                            modifier = Modifier.size(if (isCurrent) 80.dp else 60.dp)
                         )
                         Text(
                             text = tier,
@@ -142,14 +139,18 @@ fun RankScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 // adding medal to the top three walkers
                                 if (index <= 2) {
+                                    var medalIcon = R.drawable.bronze_medal
                                     val medal = when (index) {
-                                        0 -> R.drawable.gold_medal
-                                        1 -> R.drawable.silver_medal
-                                        2 -> R.drawable.bronze_medal
-                                        else -> R.drawable.bronze_medal
+                                        0 ->  IconsMapping.medalIcons["Gold"]
+                                        1 -> IconsMapping.medalIcons["Silver"]
+                                        2 -> IconsMapping.medalIcons["Bronze"]
+                                        else -> IconsMapping.medalIcons["Bronze"]
+                                    }
+                                    if (medal != null) {
+                                        medalIcon = medal
                                     }
                                     Image(
-                                        painter = painterResource(id = medal),
+                                        painter = painterResource(id = medalIcon),
                                         contentDescription = "Medal",
                                         modifier = Modifier.size(28.dp)
                                     )

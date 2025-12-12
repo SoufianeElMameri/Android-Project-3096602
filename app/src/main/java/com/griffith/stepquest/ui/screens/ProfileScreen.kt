@@ -49,11 +49,13 @@ import java.io.File
 import java.io.FileOutputStream
 import com.griffith.stepquest.ui.theme.*
 import com.griffith.stepquest.data.ProfileManager
+import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
+import com.griffith.stepquest.utils.IconsMapping
 
 // PROFILE SCREEN SHOWCASE THE USER PROFILE WITH STATS AND ALLOWS FOR PROIFLE PICTURE UPLOAD
 @Composable
-fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
+fun ProfileScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel) {
 
     var firebaseUrl by remember { mutableStateOf("") }
 
@@ -61,6 +63,7 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
     val level       = userVM.userLevel
     val nextLevel   = userVM.userNextLevelExp
     val userXp      = userVM.userExperience
+
 
     LaunchedEffect(Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -242,20 +245,39 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
 
-                    Text(
-                        text = "Level: $level",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Dark
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                        Column(
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Level: $level",
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Dark
+                            )
 
-                    Text(
-                        text = title,
-                        fontSize = 18.sp,
-                        color = TextPrimary
-                    )
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = title,
+                                fontSize = 18.sp,
+                                color = TextPrimary
+                            )
+                        }
+
+                        Image(
+                            painter = painterResource(
+                                id = IconsMapping.rankIcons[userVM.userRank] ?: R.drawable.no_rank
+                            ),
+                            contentDescription = "Rank Icon",
+                            modifier = Modifier.size(60.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -284,6 +306,7 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
 //********************************************** OVERVIEW CARDS *********************************************
             Text(
                 text = "Overview",
@@ -301,12 +324,12 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
 
                 OverviewCard(
                     "Longest Streak",
-                    "42",
+                    userVM.bestStreak.toString(),
                     R.drawable.fire
                 )
                 OverviewCard(
                     "Current Streak",
-                    "4",
+                    userVM.currentStreak.toString(),
                     R.drawable.fire
                 )
             }
@@ -320,18 +343,20 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
 
                 OverviewCard(
                     "Total Steps",
-                    "15763435",
+                    stepsVM.totalSteps.toString(),
                     R.drawable.shoe
                 )
                 OverviewCard(
                     "Gold Medals",
-                    "3",
+                    userVM.totalGoldMedals.toString(),
                     R.drawable.gold_medal
                 )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
+
 //********************************************** OBTAINED MEDALS *********************************************
+
             Text(
                 text = "Your Medals",
                 fontSize = 20.sp,
@@ -341,85 +366,90 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(110.dp)
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        clip = false
-                    )
-                    .background(
-                        brush = Brush.verticalGradient(
-                            listOf(CardTopColor, CardBottomColor)
-                        ),
-                        shape = RoundedCornerShape(22.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.bronze_medal),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.silver_medal),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.gold_medal),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.bronze_medal),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp)
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
+                // loop only through ranks where user actually has medals
+                userVM.rankMedals.forEach { (rankName, medalsList) ->
+
+                    // skip empty lists
+                    if (medalsList.isEmpty()) return@forEach
+
+                    var rankIcon = R.drawable.bronze_rank
+
+                    val iconFromMap = IconsMapping.rankIcons[rankName]
+                    if (iconFromMap != null) {
+                        rankIcon = iconFromMap
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 10.dp,
+                                shape = RoundedCornerShape(20.dp),
+                                clip = false
+                            )
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    listOf(CardTopColor, CardBottomColor)
+                                ),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(16.dp)
+                    ) {
+
+                        Column {
+
+                            // Rank icon + rank text
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(rankIcon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp)
+                                )
+
+                                Text(
+                                    text = rankName,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Dark
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                medalsList.forEach { medalName ->
+
+                                    var medalIcon = R.drawable.bronze_medal
+
+                                    val possibleIcon = IconsMapping.medalIcons[medalName]
+                                    if (possibleIcon != null) {
+                                        medalIcon = possibleIcon
+                                    }
+
+                                    Image(
+                                        painter = painterResource(id = medalIcon),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
-//********************************************** USER RANK *********************************************
-            Text(
-                text = "Your Rank",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Dark
-            )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = RoundedCornerShape(22.dp),
-                        clip = false
-                    )
-                    .background(
-                        brush = Brush.verticalGradient(
-                            listOf(CardTopColor, CardBottomColor)
-                        ),
-                        shape = RoundedCornerShape(22.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.gold_rank),
-                    contentDescription = null,
-                    modifier = Modifier.size(70.dp)
-                )
-            }
             Spacer(modifier = Modifier.height(28.dp))
+
         }
     }
 }

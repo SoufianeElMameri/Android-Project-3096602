@@ -199,7 +199,7 @@ fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsV
             composable("challenges") { ChallengesScreen(navController, userVM, stepsVM, coinsVM) }
             composable("badges") { BadgesScreen(navController) }
             composable("rank") { RankScreen(navController, userVM, stepsVM, rankVM) }
-            composable("profile") { ProfileScreen(navController = navController, userVM) }
+            composable("profile") { ProfileScreen(navController = navController, userVM, stepsVM) }
             composable("settings") { SettingsScreen(userVM,pwdVM,
                 onLogout = {
                     onLogout()
