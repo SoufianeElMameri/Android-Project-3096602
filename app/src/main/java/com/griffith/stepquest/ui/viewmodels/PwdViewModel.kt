@@ -28,6 +28,7 @@ class PwdViewModel : ViewModel() {
         oldPasswordError = ""
         newPasswordError = ""
         confirmPasswordError = ""
+        passwordChangeSuccess = false
     }
 
     fun changePassword(
@@ -37,7 +38,6 @@ class PwdViewModel : ViewModel() {
         confirmPass: String
     ) {
         resetErrors()
-        passwordChangeSuccess = false
 
         if (oldPass.isBlank()) {
             oldPasswordError = "Old password is required"
