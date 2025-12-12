@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 
@@ -28,6 +29,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     private var sensorManager: SensorManager? = null
     private var stepSensor: Sensor? = null
     private var linearAccelSensor: Sensor? = null
+    private var gyroSensor: Sensor? = null
 
 
 
@@ -38,8 +40,13 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     private var lastSensorValue = 0
     private var dailySteps = 0
     private var lastLinearMagnitude = 0f
-
     private var hasLinearAccel = false
+
+    private var lastAcceptedStepTime  = 0L
+
+    private val gyroWindow = FloatArray(20)
+    private var gyroIndex = 0
+    private var gyroCount = 0
 
     var currentSteps: Int = 0
         private set
@@ -61,22 +68,27 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     fun start() {
         savedDay = prefs.getString("savedDay", "") ?: ""
 //        baselineSteps = prefs.getInt("baselineSteps", 0)
-        initialized = prefs.getBoolean("initialized", false)
-
+        initialized     = prefs.getBoolean("initialized", false)
         lastSensorValue = prefs.getInt("lastSensorValue", 0)
-        offset = prefs.getInt("offset", 0)
-        dailySteps = prefs.getInt("dailySteps", 0)
+        offset          = prefs.getInt("offset", 0)
+        dailySteps      = prefs.getInt("dailySteps", 0)
 
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-        stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-        linearAccelSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+        stepSensor          = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        linearAccelSensor   = sensorManager?.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+        gyroSensor          = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+
         hasLinearAccel = linearAccelSensor != null
 
         stepSensor?.let {
             sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
         linearAccelSensor?.let {
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+
+        gyroSensor?.let {
             sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
 
@@ -145,6 +157,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         val today = getToday()
         if (savedDay != today) {
             currentSteps = 0
+            lastAcceptedStepTime  = 0L
         }
 
     }
@@ -157,8 +170,26 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
-            val mag = sqrt(x * x + y * y + z * z)
-            lastLinearMagnitude = mag
+            lastLinearMagnitude = sqrt(x * x + y * y + z * z)
+        }
+
+        if (event.sensor!!.type == Sensor.TYPE_GYROSCOPE) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+
+            val mag = abs(x) + abs(y) + abs(z)
+
+            gyroWindow[gyroIndex] = mag
+            gyroIndex += 1
+
+            if (gyroIndex >= gyroWindow.size) {
+                gyroIndex = 0
+            }
+
+            if (gyroCount < gyroWindow.size) {
+                gyroCount += 1
+            }
         }
 
         if (event.sensor!!.type == Sensor.TYPE_STEP_COUNTER) {
@@ -218,6 +249,25 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                     lastLinearMagnitude = mag
                 }
 
+                if (event.sensor!!.type == Sensor.TYPE_GYROSCOPE) {
+                    val x = event.values[0]
+                    val y = event.values[1]
+                    val z = event.values[2]
+
+                    val mag = abs(x) + abs(y) + abs(z)
+
+                    gyroWindow[gyroIndex] = mag
+                    gyroIndex += 1
+
+                    if (gyroIndex >= gyroWindow.size) {
+                        gyroIndex = 0
+                    }
+
+                    if (gyroCount < gyroWindow.size) {
+                        gyroCount += 1
+                    }
+                }
+
                 val raw = event.values[0].toInt()
 
                 if (lastSensorValue == 0) {
@@ -257,14 +307,51 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     }
 
     private fun validateStep(steps: Int, skip: Boolean = false): Int {
-        val linearOk = if (hasLinearAccel) lastLinearMagnitude > 1.5f else true
 
-        Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude ")
-        if (linearOk || skip) {
+        val now = System.currentTimeMillis()
+
+        if (skip) {
+            lastAcceptedStepTime = now
             return steps
         }
 
-        return currentSteps
+        if (lastAcceptedStepTime != 0L) {
+            Log.d("STEPSSENSOR_DEBUG"," lastAcceptedStepTime =$lastAcceptedStepTime ")
+            if (now - lastAcceptedStepTime < 500) {
+                return currentSteps
+            }
+        }
+
+        if (hasLinearAccel) {
+            if (lastLinearMagnitude < 1f) {
+                Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude < 1f")
+
+                return currentSteps
+            }
+        }
+
+        if (gyroCount >= gyroWindow.size) {
+            var sum = 0f
+            var diff = 0f
+            var prev = gyroWindow[0]
+
+            for (i in 0 until gyroWindow.size) {
+                sum += gyroWindow[i]
+                diff += kotlin.math.abs(gyroWindow[i] - prev)
+                prev = gyroWindow[i]
+            }
+
+            val avg = sum / gyroWindow.size
+            val chaos = diff / gyroWindow.size
+
+            if (avg > 6f && chaos > 4f) {
+                Log.d("STEPSSENSOR_DEBUG"," avg = $avg chaos = $chaos")
+                return currentSteps
+            }
+        }
+
+        lastAcceptedStepTime = now
+        return steps
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
