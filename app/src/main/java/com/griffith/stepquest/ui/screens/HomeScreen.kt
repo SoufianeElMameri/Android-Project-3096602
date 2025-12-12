@@ -53,6 +53,9 @@ import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
 import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
+
+import com.griffith.stepquest.ui.components.WeeklyResultPopup
+import com.griffith.stepquest.ui.components.StreakResultPopup
 import com.griffith.stepquest.utils.IconsMapping
 
 @Composable
@@ -112,6 +115,22 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
             WeeklyResultPopup(
                 message = popupMessage,
                 onDismiss = { rankVM.clearWeeklyResult()  }
+            )
+        }
+        val streakMessage = userVM.streakPopupMessage
+        val streakBroken = userVM.streakBroken
+
+        if (streakMessage != null) {
+            StreakResultPopup(
+                message = streakMessage,
+                streak = userVM.currentStreak,
+                coins = coinsVM.coinStash,
+                streakBroken = streakBroken,
+                onRepair = {
+                },
+                onDismiss = {
+                    userVM.resetStreakMessage()
+                }
             )
         }
     }
@@ -432,253 +451,10 @@ fun WeeklyChart(data: Map<String, Int>) {
     }
 }
 
-// weekly reward popup that shows medal, xp, coins and rank up
-@Composable
-fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    val mediaPlayer = remember { android.media.MediaPlayer.create(context, R.raw.reward_sound) }
-    LaunchedEffect(message) {
-        mediaPlayer.start()
-    }
-    // split message into pieces  the message comes in this format key value | ....
-    val parts = message.split("|")
-
-    var medal = ""
-    if (parts.isNotEmpty()) {
-        medal = parts[0]
-    }
-
-    var xpText = ""
-    if (parts.size > 1) {
-        xpText = parts[1].replace("EXP:", "")
-    }
-
-    var coinsText = ""
-    if (parts.size > 2) {
-        coinsText = parts[2].replace("COINS:", "")
-    }
-
-    var rankUpText = ""
-    if (parts.size > 3) {
-        rankUpText = parts[3].replace("RANKUP:", "")
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xAA000000))
-            .clickable { onDismiss() },
-        contentAlignment = Alignment.Center
-    ) {
-        // rendering the confetti behind popup
-        ConfettiBurst(
-            modifier = Modifier.align(Alignment.Center)
-        )
-        Card(
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Bright),
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth(0.85f)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // medal icon
-                val iconRes = IconsMapping.medalIcons[medal] ?: R.drawable.bronze_medal
-
-
-                Image(
-                    painter = painterResource(iconRes),
-                    contentDescription = "",
-                    modifier = Modifier.size(80.dp)
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                Text(
-                    text = "Weekly Rank Results",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                var medalText = ""
-                if (medal == "Gold") {
-                    medalText = "You Scored Gold!!!"
-                } else if (medal == "Silver") {
-                    medalText = "You Scored Silver!!!"
-                } else if (medal == "Bronze") {
-                    medalText = "You Scored Bronze!!!"
-                } else {
-                    medalText = "Rewards"
-                }
-
-                Text(
-                    text = medalText,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(Modifier.height(18.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Glass,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .padding(16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-//******************************************* coin section *******************************************
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Experience: +$xpText",
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Dark
-                            )
-
-                            Spacer(Modifier.width(8.dp))
-
-                            Image(
-                                painter = painterResource(R.drawable.xp),
-                                contentDescription = "Experience",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-
-                        Spacer(Modifier.height(10.dp))
-//******************************************* coin section *******************************************
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Text(
-                                text = "Coins Earned: +$coinsText",
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Dark
-                            )
-                            Spacer(Modifier.width(8.dp))
-
-                            Image(
-                                painter = painterResource(R.drawable.coin),
-                                contentDescription = "Coin",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-//******************************************* rank up section *******************************************
-                        if (rankUpText.isNotEmpty()) {
-
-                            Spacer(Modifier.height(12.dp))
-
-                            val rankIcon = IconsMapping.rankIcons[rankUpText] ?: R.drawable.no_rank
-
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "New Rank: $rankUpText",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
-                                )
-
-                                Spacer(Modifier.width(8.dp))
-
-
-                                Image(
-                                    painter = painterResource(rankIcon),
-                                    contentDescription = "Rank Icon",
-                                    modifier = Modifier.size(50.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-
-
-                Spacer(Modifier.height(24.dp))
-
-                androidx.compose.material3.Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = LimeColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Continue",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Dark
-                    )
-                }
-            }
-        }
-    }
-}
 
 
 
-// function to create a confetti
-@Composable
-fun ConfettiBurst(
-    modifier: Modifier = Modifier,
-    alignment: Alignment = Alignment.Center
-) {
-    val particles = 40
-    val anim = remember { androidx.compose.animation.core.Animatable(0f) }
 
-    LaunchedEffect(Unit) {
-        anim.animateTo(
-            1f,
-            animationSpec = androidx.compose.animation.core.tween(
-                durationMillis = 900,
-                easing = {
-                    androidx.compose.animation.core.FastOutSlowInEasing.transform(it)
-                }
-            )
-        )
-    }
-    // confetti size and shape
-    Box(
-        modifier = modifier.size(300.dp),
-        contentAlignment = alignment
-    ) {
-        for (i in 0 until particles) {
-            val angle = (i * (360f / particles)) * (Math.PI / 180f)
-            val radius = anim.value * 180f
-            val x = kotlin.math.cos(angle).toFloat() * radius
-            val y = kotlin.math.sin(angle).toFloat() * radius
-
-            Box(
-                modifier = Modifier
-                    .offset(x.dp, y.dp)
-                    .size(12.dp)
-                    .background(
-                        if (i % 2 == 0) LimeColor else Bright,
-                        shape = CircleShape
-                    )
-            )
-        }
-    }
-}
 
 
 
