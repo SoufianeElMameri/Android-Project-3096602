@@ -17,4 +17,15 @@ object IconsMapping {
         "Diamond" to R.drawable.diamond_rank,
         "Legend" to R.drawable.legend_rank
     )
+    
+    val badgeIcons = mapOf(
+        "NightWalker" to R.drawable.moon_badge,
+        "EarlyBird" to R.drawable.sunrise,
+        "Marathoner" to R.drawable.marathon,
+        "ConsistencyKing" to R.drawable.crown,
+        "WeekendWarrior" to R.drawable.warrior,
+        "Explorer" to R.drawable.map,
+        "StreakMaster" to R.drawable.streak,
+        "GoalCrusher" to R.drawable.success
+    )
 }
