@@ -20,7 +20,10 @@ val BackgroundBottom  = Color(0xFFFFF1C1)
 val CardTopColor      = Color(0xFFA6FFCB)
 val CardBottomColor   = Color(0xFFFFF3B0)
 val EmptyBarColor     = Color(0xFFB2B2A7)
-val ProgressBarColor  = Color(0xFF4ADE80)
+val ProgressBarDark        = Color(0xFF1E7F4F)
+val ProgressBarMid         = Color(0xFF3ECF8E)
+val ProgressBarLight       = Color(0xFF8AF5C1)
+
 
 
 

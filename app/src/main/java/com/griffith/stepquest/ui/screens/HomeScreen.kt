@@ -53,6 +53,7 @@ import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
 import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
+import com.griffith.stepquest.utils.IconsMapping
 
 @Composable
 fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel, rankVM: RankViewModel) {
@@ -212,7 +213,15 @@ fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
 
             // Progress arc
             drawArc(
-                color = ProgressBarColor,
+                brush = Brush.sweepGradient(
+                    colors = listOf(
+                        ProgressBarLight,
+                        ProgressBarMid,
+                        ProgressBarDark,
+                        ProgressBarLight
+                    ),
+                    center = center
+                ),
                 startAngle = 135f,
                 sweepAngle = sweepAngle * progress,
                 useCenter = false,
@@ -477,16 +486,8 @@ fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // medal icon
-                val iconRes =
-                    if (medal == "GOLD") {
-                        R.drawable.gold_medal
-                    } else if (medal == "SILVER") {
-                        R.drawable.silver_medal
-                    } else if (medal == "BRONZE") {
-                        R.drawable.bronze_medal
-                    } else {
-                        R.drawable.bronze_medal
-                    }
+                val iconRes = IconsMapping.medalIcons[medal] ?: R.drawable.bronze_medal
+
 
                 Image(
                     painter = painterResource(iconRes),
@@ -506,11 +507,11 @@ fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
 
                 var medalText = ""
-                if (medal == "GOLD") {
+                if (medal == "Gold") {
                     medalText = "You Scored Gold!!!"
-                } else if (medal == "SILVER") {
+                } else if (medal == "Silver") {
                     medalText = "You Scored Silver!!!"
-                } else if (medal == "BRONZE") {
+                } else if (medal == "Bronze") {
                     medalText = "You Scored Bronze!!!"
                 } else {
                     medalText = "Rewards"
@@ -584,20 +585,8 @@ fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
 
                             Spacer(Modifier.height(12.dp))
 
-                            val rankIcon =
-                                if (rankUpText == "Bronze") {
-                                    R.drawable.bronze_rank
-                                } else if (rankUpText == "Silver") {
-                                    R.drawable.silver_rank
-                                } else if (rankUpText == "Gold") {
-                                    R.drawable.gold_rank
-                                } else if (rankUpText == "Diamond") {
-                                    R.drawable.diamond_rank
-                                } else if (rankUpText == "Legend") {
-                                    R.drawable.legend_rank
-                                } else {
-                                    R.drawable.no_rank
-                                }
+                            val rankIcon = IconsMapping.rankIcons[rankUpText] ?: R.drawable.no_rank
+
 
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
