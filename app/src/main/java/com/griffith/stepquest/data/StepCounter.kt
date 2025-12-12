@@ -257,16 +257,17 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     }
 
     private fun validateStep(steps: Int): Int {
-        val linearOk = lastLinearMagnitude > 1.2f
-        Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude")
-        if (motionActive && linearOk) {
+        val linearOk = if (hasLinearAccel) lastLinearMagnitude > 1.2f else true
+        val motionOk = if (hasSignificantMotion) motionActive else true
+
+        Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude  in motion $motionOk")
+        if (motionOk && linearOk) {
             motionActive = false
             return steps
         }
 
         return currentSteps
     }
-
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
