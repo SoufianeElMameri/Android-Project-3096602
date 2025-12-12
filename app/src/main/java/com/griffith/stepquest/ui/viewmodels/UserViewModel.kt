@@ -186,7 +186,7 @@ class UserViewModel : ViewModel() {
                 lastStreakDate = doc.getString("lastStreakDate") ?: ""
                 userExperience = doc.getLong("userExperience")?.toInt() ?: 0
                 userRank = doc.getString("userRank") ?: "Bronze"
-
+                loadMedals()
                 onDone?.invoke()
             }
             .addOnFailureListener {
@@ -214,15 +214,33 @@ class UserViewModel : ViewModel() {
             return
         }
 
-        val updated = rankMedals.toMutableMap()
-        val list = updated[rank]?.toMutableList() ?: mutableListOf()
-        list.add(medalName)
-        updated[rank] = list
-        rankMedals = updated
+        val ref = db.collection("users").document(user.uid)
 
-        db.collection("users").document(user.uid)
-            .set(mapOf("rankMedals" to updated), com.google.firebase.firestore.SetOptions.merge())
+        ref.get().addOnSuccessListener { doc ->
+            val raw = doc.get("rankMedals") as? Map<*, *>
+            val updated = HashMap<String, MutableList<String>>()
+
+            if (raw != null) {
+                for (entry in raw.entries) {
+                    val key = entry.key
+                    val value = entry.value
+
+                    if (key is String && value is List<*>) {
+                        val clean = value.filterIsInstance<String>().toMutableList()
+                        updated[key] = clean
+                    }
+                }
+            }
+
+            val list = updated[rank] ?: mutableListOf()
+            list.add(medalName)
+            updated[rank] = list
+
+            ref.update("rankMedals", updated)
+        }
     }
+
+
 
     fun loadMedals() {
         val user = auth.currentUser
@@ -235,27 +253,17 @@ class UserViewModel : ViewModel() {
             .get()
             .addOnSuccessListener { doc ->
 
-                val raw = doc.get("rankMedals")
-                if (raw == null) {
-                    rankMedals = emptyMap()
-                    totalGoldMedals = 0
-                    return@addOnSuccessListener
-                }
-
-                val rawMap = raw as Map<*, *>
+                val raw = doc.get("rankMedals") as? Map<*, *>
                 val cleanMap = HashMap<String, List<String>>()
 
-                for (entry in rawMap.entries) {
-                    val k = entry.key
-                    val v = entry.value
-                    if (k is String && v is List<*>) {
-                        val onlyStrings = mutableListOf<String>()
-                        for (item in v) {
-                            if (item is String) {
-                                onlyStrings.add(item)
-                            }
+                if (raw != null) {
+                    for (entry in raw.entries) {
+                        val key = entry.key
+                        val value = entry.value
+
+                        if (key is String && value is List<*>) {
+                            cleanMap[key] = value.filterIsInstance<String>()
                         }
-                        cleanMap[k] = onlyStrings
                     }
                 }
 
