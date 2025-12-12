@@ -127,6 +127,8 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                 coins = coinsVM.coinStash,
                 streakBroken = streakBroken,
                 onRepair = {
+                    coinsVM.useCoins(35)
+                    userVM.repairStreak()
                 },
                 onDismiss = {
                     userVM.resetStreakMessage()

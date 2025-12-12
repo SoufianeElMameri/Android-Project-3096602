@@ -12,6 +12,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Calendar
+
 import kotlin.text.get
 import kotlin.text.set
 
@@ -26,6 +28,9 @@ class UserViewModel : ViewModel() {
 
     // holds the user name
     var userName by mutableStateOf("User")
+        private set
+
+    var lastStreak by mutableIntStateOf(0)
         private set
 
     var currentStreak by mutableIntStateOf(0)
@@ -120,8 +125,8 @@ class UserViewModel : ViewModel() {
                 return@addOnSuccessListener
             }
 
-            val cal = java.util.Calendar.getInstance()
-            cal.add(java.util.Calendar.DAY_OF_YEAR, -1)
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.DAY_OF_YEAR, -1)
             val yesterdayString = sdf.format(cal.time)
 
             if (lastStreakDate == yesterdayString) {
@@ -134,8 +139,8 @@ class UserViewModel : ViewModel() {
 
             if (yesterdaySteps >= dailyGoal) {
 
-                val prevCal = java.util.Calendar.getInstance()
-                prevCal.add(java.util.Calendar.DAY_OF_YEAR, -2)
+                val prevCal = Calendar.getInstance()
+                prevCal.add(Calendar.DAY_OF_YEAR, -2)
                 val previousDayString = sdf.format(prevCal.time)
 
                 if (lastStreakDate == previousDayString) {
@@ -148,10 +153,11 @@ class UserViewModel : ViewModel() {
                 streakBroken = false
                 lastStreakDate = yesterdayString
 
-            } else {
-                currentStreak = 0
-                streakBroken = true
-                streakPopupMessage = "Streak broken"
+            } else if(currentStreak > 0) {
+                lastStreak          = currentStreak
+                currentStreak       = 0
+                streakBroken        = true
+                streakPopupMessage  = "Streak broken"
             }
 
             if (currentStreak > bestStreak) {
@@ -168,6 +174,33 @@ class UserViewModel : ViewModel() {
                 com.google.firebase.firestore.SetOptions.merge()
             )
         }
+    }
+    fun repairStreak() {
+
+        val user = auth.currentUser
+        if (user == null) {
+            return
+        }
+
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, -1)
+        val yesterdayString = sdf.format(cal.time)
+
+        val ref = db.collection("users").document(user.uid)
+
+        currentStreak = lastStreak
+        streakBroken = false
+        resetStreakMessage()
+
+        ref.set(
+            mapOf(
+                "currentStreak" to currentStreak,
+                "bestStreak" to bestStreak,
+                "lastStreakDate" to yesterdayString
+            ),
+            com.google.firebase.firestore.SetOptions.merge()
+        )
     }
 
     fun resetStreakMessage(){

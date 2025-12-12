@@ -163,7 +163,7 @@ class MainActivity : ComponentActivity() {
                     }
                     badgeVM.checkBadges(userVM, stepsVM)
                     stepCounter.forceReadSensor { steps ->
-                        userVM.updateStreak(54000, stepsVM.dailyGoal)
+                        userVM.updateStreak(4000, stepsVM.dailyGoal)
                     }
                 }
 

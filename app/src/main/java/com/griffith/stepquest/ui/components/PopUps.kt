@@ -357,25 +357,6 @@ fun StreakResultPopup(
 
                 if (streakBroken) {
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "-35",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = FireTextColor
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Image(
-                            painter = painterResource(R.drawable.coin),
-                            contentDescription = "",
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
                     Button(
                         onClick = { if (coins >= 35) onRepair() },
                         enabled = coins >= 35,
@@ -385,12 +366,30 @@ fun StreakResultPopup(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Repair Streak",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Bright
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Repair Streak",
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Bright
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = "-35",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Bright
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(R.drawable.coin),
+                                contentDescription = "",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
 
