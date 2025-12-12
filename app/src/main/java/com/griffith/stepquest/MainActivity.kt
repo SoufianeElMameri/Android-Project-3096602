@@ -74,9 +74,9 @@ class MainActivity : ComponentActivity() {
     private val stepUpdateRunnable = object : Runnable {
 
         override fun run() {
-            stepsVM.updateSteps(stepCounter.currentSteps)
+            stepCounter.forceReadSensor()
             // update every 1 second
-            handler.postDelayed(this, 1000)
+            handler.postDelayed(this, 3000)
         }
     }
 

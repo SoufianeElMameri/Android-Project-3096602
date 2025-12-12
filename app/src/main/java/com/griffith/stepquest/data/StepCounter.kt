@@ -28,7 +28,6 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     private var sensorManager: SensorManager? = null
     private var stepSensor: Sensor? = null
     private var linearAccelSensor: Sensor? = null
-    private var significantMotionSensor: Sensor? = null
 
 
 
@@ -39,10 +38,8 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     private var lastSensorValue = 0
     private var dailySteps = 0
     private var lastLinearMagnitude = 0f
-    private var motionActive = false
 
     private var hasLinearAccel = false
-    private var hasSignificantMotion = false
 
     var currentSteps: Int = 0
         private set
@@ -76,18 +73,13 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         linearAccelSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         hasLinearAccel = linearAccelSensor != null
 
-        significantMotionSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION)
-        hasSignificantMotion = significantMotionSensor != null
-
         stepSensor?.let {
             sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
         linearAccelSensor?.let {
             sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
-        significantMotionSensor?.let {
-            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
-        }
+
         updateNewDaySteps()
     }
 
@@ -168,9 +160,6 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
             val mag = sqrt(x * x + y * y + z * z)
             lastLinearMagnitude = mag
         }
-        if (event.sensor!!.type == Sensor.TYPE_SIGNIFICANT_MOTION) {
-            motionActive = true
-        }
 
         if (event.sensor!!.type == Sensor.TYPE_STEP_COUNTER) {
             val rawSteps = event.values[0].toInt()
@@ -216,8 +205,19 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         val listener = object : SensorEventListener {
+
             override fun onSensorChanged(event: SensorEvent?) {
+
                 if (event == null) return
+
+                if (event.sensor!!.type == Sensor.TYPE_LINEAR_ACCELERATION) {
+                    val x = event.values[0]
+                    val y = event.values[1]
+                    val z = event.values[2]
+                    val mag = sqrt(x * x + y * y + z * z)
+                    lastLinearMagnitude = mag
+                }
+
                 val raw = event.values[0].toInt()
 
                 if (lastSensorValue == 0) {
@@ -230,7 +230,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 }
 
                 dailySteps = raw - offset
-                currentSteps = validateStep(dailySteps)
+                currentSteps = validateStep(dailySteps, true)
 
                 lastSensorValue = raw
 
@@ -256,13 +256,11 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         )
     }
 
-    private fun validateStep(steps: Int): Int {
-        val linearOk = if (hasLinearAccel) lastLinearMagnitude > 1.2f else true
-        val motionOk = if (hasSignificantMotion) motionActive else true
+    private fun validateStep(steps: Int, skip: Boolean = false): Int {
+        val linearOk = if (hasLinearAccel) lastLinearMagnitude > 1.5f else true
 
-        Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude  in motion $motionOk")
-        if (motionOk && linearOk) {
-            motionActive = false
+        Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude ")
+        if (linearOk || skip) {
             return steps
         }
 
