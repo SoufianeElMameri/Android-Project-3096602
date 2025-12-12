@@ -5,7 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.griffith.stepquest.data.UserInformation
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 
 class PwdViewModel : ViewModel() {
 
@@ -20,6 +21,8 @@ class PwdViewModel : ViewModel() {
 
     var passwordChangeSuccess by mutableStateOf(false)
         private set
+
+    private val auth = FirebaseAuth.getInstance()
 
     fun resetErrors() {
         oldPasswordError = ""
@@ -56,20 +59,32 @@ class PwdViewModel : ViewModel() {
             return
         }
 
-        val info = UserInformation(context)
-        val stored = info.getPassword()
-
-        var storedPass = ""
-        if (stored != null) {
-            storedPass = stored
-        }
-
-        if (oldPass != storedPass) {
-            oldPasswordError = "Old password is incorrect"
+        val user = auth.currentUser
+        if (user == null) {
+            oldPasswordError = "User not logged in"
             return
         }
 
-        info.savePassword(newPass)
-        passwordChangeSuccess = true
+        val email = user.email
+        if (email == null) {
+            oldPasswordError = "No email found for this user"
+            return
+        }
+
+        val credential = EmailAuthProvider.getCredential(email, oldPass)
+
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                user.updatePassword(newPass)
+                    .addOnSuccessListener {
+                        passwordChangeSuccess = true
+                    }
+                    .addOnFailureListener { e ->
+                        newPasswordError = e.message ?: "Password update failed"
+                    }
+            }
+            .addOnFailureListener {
+                oldPasswordError = "Old password is incorrect"
+            }
     }
 }

@@ -17,7 +17,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.theme.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.OutlinedTextField

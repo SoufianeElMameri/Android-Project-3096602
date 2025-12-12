@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.griffith.stepquest.data.UserInformation
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat

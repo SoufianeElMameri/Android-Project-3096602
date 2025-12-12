@@ -43,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.griffith.stepquest.data.UserInformation
 import com.griffith.stepquest.ui.screens.AuthScreen
 import com.griffith.stepquest.ui.screens.SettingsScreen
 import com.griffith.stepquest.data.FirebaseAuthManger
@@ -68,7 +67,6 @@ class MainActivity : ComponentActivity() {
     private val badgeVM: BadgeViewModel by viewModels()
 
     private lateinit var stepCounter: StepCounter
-    private lateinit var userInfo: UserInformation
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -99,7 +97,6 @@ class MainActivity : ComponentActivity() {
         requestStepPermission()
 
         stepCounter = StepCounter(this, stepsVM, userVM, rankVM)
-        userInfo    = UserInformation(this)
 
         // Tell Android to handle system bars
         WindowCompat.setDecorFitsSystemWindows(window, true)

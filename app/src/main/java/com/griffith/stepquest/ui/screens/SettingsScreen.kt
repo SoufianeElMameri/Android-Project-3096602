@@ -44,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 
 import com.griffith.stepquest.R
 import coil.compose.rememberAsyncImagePainter
-import com.griffith.stepquest.data.UserInformation
 
 import java.io.File
 import java.io.FileOutputStream
