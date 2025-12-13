@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                     onLoginSuccess = {
 
                         stepsVM.loadUserStepsFromDb(){
-                            onStart()
+                            startUserFlow()
                             isLoggedIn = true
                         }
                     }
@@ -139,34 +139,43 @@ class MainActivity : ComponentActivity() {
     }
     override fun onStart() {
         super.onStart()
-        if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
-            == android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) {
-            if (stepCounter.hasStepCounterSensor()) {
-//                Log.d("Main", "Device has stepCounter")
-                stepCounter.start()
-                userVM.loadUserData (this@MainActivity, expVM){
-                    coinsVM.loadCoins()
-                    stepsVM.loadStepsStats(userVM)
-                    rankVM.loadWeeklyPopupDate {
-                        rankVM.weeklyRankCheck(userVM, coinsVM)
-                    }
-                    badgeVM.checkBadges(userVM, stepsVM)
-                    stepCounter.forceReadSensor { steps ->
-                        userVM.updateStreak(4000, stepsVM.dailyGoal)
-                    }
-                }
-
-            }
-            else{
-//                Log.d("Main", "Device doesn't have stepCounter")
-            }
-        }
+        startUserFlow()
     }
 
     override fun onStop() {
         super.onStop()
         stepCounter.stop()
+    }
+
+    // function that starts the user follow by loading necessary data in the correct order
+    private fun startUserFlow() {
+        if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        if (!stepCounter.hasStepCounterSensor()) {
+            return
+        }
+
+        userVM.loadUserData(this@MainActivity, expVM) {
+
+            coinsVM.loadCoins()
+
+            rankVM.loadWeeklyPopupDate {
+                rankVM.weeklyRankCheck(userVM, coinsVM) {
+                    stepsVM.loadStepsStats(userVM)
+
+                    stepCounter.start()
+                    stepCounter.forceReadSensor { steps ->
+                        userVM.updateStreak(4000, stepsVM.dailyGoal)
+                    }
+                }
+            }
+
+            badgeVM.checkBadges(userVM, stepsVM)
+        }
     }
 }
 

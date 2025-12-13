@@ -149,7 +149,7 @@ class RankViewModel : ViewModel() {
             }
     }
     // check weekly rank on Monday and give rewards
-    fun weeklyRankCheck(userVM: UserViewModel, coinsVM: CoinsViewModel) {
+    fun weeklyRankCheck(userVM: UserViewModel, coinsVM: CoinsViewModel, onDone: () -> Unit) {
 
         // get today's date in a simple format
         val sdf = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
@@ -158,6 +158,7 @@ class RankViewModel : ViewModel() {
         // check if already showed popup today
         if (lastWeeklyPopupDate == today) {
             weeklyResult = null
+            onDone()
             return
         }
 
@@ -168,6 +169,7 @@ class RankViewModel : ViewModel() {
         // check rank results every monday
         if (!isMonday) {
             weeklyResult = null
+            onDone()
             return
         }
 
@@ -196,6 +198,7 @@ class RankViewModel : ViewModel() {
                 if (position == -1) {
                     saveWeeklyPopupDate(today)
                     weeklyResult = null
+                    onDone()
                     return@addOnSuccessListener
                 }
 
@@ -208,6 +211,7 @@ class RankViewModel : ViewModel() {
                     saveWeeklyPopupDate(today)
                     weeklyResult = "Gold|EXP:1000|COINS:50|RANKUP:${userVM.userRank}"
                     removeUserFromLeaderboard()
+                    onDone()
                     return@addOnSuccessListener
                 }
 
@@ -219,6 +223,7 @@ class RankViewModel : ViewModel() {
                     saveWeeklyPopupDate(today)
                     weeklyResult = "Silver|EXP:500|COINS:25"
                     removeUserFromLeaderboard()
+                    onDone()
                     return@addOnSuccessListener
                 }
 
@@ -230,6 +235,7 @@ class RankViewModel : ViewModel() {
                     saveWeeklyPopupDate(today)
                     weeklyResult = "Bronze|EXP:250|COINS:10"
                     removeUserFromLeaderboard()
+                    onDone()
                     return@addOnSuccessListener
                 }
 
@@ -239,6 +245,10 @@ class RankViewModel : ViewModel() {
                 weeklyResult = "LOSER|POS:$user_pos"
 
                 removeUserFromLeaderboard()
+                onDone()
+            }
+            .addOnFailureListener {
+                onDone()
             }
     }
 }
