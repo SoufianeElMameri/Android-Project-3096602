@@ -136,7 +136,18 @@ class RankViewModel : ViewModel() {
                 players = list
             }
     }
+    fun removeUserFromLeaderboard() {
+        val user = auth.currentUser ?: return
 
+        db.collection("leaderboard")
+            .whereEqualTo("uid", user.uid)
+            .get()
+            .addOnSuccessListener { docs ->
+                for (doc in docs) {
+                    doc.reference.delete()
+                }
+            }
+    }
     // check weekly rank on Monday and give rewards
     fun weeklyRankCheck(userVM: UserViewModel, coinsVM: CoinsViewModel) {
 
@@ -196,6 +207,7 @@ class RankViewModel : ViewModel() {
                     coinsVM.addCoins(50)
                     saveWeeklyPopupDate(today)
                     weeklyResult = "Gold|EXP:1000|COINS:50|RANKUP:${userVM.userRank}"
+                    removeUserFromLeaderboard()
                     return@addOnSuccessListener
                 }
 
@@ -206,6 +218,7 @@ class RankViewModel : ViewModel() {
                     coinsVM.addCoins(25)
                     saveWeeklyPopupDate(today)
                     weeklyResult = "Silver|EXP:500|COINS:25"
+                    removeUserFromLeaderboard()
                     return@addOnSuccessListener
                 }
 
@@ -216,12 +229,16 @@ class RankViewModel : ViewModel() {
                     coinsVM.addCoins(10)
                     saveWeeklyPopupDate(today)
                     weeklyResult = "Bronze|EXP:250|COINS:10"
+                    removeUserFromLeaderboard()
                     return@addOnSuccessListener
                 }
 
                 // everyone else not in the top 3
                 saveWeeklyPopupDate(today)
-                weeklyResult = "LOSER"
+                val user_pos =  position+1
+                weeklyResult = "LOSER|POS:$user_pos"
+
+                removeUserFromLeaderboard()
             }
     }
 }

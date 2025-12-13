@@ -417,38 +417,44 @@ fun WeeklyChart(data: Map<String, Int>) {
                 color = TextPrimary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp),
+                contentAlignment = Alignment.BottomCenter
             ) {
-                // loop through the map and create green bars
-                data.forEach { (day, steps) ->
-                    val barHeight = (steps.toFloat() / maxSteps) * 120f
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    // loop through the map and create green bars
+                    data.forEach { (day, steps) ->
+                        val barHeight = (steps.toFloat() / maxSteps) * 120f
 
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .width(20.dp)
-                                .height(barHeight.dp)
-                                .background(
-                                    LimeColor,
-                                    RoundedCornerShape(6.dp)
-                                )
-                        )
-                        Spacer(Modifier.height(6.dp))
-//******************************************** X AXE DAYS
-                        Text(
-                            text = day,
-                            fontSize = 12.sp,
-                            color = TextPrimary
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Bottom
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(barHeight.dp)
+                                    .background(
+                                        LimeColor,
+                                        RoundedCornerShape(6.dp)
+                                    )
+                            )
+                            Spacer(Modifier.height(6.dp))
+    //******************************************** X AXE DAYS
+                            Text(
+                                text = day,
+                                fontSize = 12.sp,
+                                color = TextPrimary
+                            )
+                        }
                     }
-                }
+                    }
             }
         }
     }

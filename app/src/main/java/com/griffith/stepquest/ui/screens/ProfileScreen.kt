@@ -59,7 +59,12 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel, stepsVM: 
     val level       = userVM.userLevel
     val nextLevel   = userVM.userNextLevelExp
     val userXp      = userVM.userExperience
+    // loading the porifle picture from the local storage if it exists if not load default profile
+    val context = LocalContext.current
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+    val file = File(context.filesDir, "profile_picture_$uid.png")
 
+    var localBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -76,10 +81,8 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel, stepsVM: 
                 }
         }
     }
-    // loading the porifle picture from the local storage if it exists if not load default profile
-    val context = LocalContext.current
+
     // used to refresh the composable if we change the profile picture
-    var refresh by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
@@ -100,24 +103,21 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel, stepsVM: 
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
             }
 
+            localBitmap = bitmap
+
             ProfileManager.uploadProfileImage(
                 uri,
                 onSuccess = { },
                 onError = { }
             )
 
-            refresh = !refresh
         }
     }
 
-    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
-    val file = File(context.filesDir, "profile_picture_$uid.png")
-
-    var localBitmap: Bitmap? = null
-
-    if (file.exists()) {
-        refresh
-        localBitmap = BitmapFactory.decodeFile(file.absolutePath)
+    LaunchedEffect(uid) {
+        if (file.exists()) {
+            localBitmap = BitmapFactory.decodeFile(file.absolutePath)
+        }
     }
 
     val finalPainter =

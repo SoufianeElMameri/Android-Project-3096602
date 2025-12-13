@@ -34,6 +34,7 @@ import com.griffith.stepquest.utils.IconsMapping
 // weekly reward popup that shows medal, xp, coins and rank up
 @Composable
 fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
+
     val context = LocalContext.current
     val mediaPlayer = remember { android.media.MediaPlayer.create(context, R.raw.reward_sound) }
     LaunchedEffect(message) {
@@ -42,24 +43,21 @@ fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
     // split message into pieces  the message comes in this format key value | ....
     val parts = message.split("|")
 
-    var medal = ""
-    if (parts.isNotEmpty()) {
-        medal = parts[0]
-    }
+
+    val medal = parts.getOrNull(0) ?: ""
 
     var xpText = ""
-    if (parts.size > 1) {
-        xpText = parts[1].replace("EXP:", "")
-    }
-
     var coinsText = ""
-    if (parts.size > 2) {
-        coinsText = parts[2].replace("COINS:", "")
-    }
-
     var rankUpText = ""
-    if (parts.size > 3) {
-        rankUpText = parts[3].replace("RANKUP:", "")
+    var positionText = ""
+
+    for (part in parts) {
+        when {
+            part.startsWith("EXP:") -> xpText = part.replace("EXP:", "")
+            part.startsWith("COINS:") -> coinsText = part.replace("COINS:", "")
+            part.startsWith("RANKUP:") -> rankUpText = part.replace("RANKUP:", "")
+            part.startsWith("POS:") -> positionText = part.replace("POS:", "")
+        }
     }
 
     Box(
@@ -84,18 +82,19 @@ fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // medal icon
-                val iconRes = IconsMapping.medalIcons[medal] ?: R.drawable.bronze_medal
+                if (medal != "LOSER") {
+                    // medal icon
+                    val iconRes = IconsMapping.medalIcons[medal] ?: R.drawable.bronze_medal
 
 
-                Image(
-                    painter = painterResource(iconRes),
-                    contentDescription = "",
-                    modifier = Modifier.size(80.dp)
-                )
+                    Image(
+                        painter = painterResource(iconRes),
+                        contentDescription = "",
+                        modifier = Modifier.size(80.dp)
+                    )
 
-                Spacer(Modifier.height(12.dp))
-
+                    Spacer(Modifier.height(12.dp))
+                }
                 Text(
                     text = "Weekly Rank Results",
                     fontSize = 24.sp,
@@ -113,7 +112,7 @@ fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
                 } else if (medal == "Bronze") {
                     medalText = "You Scored Bronze!!!"
                 } else {
-                    medalText = "Rewards"
+                    medalText = ""
                 }
 
                 Text(
@@ -139,77 +138,87 @@ fun WeeklyResultPopup(message: String, onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.Start
                     ) {
-//******************************************* coin section *******************************************
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        if (medal == "LOSER") {
                             Text(
-                                text = "Experience: +$xpText",
-                                fontSize = 17.sp,
+                                text = "You finished in position $positionText",
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Dark
+                                color = Dark,
+                                textAlign = TextAlign.Center
                             )
-
-                            Spacer(Modifier.width(8.dp))
-
-                            Image(
-                                painter = painterResource(R.drawable.xp),
-                                contentDescription = "Experience",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-
-                        Spacer(Modifier.height(10.dp))
+                        } else {
 //******************************************* coin section *******************************************
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Text(
-                                text = "Coins Earned: +$coinsText",
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Dark
-                            )
-                            Spacer(Modifier.width(8.dp))
-
-                            Image(
-                                painter = painterResource(R.drawable.coin),
-                                contentDescription = "Coin",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-//******************************************* rank up section *******************************************
-                        if (rankUpText.isNotEmpty()) {
-
-                            Spacer(Modifier.height(12.dp))
-
-                            val rankIcon = IconsMapping.rankIcons[rankUpText] ?: R.drawable.no_rank
-
-
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "New Rank: $rankUpText",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
+                                    text = "Experience: +$xpText",
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Dark
                                 )
 
                                 Spacer(Modifier.width(8.dp))
 
+                                Image(
+                                    painter = painterResource(R.drawable.xp),
+                                    contentDescription = "Experience",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Spacer(Modifier.height(10.dp))
+                            //******************************************* coin section *******************************************
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                Text(
+                                    text = "Coins Earned: +$coinsText",
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Dark
+                                )
+                                Spacer(Modifier.width(8.dp))
 
                                 Image(
-                                    painter = painterResource(rankIcon),
-                                    contentDescription = "Rank Icon",
-                                    modifier = Modifier.size(50.dp)
+                                    painter = painterResource(R.drawable.coin),
+                                    contentDescription = "Coin",
+                                    modifier = Modifier.size(20.dp)
                                 )
+                            }
+                            //******************************************* rank up section *******************************************
+                            if (rankUpText.isNotEmpty()) {
+
+                                Spacer(Modifier.height(12.dp))
+
+                                val rankIcon =
+                                    IconsMapping.rankIcons[rankUpText] ?: R.drawable.no_rank
+
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "New Rank: $rankUpText",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextPrimary
+                                    )
+
+                                    Spacer(Modifier.width(8.dp))
+
+
+                                    Image(
+                                        painter = painterResource(rankIcon),
+                                        contentDescription = "Rank Icon",
+                                        modifier = Modifier.size(50.dp)
+                                    )
+                                }
                             }
                         }
                     }
                 }
-
 
                 Spacer(Modifier.height(24.dp))
 
