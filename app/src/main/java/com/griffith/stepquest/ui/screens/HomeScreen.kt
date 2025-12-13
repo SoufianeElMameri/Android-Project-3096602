@@ -56,10 +56,12 @@ import com.griffith.stepquest.ui.viewmodels.UserViewModel
 
 import com.griffith.stepquest.ui.components.WeeklyResultPopup
 import com.griffith.stepquest.ui.components.StreakResultPopup
+import com.griffith.stepquest.ui.components.BadgeUnlockedPopup
+import com.griffith.stepquest.ui.viewmodels.BadgeViewModel
 import com.griffith.stepquest.utils.IconsMapping
 
 @Composable
-fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel, rankVM: RankViewModel) {
+fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsViewModel, rankVM: RankViewModel, badgeVM: BadgeViewModel) {
 
 
     val popupMessage = rankVM.weeklyResult
@@ -132,6 +134,16 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
                 },
                 onDismiss = {
                     userVM.resetStreakMessage()
+                }
+            )
+        }
+        val badgePopup = badgeVM.badgePopup
+
+        if (badgePopup != null) {
+            BadgeUnlockedPopup(
+                badgeKey = badgePopup,
+                onDismiss = {
+                    badgeVM.clearBadgePopup()
                 }
             )
         }

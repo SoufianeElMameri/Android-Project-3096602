@@ -240,8 +240,9 @@ class UserViewModel : ViewModel() {
                 userRank = doc.getString("userRank") ?: "Bronze"
                 loadUserLevel(context, expVM)
                 loadMedals()
-                loadBadges()
-                onDone?.invoke()
+                loadBadges {
+                    onDone?.invoke()
+                }
             }
             .addOnFailureListener {
                 onDone?.invoke()
@@ -343,7 +344,7 @@ class UserViewModel : ViewModel() {
             .set(mapOf("userRank" to userRank), com.google.firebase.firestore.SetOptions.merge())
     }
     // function that loads all badges obtained by the user
-    fun loadBadges() {
+    fun loadBadges(onDone: (() -> Unit)? = null) {
         val user = auth.currentUser
         if (user == null) {
             return
@@ -362,6 +363,7 @@ class UserViewModel : ViewModel() {
                         }
                     }
                     badgesObtained = clean
+                    onDone?.invoke()
                 }
             }
     }

@@ -1,16 +1,30 @@
 package com.griffith.stepquest.ui.viewmodels
 
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.griffith.stepquest.ui.screens.Badge
 import com.griffith.stepquest.utils.IconsMapping
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 // view model that checks, award and providing badge data
 class BadgeViewModel : ViewModel() {
 
     // firebase auth
     private val auth = FirebaseAuth.getInstance()
+
+    var badgePopup by mutableStateOf<String?>(null)
+        private set
+
+    fun showBadgePopup(badgeKey: String) {
+        badgePopup = badgeKey
+    }
+
+    fun clearBadgePopup() {
+        badgePopup = null
+    }
 
     // function that checks all badges conditions based on user and steps data
     fun checkBadges(userVM: UserViewModel, stepsVM: StepsViewModel) {
@@ -23,35 +37,44 @@ class BadgeViewModel : ViewModel() {
         val todaySteps = stepsVM.steps
         // current active streak
         val currentStreak = userVM.currentStreak
+        // badges obtained by the user if any
+        val obtained = userVM.badgesObtained
 
         // badge for walking late at night after 9pm
-        if (todaySteps >= 2000 && isAfterNinePM()) {
+        if (todaySteps >= 2000 && isAfterNinePM() && !obtained.contains("NightWalker")) {
             userVM.giveBadge("NightWalker")
+            showBadgePopup("NightWalker")
         }
         // badge for walking early in the morning before 8am
-        if (todaySteps >= 2000 && isBeforeEightAM()) {
+        if (todaySteps >= 2000 && isBeforeEightAM() && !obtained.contains("EarlyBird")) {
             userVM.giveBadge("EarlyBird")
+            showBadgePopup("EarlyBird")
         }
         // badge for very high daily step count
-        if (todaySteps >= 20000) {
-            userVM.giveBadge("Marathoner")
+        if (todaySteps >= 20000 && !obtained.contains("Marathoner")) {
+            userVM.giveBadge("Marathoner" )
+            showBadgePopup("Marathoner")
         }
         // badge for maintaining a 7 day streak
-        if (currentStreak >= 7) {
+        if (currentStreak >= 7 && !obtained.contains("ConsistencyKing")) {
             userVM.giveBadge("ConsistencyKing")
+            showBadgePopup("ConsistencyKing")
         }
         // badge for hitting 10000 steps on weekend
-        if (isWeekend() && todaySteps >= 10000) {
+        if (isWeekend() && todaySteps >= 10000 && !obtained.contains("WeekendWarrior")) {
             userVM.giveBadge("WeekendWarrior")
+            showBadgePopup("WeekendWarrior")
         }
         // badge for maintaining a 30 day streak
-        if (currentStreak >= 30) {
+        if (currentStreak >= 30 && !obtained.contains("StreakMaster")) {
             userVM.giveBadge("StreakMaster")
+            showBadgePopup("StreakMaster")
         }
         // badge for beating daily goal by 50%
         val goal = stepsVM.dailyGoal
-        if (todaySteps >= goal * 1.5) {
+        if (todaySteps >= goal * 1.5 && !obtained.contains("GoalCrusher")) {
             userVM.giveBadge("GoalCrusher")
+            showBadgePopup("GoalCrusher")
         }
     }
     // function that checks if the current time is before 9 pm
