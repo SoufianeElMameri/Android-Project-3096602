@@ -14,9 +14,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.Calendar
 
-import kotlin.text.get
-import kotlin.text.set
-
 // a model to keep track of coins and add coins
 class UserViewModel : ViewModel() {
 

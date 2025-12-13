@@ -1,12 +1,8 @@
 package com.griffith.stepquest.ui.screens
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
-import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -131,9 +127,6 @@ fun ProfileScreen(navController: NavController, userVM: UserViewModel, stepsVM: 
             rememberAsyncImagePainter(localBitmap)
         else
             painterResource(R.drawable.default_profile)
-
-
-    val profileUrl = ""
 
     Surface(
         modifier = Modifier

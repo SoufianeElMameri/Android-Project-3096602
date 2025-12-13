@@ -3,7 +3,6 @@ package com.griffith.stepquest.ui.viewmodels
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.griffith.stepquest.ui.screens.Badge
 import com.griffith.stepquest.utils.IconsMapping
 import androidx.compose.runtime.mutableStateOf

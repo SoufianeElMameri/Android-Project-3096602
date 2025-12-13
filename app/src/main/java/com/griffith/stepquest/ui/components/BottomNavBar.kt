@@ -142,6 +142,8 @@ fun BottomNavBar(navController: NavController) {
                 indicatorColor = SelectedNavItemColor
             )
         )
+
+        // I AM KEEPING THE SHOP CODE FOR FUTURE TO BE IMPLEMENTED
 //******************************************** SHOP ********************************************
 //        NavigationBarItem(
 //            selected = currentRoute == "shop",
