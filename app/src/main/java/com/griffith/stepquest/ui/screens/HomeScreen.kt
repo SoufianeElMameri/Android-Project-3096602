@@ -98,6 +98,20 @@ fun HomeScreen(navController: NavController, userVM: UserViewModel, stepsVM: Ste
             WeeklyMonthlyCards(weeklyStats,monthlyStats )
             Spacer(Modifier.height((screenWidth * 0.06).dp))
 //***************************************************** WEAKLY CHART ************************************************
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 15.dp, bottom = 8.dp)
+            ) {
+                Text(
+                    text = "Weekly Steps",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                )
+            }
+            Spacer(Modifier.height((screenWidth * 0.05).dp))
             WeeklyChart(weeklyHistory)
 
 
@@ -393,7 +407,7 @@ fun WeeklyChart(data: Map<String, Int>) {
         Column(
             modifier = Modifier
                 .padding(end = 8.dp)
-                .height(130.dp)
+                .height(120.dp)
                 // adding an offset to make the y axe match the bar starting point
                 .offset(y = -15.dp),
             verticalArrangement = Arrangement.SpaceBetween,
@@ -410,13 +424,6 @@ fun WeeklyChart(data: Map<String, Int>) {
 
 //******************************************** DAILY STEP COUNT BARS
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "Weekly Steps",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -438,15 +445,22 @@ fun WeeklyChart(data: Map<String, Int>) {
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .width(20.dp)
-                                    .height(barHeight.dp)
-                                    .background(
-                                        LimeColor,
-                                        RoundedCornerShape(6.dp)
-                                    )
-                            )
+                                    .height(110.dp),
+                                contentAlignment = Alignment.BottomCenter
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .height(barHeight.dp)
+                                        .background(
+                                            LimeColor,
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                )
+                            }
+
                             Spacer(Modifier.height(6.dp))
-    //******************************************** X AXE DAYS
+
                             Text(
                                 text = day,
                                 fontSize = 12.sp,
