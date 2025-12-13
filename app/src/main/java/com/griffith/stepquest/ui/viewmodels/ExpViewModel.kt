@@ -31,17 +31,17 @@ class ExpViewModel : ViewModel() {
             .document("levels_data")
             .get()
             .addOnSuccessListener { doc ->
-                Log.d("EXP_DEBUG", "Firestore document loaded")
+//                Log.d("EXP_DEBUG", "Firestore document loaded")
 
                 val raw = doc.get("levels")
-                Log.d("EXP_DEBUG", "raw levels value: $raw")
+//                Log.d("EXP_DEBUG", "raw levels value: $raw")
                 if (raw == null) {
                     return@addOnSuccessListener
                 }
 
                 val casted = raw as? Map<String, Map<String, Any>>
 
-                Log.d("EXP_DEBUG", "casted map: $casted")
+//                Log.d("EXP_DEBUG", "casted map: $casted")
 
                 if (casted == null) {
                     return@addOnSuccessListener
@@ -56,11 +56,11 @@ class ExpViewModel : ViewModel() {
                     val lvl = value["level"].toString().toInt()
                     val xp = value["xp"].toString().toInt()
                     val title = value["title"].toString()
-                    Log.d("EXP_DEBUG", "Parsed level=$lvl xp=$xp title=$title")
+//                    Log.d("EXP_DEBUG", "Parsed level=$lvl xp=$xp title=$title")
                     list.add(LevelData(lvl, xp, title))
                 }
                 levels = list
-                Log.d("EXP_DEBUG", "Final levels list: $levels")
+//                Log.d("EXP_DEBUG", "Final levels list: $levels")
                 saveLocal(context, list)
                 onDone()
             }
@@ -109,14 +109,14 @@ class ExpViewModel : ViewModel() {
     }
     // get current level, title, and next level xp based on user xp
     fun getLevelAndTitle(userXp: Int): Triple<Int, String, Int> {
-        Log.d("EXP_DEBUG", "getLevelAndTitle called with userXp=$userXp")
-        Log.d("EXP_DEBUG", "levels loaded: $levels")
+//        Log.d("EXP_DEBUG", "getLevelAndTitle called with userXp=$userXp")
+//        Log.d("EXP_DEBUG", "levels loaded: $levels")
         var resultLevel = 1
         var resultTitle = ""
         var nextLevelXp = 0
         for (i in levels.indices) {
             val lvl = levels[i]
-            Log.d("EXP_DEBUG", "Checking level=${lvl.level} xp=${lvl.xp} title=${lvl.title}")
+//            Log.d("EXP_DEBUG", "Checking level=${lvl.level} xp=${lvl.xp} title=${lvl.title}")
 
             if (userXp >= lvl.xp) {
                 resultLevel = lvl.level
@@ -126,10 +126,10 @@ class ExpViewModel : ViewModel() {
                 } else {
                     nextLevelXp = lvl.xp
                 }
-                Log.d("EXP_DEBUG", "MATCH → new result: $resultLevel / $resultTitle")
+//                Log.d("EXP_DEBUG", "MATCH → new result: $resultLevel / $resultTitle")
             }
         }
-        Log.d("EXP_DEBUG", "FINAL → level=$resultLevel title=$resultTitle")
+//        Log.d("EXP_DEBUG", "FINAL → level=$resultLevel title=$resultTitle")
         return Triple(resultLevel, resultTitle, nextLevelXp)
     }
 }
