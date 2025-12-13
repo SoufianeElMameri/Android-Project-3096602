@@ -112,6 +112,14 @@ class StepsViewModel : ViewModel() {
             return
         }
 
+        var doneCount = 0
+        fun checkDone() {
+            doneCount++
+            if (doneCount == 2) {
+                onDone?.invoke()
+            }
+        }
+
         val today = getToday()
         val mainRef = db.collection("users").document(user.uid)
         val dailyRef = mainRef.collection("daily_steps").document(today)
@@ -123,6 +131,7 @@ class StepsViewModel : ViewModel() {
             } else {
                 steps = 0
             }
+            checkDone()
         }
 
         mainRef.get().addOnSuccessListener { doc ->
@@ -130,8 +139,8 @@ class StepsViewModel : ViewModel() {
             if (totalStepsValue != null) {
                 totalSteps = totalStepsValue.toInt()
             }
+            checkDone()
         }
-        onDone?.invoke()
     }
     // function to load the user's step goals
     fun loadDailyStepGoal(userVM : UserViewModel) {
@@ -304,7 +313,7 @@ class StepsViewModel : ViewModel() {
         loadDailyStepGoal(userVM)
         loadTotalSteps()
         loadMonthlySteps()
-        loadWeeklyHistory(true)
+        loadWeeklyHistory()
     }
 
 }
