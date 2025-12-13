@@ -249,15 +249,15 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 prefs.edit { putInt("offset", offset) }
             }
 
-            Log.d("STEPSSENSOR_DEBUG"," offset =$offset")
+//            Log.d("STEPSSENSOR_DEBUG"," offset =$offset")
 
             val computedSteps   = rawSteps - offset
             val validatedSteps  = validateStep(computedSteps)
 
             if (validatedSteps != computedSteps) {
-                Log.d("STEPSSENSOR_DEBUG"," validatedSteps =$validatedSteps  computedSteps = $computedSteps")
+//                Log.d("STEPSSENSOR_DEBUG"," validatedSteps =$validatedSteps  computedSteps = $computedSteps")
                 offset = rawSteps - validatedSteps
-                Log.d("STEPSSENSOR_DEBUG"," offset =$offset")
+//                Log.d("STEPSSENSOR_DEBUG"," offset =$offset")
             }
 
             dailySteps      = validatedSteps
@@ -366,7 +366,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         }
 
         if (lastAcceptedStepTime != 0L) {
-            Log.d("STEPSSENSOR_DEBUG"," lastAcceptedStepTime =$lastAcceptedStepTime ")
+//            Log.d("STEPSSENSOR_DEBUG"," lastAcceptedStepTime =$lastAcceptedStepTime ")
             if (now - lastAcceptedStepTime < 500) {
                 return currentSteps
             }
@@ -386,14 +386,14 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 }
 
                 val avgEnergy = energy / gyroWindow.size
-                Log.d("STEPSSENSOR_DEBUG", " avgEnergy = $avgEnergy peaks = $peaks")
+//                Log.d("STEPSSENSOR_DEBUG", " avgEnergy = $avgEnergy peaks = $peaks")
 
                 if (
                     peaks >= 5 &&
                     avgEnergy > 2.2f &&
                     now - lastGyroTimestamp < 300
                 ) {
-                    Log.d("STEPSSENSOR_DEBUG", " STEP STOPPED BECAUSE avgEnergy = $avgEnergy peaks = $peaks")
+//                    Log.d("STEPSSENSOR_DEBUG", " STEP STOPPED BECAUSE avgEnergy = $avgEnergy peaks = $peaks")
                     return currentSteps
                 }
             }
@@ -401,7 +401,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
         if (hasAccelerometer) {
             if (lastAccelMagnitude > 15f) {
-                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 15f")
+//                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 15f")
 
                 return currentSteps
             }
@@ -409,7 +409,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
         if (hasLinearAccel) {
             if (lastLinearMagnitude > 3.5f) {
-                Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude > 3.5f")
+//                Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude > 3.5f")
 
                 return currentSteps
             }

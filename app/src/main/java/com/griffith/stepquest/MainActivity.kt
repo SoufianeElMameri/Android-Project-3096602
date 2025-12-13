@@ -143,7 +143,7 @@ class MainActivity : ComponentActivity() {
             == android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
             if (stepCounter.hasStepCounterSensor()) {
-                Log.d("Main", "Device has stepCounter")
+//                Log.d("Main", "Device has stepCounter")
                 stepCounter.start()
                 userVM.loadUserData (this@MainActivity, expVM){
                     coinsVM.loadCoins()
@@ -159,7 +159,7 @@ class MainActivity : ComponentActivity() {
 
             }
             else{
-                Log.d("Main", "Device doesn't have stepCounter")
+//                Log.d("Main", "Device doesn't have stepCounter")
             }
         }
     }

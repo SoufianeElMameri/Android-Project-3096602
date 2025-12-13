@@ -212,7 +212,7 @@ class UserViewModel : ViewModel() {
             userLevel = pair.first
             userTitle = pair.second
             userNextLevelExp = pair.third
-            Log.d("EXP_DEBUG", "USER RESULTS → Level=$userLevel Title=$userTitle")
+//            Log.d("EXP_DEBUG", "USER RESULTS → Level=$userLevel Title=$userTitle")
         }
     }
 
