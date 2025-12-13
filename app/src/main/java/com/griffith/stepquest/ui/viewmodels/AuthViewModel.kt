@@ -82,13 +82,30 @@ class AuthViewModel : ViewModel() {
                     .set(
                         mapOf(
                             "username" to username,
+
                             "coins" to 0,
-                            "userRank" to "Bronze",
-                            "userExperience" to 0,
                             "dailyGoal" to 3000,
+
                             "currentStreak" to 0,
                             "bestStreak" to 0,
-                            "lastStreakDate" to ""
+                            "lastStreakDate" to "",
+                            "lastStreakCheck" to "",
+                            "lastWeeklyPopupDate" to "",
+
+                            "userExperience" to 0,
+                            "userRank" to "Bronze",
+
+                            "badgesObtained" to emptyList<String>(),
+
+                            "rankMedals" to mapOf(
+                                "Bronze" to emptyList<String>(),
+                                "Silver" to emptyList<String>(),
+                                "Gold" to emptyList<String>(),
+                                "Diamond" to emptyList<String>(),
+                                "Legend" to emptyList<String>()
+                            ),
+
+                            "total_steps" to 0
                         )
                     )
                 authSuccess = true
