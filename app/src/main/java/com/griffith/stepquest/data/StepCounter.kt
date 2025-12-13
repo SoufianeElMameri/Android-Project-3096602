@@ -372,21 +372,6 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
             }
         }
 
-        if (hasAccelerometer) {
-            if (lastAccelMagnitude > 20f) {
-                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 20f")
-
-                return currentSteps
-            }
-        }
-
-        if (hasLinearAccel) {
-            if (lastLinearMagnitude > 3f) {
-                Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude > 3f")
-
-                return currentSteps
-            }
-        }
         if (hasGyro) {
             if (gyroCount >= gyroWindow.size) {
 
@@ -401,17 +386,35 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 }
 
                 val avgEnergy = energy / gyroWindow.size
+                Log.d("STEPSSENSOR_DEBUG", " avgEnergy = $avgEnergy peaks = $peaks")
 
                 if (
-                    avgEnergy > 3.2f &&
-                    peaks > gyroWindow.size / 4 &&
+                    peaks >= 5 &&
+                    avgEnergy > 2.2f &&
                     now - lastGyroTimestamp < 300
                 ) {
-                    Log.d("STEPSSENSOR_DEBUG", " avgEnergy = $avgEnergy peaks = $peaks")
+                    Log.d("STEPSSENSOR_DEBUG", " STEP STOPPED BECAUSE avgEnergy = $avgEnergy peaks = $peaks")
                     return currentSteps
                 }
             }
         }
+
+        if (hasAccelerometer) {
+            if (lastAccelMagnitude > 15f) {
+                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 15f")
+
+                return currentSteps
+            }
+        }
+
+        if (hasLinearAccel) {
+            if (lastLinearMagnitude > 3.5f) {
+                Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude > 3.5f")
+
+                return currentSteps
+            }
+        }
+
 
         lastAcceptedStepTime = now
         return steps
