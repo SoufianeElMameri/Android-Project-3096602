@@ -70,18 +70,6 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var stepCounter: StepCounter
 
-    private val handler = Handler(Looper.getMainLooper())
-
-    // to keep updating the viewmodel
-    private val stepUpdateRunnable = object : Runnable {
-
-        override fun run() {
-            stepCounter.forceReadSensor()
-            // update every 1 second
-            handler.postDelayed(this, 3000)
-        }
-    }
-
     // request permission from user to use sensor
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun requestStepPermission() {
@@ -140,7 +128,7 @@ class MainActivity : ComponentActivity() {
                     onLoginSuccess = {
 
                         stepsVM.loadUserStepsFromDb(){
-                            onResume()
+                            onStart()
                             isLoggedIn = true
                         }
                     }
@@ -149,15 +137,14 @@ class MainActivity : ComponentActivity() {
 //            HomeScreen()
         }
     }
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
             == android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
             if (stepCounter.hasStepCounterSensor()) {
                 Log.d("Main", "Device has stepCounter")
                 stepCounter.start()
-                handler.post(stepUpdateRunnable)
                 userVM.loadUserData (this@MainActivity, expVM){
                     coinsVM.loadCoins()
                     stepsVM.loadStepsStats(userVM)
@@ -177,9 +164,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        handler.removeCallbacks(stepUpdateRunnable)
+    override fun onStop() {
+        super.onStop()
         stepCounter.stop()
     }
 }

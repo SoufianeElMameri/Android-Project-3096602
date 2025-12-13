@@ -15,12 +15,22 @@ import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
 import java.util.Calendar
+import android.os.Handler
+import android.os.HandlerThread
 import kotlin.math.abs
 import kotlin.math.sqrt
 
 
+
 // step counter sensor class (checks sensor availabilty, start counting stop counting and detect change)
 class StepCounter(private val context: Context, private val stepViewModel: StepsViewModel, private val userViewModel: UserViewModel, private val rankViewModel: RankViewModel) : SensorEventListener {
+
+    private val sensorThread = HandlerThread("StepSensorThread").apply {
+        start()
+    }
+
+    private val sensorHandler = Handler(sensorThread.looper)
+
 
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
     private val prefs = context.getSharedPreferences("step_prefs_$userId", Context.MODE_PRIVATE)
@@ -59,6 +69,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     var currentSteps: Int = 0
         private set
 
+
     // function to get today's date
     private fun getToday(): String {
         val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
@@ -93,16 +104,16 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         hasGyro = gyroSensor != null
 
         stepSensor?.let {
-            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL, sensorHandler)
         }
         linearAccelSensor?.let {
-            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL, sensorHandler)
         }
         gyroSensor?.let {
-            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL, sensorHandler)
         }
         accelSensor?.let {
-            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL, sensorHandler)
         }
 
 //        updateNewDaySteps()
@@ -272,53 +283,22 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
 
     }
 
-
+    // function to force read the sensor data
     fun forceReadSensor(done: ((Int) -> Unit)? = null) {
-        if (stepSensor == null) {
-            done?.invoke(currentSteps)
-            return
-        }
 
-        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val manager = sensorManager ?: return done?.invoke(currentSteps) ?: Unit
+        val sensor = stepSensor ?: return done?.invoke(currentSteps) ?: Unit
 
-        val listener = object : SensorEventListener {
+        var called = false
+
+        val oneShotListener = object : SensorEventListener {
 
             override fun onSensorChanged(event: SensorEvent?) {
+                if (event == null || called) return
+                if (event.sensor.type != Sensor.TYPE_STEP_COUNTER) return
 
-                if (event == null) return
+                called = true
 
-                if (hasLinearAccel && event.sensor!!.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-                    val x = event.values[0]
-                    val y = event.values[1]
-                    val z = event.values[2]
-                    val mag = sqrt(x * x + y * y + z * z)
-                    lastLinearMagnitude = mag
-                }
-
-                if (hasGyro && event.sensor!!.type == Sensor.TYPE_GYROSCOPE) {
-
-                    val x = event.values[0]
-                    val y = event.values[1]
-                    val z = event.values[2]
-
-                    val rotMag = sqrt(x * x + y * y + z * z)
-
-                    gyroWindow[gyroIndex] = rotMag
-                    gyroIndex = (gyroIndex + 1) % gyroWindow.size
-
-                    if (gyroCount < gyroWindow.size) {
-                        gyroCount++
-                    }
-
-                    lastGyroTimestamp = System.currentTimeMillis()
-                }
-                if (hasAccelerometer && event.sensor!!.type == Sensor.TYPE_ACCELEROMETER) {
-                    val x = event.values[0]
-                    val y = event.values[1]
-                    val z = event.values[2]
-
-                    lastAccelMagnitude = sqrt(x * x + y * y + z * z)
-                }
                 val rawSteps = event.values[0].toInt()
 
                 if (lastSensorValue == 0) {
@@ -331,15 +311,14 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 }
 
                 val computedSteps = rawSteps - offset
-                val validatedSteps = validateStep(computedSteps, true)
+                val validatedSteps = validateStep(computedSteps, skip = true)
 
                 if (validatedSteps != computedSteps) {
                     offset = rawSteps - validatedSteps
                 }
 
-                dailySteps      = validatedSteps
-                currentSteps    = validatedSteps
-
+                dailySteps = validatedSteps
+                currentSteps = validatedSteps
                 lastSensorValue = rawSteps
 
                 prefs.edit {
@@ -347,23 +326,33 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                     putInt("lastSensorValue", lastSensorValue)
                     putInt("offset", offset)
                 }
+
                 initializeData(rawSteps)
                 stepViewModel.updateSteps(currentSteps)
 
-                sensorManager.unregisterListener(this)
-
+                manager.unregisterListener(this)
                 done?.invoke(currentSteps)
             }
 
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
 
-        sensorManager.registerListener(
-            listener,
-            stepSensor,
-            SensorManager.SENSOR_DELAY_FASTEST
+        manager.registerListener(
+            oneShotListener,
+            sensor,
+            SensorManager.SENSOR_DELAY_NORMAL,
+            sensorHandler
         )
+
+        // safety timeout (no step event)
+        sensorHandler.postDelayed({
+            if (!called) {
+                manager.unregisterListener(oneShotListener)
+                done?.invoke(currentSteps)
+            }
+        }, 500)
     }
+
 
     private fun validateStep(steps: Int, skip: Boolean = false): Int {
 
@@ -383,21 +372,6 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
             }
         }
 
-        if (hasAccelerometer) {
-            if (lastAccelMagnitude > 20f) {
-                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 20f")
-
-                return currentSteps
-            }
-        }
-
-        if (hasLinearAccel) {
-            if (lastLinearMagnitude > 3f) {
-                Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude > 3f")
-
-                return currentSteps
-            }
-        }
         if (hasGyro) {
             if (gyroCount >= gyroWindow.size) {
 
@@ -412,17 +386,35 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                 }
 
                 val avgEnergy = energy / gyroWindow.size
+                Log.d("STEPSSENSOR_DEBUG", " avgEnergy = $avgEnergy peaks = $peaks")
 
                 if (
-                    avgEnergy > 3.2f &&
-                    peaks > gyroWindow.size / 4 &&
+                    peaks >= 5 &&
+                    avgEnergy > 2.2f &&
                     now - lastGyroTimestamp < 300
                 ) {
-                    Log.d("STEPSSENSOR_DEBUG", " avgEnergy = $avgEnergy peaks = $peaks")
+                    Log.d("STEPSSENSOR_DEBUG", " STEP STOPPED BECAUSE avgEnergy = $avgEnergy peaks = $peaks")
                     return currentSteps
                 }
             }
         }
+
+        if (hasAccelerometer) {
+            if (lastAccelMagnitude > 15f) {
+                Log.d("STEPSSENSOR_DEBUG"," lastAccelMagnitude =$lastAccelMagnitude > 15f")
+
+                return currentSteps
+            }
+        }
+
+        if (hasLinearAccel) {
+            if (lastLinearMagnitude > 3.5f) {
+                Log.d("STEPSSENSOR_DEBUG"," lastLinearMagnitude =$lastLinearMagnitude > 3.5f")
+
+                return currentSteps
+            }
+        }
+
 
         lastAcceptedStepTime = now
         return steps
