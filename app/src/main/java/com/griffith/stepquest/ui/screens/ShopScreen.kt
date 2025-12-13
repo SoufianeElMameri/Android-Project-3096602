@@ -1,3 +1,5 @@
+
+// IMPORTAN !!!!!!!! I AM KEEPING THIS PAGE AS I WANT TO KEEP WORKING ON IT AND IMPLEMENT IT IN THE FUTURE
 package com.griffith.stepquest.ui.screens
 
 import androidx.compose.foundation.Image

@@ -279,10 +279,6 @@ fun ConfettiBurst(
     }
 }
 
-
-
-
-
 // popup that shows the streak result (new, incremented, or broken)
 @Composable
 fun StreakResultPopup(
@@ -428,3 +424,123 @@ fun StreakResultPopup(
     }
 }
 
+// popup that shows the new badge unlocked
+@Composable
+fun BadgeUnlockedPopup(
+    badgeKey: String,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val mediaPlayer = remember { android.media.MediaPlayer.create(context, R.raw.reward_sound) }
+    LaunchedEffect(badgeKey) {
+        mediaPlayer.start()
+    }
+    val iconRes = IconsMapping.badgeIcons[badgeKey] ?: R.drawable.moon_badge
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xAA000000))
+            .clickable { onDismiss() },
+        contentAlignment = Alignment.Center
+    ) {
+
+        ConfettiBurst(
+            modifier = Modifier.align(Alignment.Center)
+        )
+
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Bright),
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth(0.85f)
+                .shadow(18.dp, RoundedCornerShape(24.dp))
+        ) {
+            Column(
+                modifier = Modifier.padding(26.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .size(96.dp)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    LimeColor,
+                                    Color.Transparent
+                                )
+                            ),
+                            CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(iconRes),
+                        contentDescription = null,
+                        modifier = Modifier.size(56.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(14.dp))
+
+                Text(
+                    text = "Badge Unlocked!",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = TextPrimary
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = badgeKey,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Dark,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(Modifier.height(18.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Glass,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "You’ve earned a new badge!!!",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Dark,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                Spacer(Modifier.height(22.dp))
+
+                Button(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = LimeColor
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Awesome!!!",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Dark
+                    )
+                }
+            }
+        }
+    }
+}

@@ -138,8 +138,11 @@ class MainActivity : ComponentActivity() {
                 AuthScreen(
                     authVM,
                     onLoginSuccess = {
-                        stepsVM.loadUserStepsFromDb()
-                        isLoggedIn = true
+
+                        stepsVM.loadUserStepsFromDb(){
+                            onResume()
+                            isLoggedIn = true
+                        }
                     }
                 )
             }
@@ -197,7 +200,7 @@ fun StepQuestNav(userVM: UserViewModel, stepsVM: StepsViewModel, coinsVM: CoinsV
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
-            composable("home") { HomeScreen(navController, userVM, stepsVM, coinsVM, rankVM) }
+            composable("home") { HomeScreen(navController, userVM, stepsVM, coinsVM, rankVM, badgeVM) }
             composable("challenges") { ChallengesScreen(navController, userVM, stepsVM, coinsVM) }
             composable("badges") { BadgesScreen(navController, userVM, badgeVM) }
             composable("rank") { RankScreen(navController, userVM, stepsVM, rankVM) }

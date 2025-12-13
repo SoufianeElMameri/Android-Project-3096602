@@ -3,8 +3,9 @@ package com.griffith.stepquest.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import com.griffith.stepquest.ui.theme.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.OutlinedTextField
-import com.griffith.stepquest.data.FirebaseAuthManger
 import com.griffith.stepquest.ui.viewmodels.AuthViewModel
 
 
@@ -30,6 +29,11 @@ fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
     // which tab user is on
     var isRegister by remember { mutableStateOf(false) }
 
+    LaunchedEffect(authVM.authSuccess) {
+        if (authVM.authSuccess) {
+            onLoginSuccess()
+        }
+    }
     // user inputs
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -50,7 +54,9 @@ fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(22.dp),
+                .padding(22.dp)
+                .verticalScroll(rememberScrollState())
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -160,6 +166,7 @@ fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
                         isPassword = true,
                         error = authVM.pwdError
                     )
+
                     // only show the confirm password text field if the user is trying to register
                     if (isRegister) {
                         CostumeTextField(
@@ -175,10 +182,8 @@ fun AuthScreen(authVM: AuthViewModel, onLoginSuccess: () -> Unit) {
                         onClick = {
                             if (isRegister) {
                                 authVM.register(username, email, password, confirmPassword)
-                                if (authVM.authSuccess) onLoginSuccess()
                             } else {
                                 authVM.login(email, password)
-                                if (authVM.authSuccess) onLoginSuccess()
                             }
                         },
                         modifier = Modifier.fillMaxWidth()

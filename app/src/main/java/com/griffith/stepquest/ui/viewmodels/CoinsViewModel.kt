@@ -9,7 +9,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.text.get
 
 // a model to keep track of coins and add coins
 class CoinsViewModel : ViewModel() {

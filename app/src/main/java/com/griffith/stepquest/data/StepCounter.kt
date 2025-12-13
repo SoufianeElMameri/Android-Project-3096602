@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.griffith.stepquest.ui.viewmodels.RankViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
 import com.griffith.stepquest.ui.viewmodels.UserViewModel
+import java.util.Calendar
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -104,7 +105,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
             sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
 
-        updateNewDaySteps()
+//        updateNewDaySteps()
     }
 
     // to stop listening to steps
@@ -120,6 +121,16 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
         if (initialized && savedDay == today) {
             return
         }
+//        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+//
+//        val date = sdf.parse(savedDay)
+//        val cal = Calendar.getInstance()
+//        if (date != null) {
+//            cal.time = date
+//        }
+//        cal.add(Calendar.DAY_OF_YEAR, -1)
+//
+//        savedDay = sdf.format(cal.time)
 
         if (savedDay == "") {
             savedDay = today
@@ -165,14 +176,14 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     }
 
 
-    fun updateNewDaySteps(){
-        val today = getToday()
-        if (savedDay != today) {
-            currentSteps = 0
-            lastAcceptedStepTime  = 0L
-        }
-
-    }
+//    fun updateNewDaySteps(){
+//        val today = getToday()
+//        if (savedDay != today) {
+//            currentSteps = 0
+//            lastAcceptedStepTime  = 0L
+//        }
+//
+//    }
     // function to update steps on sensore change
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) return
@@ -336,6 +347,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
                     putInt("lastSensorValue", lastSensorValue)
                     putInt("offset", offset)
                 }
+                initializeData(rawSteps)
                 stepViewModel.updateSteps(currentSteps)
 
                 sensorManager.unregisterListener(this)
@@ -356,7 +368,9 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     private fun validateStep(steps: Int, skip: Boolean = false): Int {
 
         val now = System.currentTimeMillis()
-
+        if(steps < currentSteps){
+            return currentSteps
+        }
         if (skip) {
             lastAcceptedStepTime = now
             return steps
