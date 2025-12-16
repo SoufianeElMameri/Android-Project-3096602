@@ -357,9 +357,7 @@ class StepCounter(private val context: Context, private val stepViewModel: Steps
     private fun validateStep(steps: Int, skip: Boolean = false): Int {
 
         val now = System.currentTimeMillis()
-        if(steps < currentSteps){
-            return currentSteps
-        }
+
         if (skip) {
             lastAcceptedStepTime = now
             return steps

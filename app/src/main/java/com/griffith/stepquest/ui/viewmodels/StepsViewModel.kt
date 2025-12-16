@@ -25,6 +25,11 @@ class StepsViewModel : ViewModel() {
     var steps by mutableIntStateOf(0)
         private set
 
+    var morningSteps by mutableIntStateOf(0)
+        private set
+    var nightSteps by mutableIntStateOf(0)
+        private set
+
     var dailyGoal by mutableIntStateOf(6000)
         private set
 
@@ -40,11 +45,27 @@ class StepsViewModel : ViewModel() {
     var weeklyHistory by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
 
+    // function that checks if the current time is before 9 pm
+    private fun isAfterNinePM(): Boolean {
+        val cal = java.util.Calendar.getInstance()
+        return cal.get(java.util.Calendar.HOUR_OF_DAY) >= 21
+    }
+    // function that checks if the current time is before 8 am
+    private fun isBeforeEightAM(): Boolean {
+        val cal = java.util.Calendar.getInstance()
+        return cal.get(java.util.Calendar.HOUR_OF_DAY) < 8
+    }
+
     // update the total steps the user did
     fun updateSteps(newSteps: Int) {
         steps = newSteps
         val now = System.currentTimeMillis()
-
+        if (isBeforeEightAM()){
+            morningSteps = newSteps
+        }
+        if (isAfterNinePM()){
+            nightSteps = newSteps
+        }
         if (now - lastSave >= 30000) {
             saveDailySteps(getToday(), steps)
             lastSave = now
@@ -96,6 +117,14 @@ class StepsViewModel : ViewModel() {
         data["steps"] = value
 
         ref.set(data)
+
+        val userRef = db.collection("users").document(user.uid)
+
+        val extraData = HashMap<String, Any>()
+        extraData["morningSteps"] = morningSteps
+        extraData["nightSteps"] = nightSteps
+
+        userRef.set(extraData, com.google.firebase.firestore.SetOptions.merge())
     }
 
     // function to get today's date
@@ -306,7 +335,6 @@ class StepsViewModel : ViewModel() {
         }
 
     }
-
 
     // function to load all necessary stats when the app starts
     fun loadStepsStats(userVM : UserViewModel){

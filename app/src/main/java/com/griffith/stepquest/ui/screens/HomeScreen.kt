@@ -221,7 +221,13 @@ fun StepProgressCircle(currentSteps: Int,goalSteps: Int) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val circleSize = (screenWidth * 0.5).dp
     //    calculating the progress
-    val progress = currentSteps.toFloat() / goalSteps.toFloat()
+    var progressSteps = currentSteps
+
+    if (progressSteps > goalSteps){
+        progressSteps = goalSteps
+    }
+
+    val progress = progressSteps.toFloat() / goalSteps.toFloat()
     //    adding a spacer
     Spacer(modifier = Modifier.height(40.dp))
 

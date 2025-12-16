@@ -1,6 +1,7 @@
 package com.griffith.stepquest.ui.screens
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -34,6 +35,25 @@ import com.griffith.stepquest.ui.viewmodels.UserViewModel
 import com.griffith.stepquest.ui.theme.*
 import com.griffith.stepquest.ui.viewmodels.CoinsViewModel
 import com.griffith.stepquest.ui.viewmodels.StepsViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
+import androidx.core.content.edit
+import com.google.firebase.auth.FirebaseAuth
+import java.util.Date
+
+
+fun isChallengeClaimed(context: Context, userId: String, key: String): Boolean {
+    val prefs = context.getSharedPreferences("challenges_$userId", Context.MODE_PRIVATE)
+    val today = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    return prefs.getString(key, "") == today
+}
+
+fun saveChallengeClaim(context: Context, userId: String, key: String) {
+    val prefs = context.getSharedPreferences("challenges_$userId", Context.MODE_PRIVATE)
+    val today = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    prefs.edit { putString(key, today) }
+}
+
 
 // Challenges screen showcases the daily challenges and tips
 @Composable
@@ -77,6 +97,7 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
                 steps,
                 3000,
                 1,
+                challengeKey = "challengeOneClaimDate",
                 onClaim = { coins, xp ->
                     coinsVM.addCoins(coins)
                     userVM.addUserExperience(xp) }
@@ -87,6 +108,7 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
                 steps,
                 5000,
                 2,
+                challengeKey = "challengeTwoClaimDate",
                 onClaim = { coins, xp ->
                     coinsVM.addCoins(coins)
                     userVM.addUserExperience(xp) }
@@ -97,6 +119,7 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
                 steps,
                 10000,
                 3,
+                challengeKey = "challengeThreeClaimDate",
                 onClaim = { coins, xp ->
                     coinsVM.addCoins(coins)
                     userVM.addUserExperience(xp)}
@@ -128,12 +151,19 @@ fun ChallengesScreen(navController: NavController, userVM: UserViewModel, stepsV
 
 // function to help create challenge cards
 @Composable
-fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onClaim: (Int, Int) -> Unit, modifier: Modifier = Modifier ){
+fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int,challengeKey: String, onClaim: (Int, Int) -> Unit, modifier: Modifier = Modifier ){
     // to keep track of claimed challenges
-    val alreadyClaimed = remember { mutableStateOf(false) }
-    val progressRatio = (progress.toFloat() / goal).coerceIn(0f, 1f)
-    val isCompleted = progress >= goal
-    val experience = difficulty * 10
+    val progressRatio   = (progress.toFloat() / goal).coerceIn(0f, 1f)
+    val isCompleted     = progress >= goal
+    val experience      = difficulty * 10
+
+    val context = LocalContext.current
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
+
+    val alreadyClaimed = remember {
+        mutableStateOf(isChallengeClaimed(context, uid, challengeKey))
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -172,6 +202,7 @@ fun ChallengeCard(title: String, progress: Int, goal: Int, difficulty: Int, onCl
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable(enabled = isCompleted && !alreadyClaimed.value) {
+                            saveChallengeClaim(context, uid, challengeKey)
                             alreadyClaimed.value = true
                             onClaim(difficulty, experience)
                         }
